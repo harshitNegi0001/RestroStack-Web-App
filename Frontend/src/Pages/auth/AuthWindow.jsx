@@ -22,8 +22,8 @@ export default function AuthWindow() {
                 </div>
                 <div className='flex flex-col gap-0 items-center text-center'>
                     <h1
-                        className='text-[30px] md:text-[34px] lg:text-[38px] 
-                    text-main-text font-[600] '
+                        className="text-[30px] md:text-[34px] lg:text-[38px] 
+                    text-main-text font-[600] font-['Betania Patmos']"
                     >
                         RestroStack
                     </h1>
