@@ -6,12 +6,9 @@ import { LuBuilding2 } from "react-icons/lu";
 
 
 
-export default function RestBasicInfo({ setBtnDisabled }) {
+export default function RestBasicInfo({ setBtnDisabled ,state,setState}) {
 
-    const [state, setState] = useState({
-        restrauntName: '',
-        oneLineAddress: ''
-    })
+    
 
     useEffect(() => {
         setBtnDisabled(true);

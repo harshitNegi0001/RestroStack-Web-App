@@ -2,6 +2,8 @@ import applogo from '../../assets/appLogo.png';
 import { useState } from "react";
 import RestSetupSteps from "./components/RestSetupSteps";
 import RestBasicInfo from './components/RestBasicInfo';
+import RestContact from './components/RestContact';
+import RestAllDetails from './components/RestAllDetails';
 
 
 
@@ -11,6 +13,54 @@ export default function RestaurantSetup({ setActivePage }) {
     const [btnDisabled, setBtnDisabled] = useState(true);
     const [activeTab, setActiveTab] = useState('basic-info');
     const [doneQueue, setDoneQueue] = useState([]);
+    const [state,setState] = useState({
+        restrauntName:'',
+        oneLineAddress: '',
+        phoneNum: '',
+        busiEmail: '',
+        gstNum:'',
+        fssaiLiNum:'',
+        currency:'INR',
+        restType:'casual_dining',
+        texPrecent:'0',
+        openingTimimgs:{
+            'Monday':{
+                opening:'',
+                closing:'',
+                selected:true
+            },
+            'Tuesday':{
+                opening:'',
+                closing:'',
+                selected:true
+            },
+            'Wednesday':{
+                opening:'',
+                closing:'',
+                selected:true
+            },
+            'Thursday':{
+                opening:'',
+                closing:'',
+                selected:true
+            },
+            'Friday':{
+                opening:'',
+                closing:'',
+                selected:true
+            },
+            'Saturday':{
+                opening:'',
+                closing:'',
+                selected:true
+            },
+            'Sunday':{
+                opening:'',
+                closing:'',
+                selected:true
+            },
+        }
+    })
 
     const handleNext = () => {
         if (activeTab == 'basic-info') {
@@ -19,13 +69,30 @@ export default function RestaurantSetup({ setActivePage }) {
             return;
         }
         if (activeTab == 'contact') {
-            setActiveTab('detaild');
+            setActiveTab('details');
             setDoneQueue(prev => ([...prev, 'contact']));
             return;
         }
         if (activeTab == 'details') {
             setDoneQueue(prev => ([...prev, 'details']));
 
+            return;
+        }
+    }
+    const handleBackBtn = () => {
+        if (activeTab == 'basic-info') {
+            setActivePage('role-select');
+        }
+        if (activeTab == 'contact') {
+            setActiveTab('basic-info');
+            const filtedList = doneQueue.filter(d => d != 'basic-info');
+            setDoneQueue(filtedList);
+            return;
+        }
+        if (activeTab == 'details') {
+            setActiveTab('contact');
+            const filtedList = doneQueue.filter(d => d != 'contact');
+            setDoneQueue(filtedList);
             return;
         }
     }
@@ -56,12 +123,18 @@ export default function RestaurantSetup({ setActivePage }) {
             <RestSetupSteps setDoneQueue={setDoneQueue} doneQueue={doneQueue} activeTab={activeTab} setActiveTab={setActiveTab} />
 
             {
-                activeTab == 'basic-info' && <RestBasicInfo setBtnDisabled={setBtnDisabled} />
+                activeTab == 'basic-info' && <RestBasicInfo setBtnDisabled={setBtnDisabled} state={state} setState={setState}/>
+            }
+            {
+                activeTab == 'contact' && <RestContact setBtnDisabled={setBtnDisabled}  state={state} setState={setState}/>
+            }
+            {
+                activeTab == 'details' && <RestAllDetails setBtnDisabled={setBtnDisabled}  state={state} setState={setState}/>
             }
             <div
                 className="w-full flex justify-between items-center">
 
-                <button
+                <button onClick={handleBackBtn}
                     className='mt-3 py-2 px-6  rounded-lg border-1 
                 border-low-text/80 hover:border-low-text hover:bg-low-text/10 active:border-sec-text active:bg-low-text/30
                 text-low-text/80 hover:text-low-text active:text-sec-text
