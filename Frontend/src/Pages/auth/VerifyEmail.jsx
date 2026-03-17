@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react";
-import { askForOtp, verifyOtp } from "../../Apis/Auth";
+import { askForOtp, verifyOtp } from "../../Apis/authApi";
 import { setState } from "../../Store/Auth/authReducer";
 import { useDispatch } from 'react-redux';
 
@@ -25,7 +25,7 @@ export default function VerifyEmail() {
     const dispatch = useDispatch();
     const email = state?.email;
     const prev = state?.prev;
-    const otp_type=state?.otp_type;
+    const otp_type = state?.otp_type;
     const valid = (otp?.[1] && otp?.[2] && otp?.[3] && otp?.[4] && otp?.[5] && otp?.[6]);
 
 
@@ -62,9 +62,10 @@ export default function VerifyEmail() {
         }
         const successFunction = () => {
             setAskOtpGenerate(false);
-            setOtpCountdown(180);
         }
-        askForOtp({email:email,otp_type:otp_type}, setGetOtpLoading, successFunction);
+
+        await askForOtp({ email: email, otp_type: otp_type }, setGetOtpLoading, successFunction);
+        setOtpCountdown(180);
     }
     const handleOtpChange = (e, i) => {
         const value = e.target.value;
@@ -91,7 +92,12 @@ export default function VerifyEmail() {
         const structuredOtp = `${otp?.[1]}${otp?.[2]}${otp?.[3]}${otp?.[4]}${otp?.[5]}${otp?.[6]}`;
         const successFunction = (userInfo) => {
             dispatch(setState({ userInfo: userInfo }));
-            navigate('/setup-user');
+            if (otp_type == 'verification') {
+                navigate('/setup-user');
+            }
+            else if(otp_type=='reset_pass'){
+                navigate('/reset-password');
+            }
 
         }
         verifyOtp(e, email, structuredOtp, setIsLoadingBtn, successFunction);

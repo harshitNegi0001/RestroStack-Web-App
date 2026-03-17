@@ -141,7 +141,7 @@ const weekDays = [
     },
 
 ]
-export default function RestAllDetails({ setBtnDisabled, state, setState }) {
+export default function RestAllDetails({ setBtnDisabled, state, setState, setInputError, inputError }) {
 
 
 
@@ -150,7 +150,7 @@ export default function RestAllDetails({ setBtnDisabled, state, setState }) {
     }, [])
 
     useEffect(() => {
-        if (state?.phoneNum?.trim() && state?.busiEmail?.trim()) {
+        if (state?.gstNum?.trim() && state?.fssaiLiNum?.trim()) {
             setBtnDisabled(false);
         }
         else {
@@ -179,42 +179,55 @@ export default function RestAllDetails({ setBtnDisabled, state, setState }) {
                     All details about your establishment
                 </span>
             </div>
+            <div className='w-full flex flex-col gap-0 relative pb-2'>
 
-            <div
-                className='w-[100%] flex flex-col gap-1 relative'>
-                <label htmlFor="fssaiLiNum-input"
-                    className='text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px]'>GST Number</label>
+                <div
+                    className='w-[100%] flex flex-col gap-1 relative'>
+                    <label htmlFor="fssaiLiNum-input"
+                        className='text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px]'>FSSAI Number (Food License Number)</label>
 
-                <label htmlFor='fssaiLiNum-input'
-                    className='absolute bottom-1 md:bottom-1.5 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
+                    <label htmlFor='fssaiLiNum-input'
+                        className='absolute bottom-1 md:bottom-1.5 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
                         size-[30px] md:size-[34px] 
                         text-[20px] md:text-[24px]'>
-                    <TbLicense />
-                </label>
-                <input id='fssaiLiNum-input' type='text'
-                    placeholder='eg. 12345678901234' required
-                    value={state.fssaiLiNum} onChange={(e) => setState(prev => ({ ...prev, fssaiLiNum: e.target.value }))}
-                    className='border-divider 
-                        border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
-                        rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]' />
+                        <TbLicense />
+                    </label>
+                    <input id='fssaiLiNum-input' type='text'
+                        autoComplete="fssaiLiNum-input"
+                        placeholder='eg. 12345678901234' required
+                        onFocus={() => setInputError(prev => ({ ...prev, fssaiLiNum: '' }))}
+                        value={state.fssaiLiNum} onChange={(e) => setState(prev => ({ ...prev, fssaiLiNum: e.target.value }))}
+                        className={`${inputError.fssaiLiNum ? 'border-red-600' : 'border-divider '}
+                                            border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
+                                            rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]`} />
+                </div>
+                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.fssaiLiNum}</span>
+
             </div>
-            <div
-                className='w-[100%] flex flex-col gap-1 relative'>
-                <label htmlFor="gstNum-input"
-                    className='text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px]'>GST Number</label>
+            <div className='w-full flex flex-col gap-0 relative pb-2'>
 
-                <label htmlFor='gstNum-input'
-                    className='absolute bottom-1 md:bottom-1.5 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
+                <div
+                    className='w-[100%] flex flex-col gap-1 relative'>
+                    <label htmlFor="gstNum-input"
+                        className='text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px]'>GST Number (Tax Identification Number)</label>
+
+                    <label htmlFor='gstNum-input'
+                        className='absolute bottom-1 md:bottom-1.5 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
                         size-[30px] md:size-[34px] 
                         text-[20px] md:text-[24px]'>
-                    <MdAssignment />
-                </label>
-                <input id='gstNum-input' type='text'
-                    placeholder='eg. 05AAAAA0000A1Z5' required
-                    value={state.gstNum} onChange={(e) => setState(prev => ({ ...prev, gstNum: e.target.value }))}
-                    className='border-divider 
-                        border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
-                        rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]' />
+                        <MdAssignment />
+                    </label>
+                    <input id='gstNum-input' type='text'
+                        autoComplete="gstNum-input"
+                        placeholder='eg. 05AAAAA0000A1Z5' required
+                        onFocus={() => setInputError(prev => ({ ...prev, gstNum: '' }))}
+                        value={state.gstNum} onChange={(e) => setState(prev => ({ ...prev, gstNum: e.target.value }))}
+                        className={`${inputError.gstNum ? 'border-red-600' : 'border-divider '}
+                                            border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
+                                            rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]`} />
+                </div>
+                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.gstNum}</span>
+
             </div>
             <div className="flex flex-row items-center gap-3 ">
                 <div
@@ -241,29 +254,35 @@ export default function RestAllDetails({ setBtnDisabled, state, setState }) {
                     </select>
 
                 </div>
-                <div
-                    className='w-[45%] flex flex-col gap-1 relative'>
-                    <label htmlFor="texPrecent-input"
-                        className='text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px]'>Tax Precentage</label>
+                <div className='w-full flex flex-col gap-0 relative pb-2'>
 
-                    <label htmlFor='texPrecent-input'
-                        className='absolute bottom-1 md:bottom-1.5 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
+                    <div
+                        className='w-[45%] flex flex-col gap-1 relative'>
+                        <label htmlFor="texPrecent-input"
+                            className='text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px]'>Tax Precentage</label>
+
+                        <label htmlFor='texPrecent-input'
+                            className='absolute bottom-1 md:bottom-1.5 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
                         size-[30px] md:size-[34px] 
                         text-[20px] md:text-[24px]'>
-                        <HiOutlineReceiptTax />
-                    </label>
-                    <label htmlFor='texPrecent-input'
-                        className='absolute bottom-1 md:bottom-1.5 right-1 md:right-1.5 text-sec-text flex justify-center items-center rounded-lg
+                            <HiOutlineReceiptTax />
+                        </label>
+                        <label htmlFor='texPrecent-input'
+                            className='absolute bottom-1 md:bottom-1.5 right-1 md:right-1.5 text-sec-text flex justify-center items-center rounded-lg
                         size-[30px] md:size-[34px] 
                         text-[20px] md:text-[24px]'>
-                        %
-                    </label>
-                    <input id='texPrecent-input' type='text'
-                        placeholder='eg. 5' required
-                        value={state.texPrecent} onChange={(e) => setState(prev => ({ ...prev, texPrecent: e.target.value }))}
-                        className='border-divider 
-                        border-1 focus:outline-1 px-9 md:px-11 focus:outline-active-border focus:border-active-border outline-0 
-                        rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]' />
+                            %
+                        </label>
+                        <input id='texPrecent-input' type='text'
+                            placeholder='eg. 5' required
+                            onFocus={() => setInputError(prev => ({ ...prev, texPrecent: '' }))}
+                            value={state.texPrecent} onChange={(e) => setState(prev => ({ ...prev, texPrecent: e.target.value }))}
+                            className={`${inputError.texPrecent ? 'border-red-600' : 'border-divider '}
+                                            border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
+                                            rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]`} />
+                    </div>
+                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.texPrecent}</span>
+
                 </div>
             </div>
             <div
@@ -304,16 +323,16 @@ export default function RestAllDetails({ setBtnDisabled, state, setState }) {
                     className="w-full flex flex-col gap-1.5 items-start">
                     <div className=" flex gap-1 items-center">
                         <input type="checkbox" id={`day-check-${d.id}`}
-                        checked={state.openingTimimgs[d.label].selected}
-                        onChange={(e)=>setState(prev=>({
-                            ...prev,openingTimimgs: {
-                                        ...prev.openingTimimgs,
-                                        [d.label]: {
-                                            ...prev.openingTimimgs[d.label],
-                                            selected: e.target.checked
-                                        }
+                            checked={state.openingTimimgs[d.label].selected}
+                            onChange={(e) => setState(prev => ({
+                                ...prev, openingTimimgs: {
+                                    ...prev.openingTimimgs,
+                                    [d.label]: {
+                                        ...prev.openingTimimgs[d.label],
+                                        selected: e.target.checked
                                     }
-                        }))}
+                                }
+                            }))}
                             className="accent-active-border cursor-pointer" />
                         <label htmlFor={`day-check-${d.id}`}
                             className="text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px] cursor-pointer">{d.label}</label>
@@ -322,7 +341,7 @@ export default function RestAllDetails({ setBtnDisabled, state, setState }) {
                         className="flex gap-2 items-center">
                         <div>
                             <input type="time" name="" id=""
-                            
+
                                 value={state.openingTimimgs[d.label].opening}
                                 onChange={(e) => setState(prev => ({
                                     ...prev,

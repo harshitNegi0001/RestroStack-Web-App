@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { MdOutlineVpnKey } from 'react-icons/md';
 import { FaRegUser } from 'react-icons/fa';
-import { registerUser } from '../../Apis/Auth';
+import { registerUser } from '../../Apis/authApi';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import {useSelector,useDispatch} from 'react-redux';
 import { setState } from '../../Store/Auth/authReducer';

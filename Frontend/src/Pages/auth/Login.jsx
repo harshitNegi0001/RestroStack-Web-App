@@ -4,7 +4,7 @@ import { HiOutlineLockClosed } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { loginUser } from '../../Apis/Auth';
+import { loginUser } from '../../Apis/authApi';
 import { useDispatch } from 'react-redux';
 import { setState } from '../../Store/Auth/authReducer';
 
