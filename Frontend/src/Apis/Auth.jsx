@@ -6,12 +6,14 @@ import toast from "react-hot-toast";
 const checkEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passStrength = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*()\-+={}[\]|\\:;"'<>,.?/_`~])(?=.{8,16})/
 const passLen = /^.{8,16}$/
-const passLower=/[a-z]/
-const passUpper =/[A-Z]/
-const passNum=/[0-9]/
-const passSpecial=/[!@#$%^&*()\-+={}[\]|\\:;"'<>,.?/_`~]/
+const passLower = /[a-z]/
+const passUpper = /[A-Z]/
+const passNum = /[0-9]/
+const passSpecial = /[!@#$%^&*()\-+={}[\]|\\:;"'<>,.?/_`~]/
 
-export const registerUser = async (e, state, setIsLoadingBtn, navigate, backend_url, setInputError) => {
+const backend_url = import.meta.env.VITE_BACKEND_URL;
+
+export const registerUser = async (e, state, setIsLoadingBtn, setInputError, successFunction) => {
     e.preventDefault();
     const name = state?.name?.trim();
     const email = state?.email?.trim();
@@ -20,7 +22,6 @@ export const registerUser = async (e, state, setIsLoadingBtn, navigate, backend_
     // form validation here...
     if (!name || !email || !pass || !confirmPass) {
         toast.error('All fields are required.');
-
         return;
     }
     if (!checkEmail.test(email)) {
@@ -49,15 +50,12 @@ export const registerUser = async (e, state, setIsLoadingBtn, navigate, backend_
         else if (!passSpecial.test(pass)) {
             setInputError(prev => ({ ...prev, pass: 'Password must include at least one special character.' }))
         }
-        
 
         return;
     }
     if (pass != confirmPass) {
-        // toast.error('Confirm password must match the password.');
         setInputError(prev => ({ ...prev, confirmPass: 'Passwords do not match.' }))
         return;
-        // Password is too weak \nPassword must contain at least 8 characters, a number, and a special character.
     }
 
 
@@ -73,15 +71,96 @@ export const registerUser = async (e, state, setIsLoadingBtn, navigate, backend_
             {
                 withCredentials: true
             }
-        )
+        );
         setIsLoadingBtn(false);
         toast.success(`Account created`);
         toast.success(`Otp sent`);
-        navigate('/verify-email', { state: { email: state.email } });
+        successFunction(result?.data?.userInfo);
 
     } catch (err) {
         setIsLoadingBtn(false);
         console.log(err);
-        toast.error(err?.response?.data?.message)
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
+export const loginUser = async (e, state, setIsLoadingBtn, successFunction) => {
+    e.preventDefault();
+    const email = state?.email?.trim();
+    const pass = state?.pass?.trim();
+
+    try {
+        setIsLoadingBtn(true);
+        const result = await axios.post(
+            `${backend_url}/auth/login`,
+            {
+                email,
+                pass
+            },
+            {
+                withCredentials: true
+            }
+        );
+        setIsLoadingBtn(false);
+        if (result?.data?.isVerified) {
+            toast.success(result?.data?.message);
+        }
+        else{
+            toast.error(result?.data?.message);
+        }
+        successFunction(result?.data?.userInfo);
+
+    } catch (err) {
+        setIsLoadingBtn(false);
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
+
+export const verifyOtp = async (e, email, otp, setIsLoadingBtn, successFunction) => {
+    e.preventDefault();
+
+    try {
+        setIsLoadingBtn(true);
+        const result = await axios.post(
+            `${backend_url}/auth/verify-otp`,
+            {
+                email,
+                otp
+            },
+            {
+                withCredentials: true
+            }
+        );
+        setIsLoadingBtn(false);
+        toast.success(result?.data?.message);
+        successFunction(result?.data?.userInfo);
+
+    } catch (err) {
+        setIsLoadingBtn(false);
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
+
+export const askForOtp = async (data = {}, setIsLoadingBtn, successFunction) => {
+    try {
+        setIsLoadingBtn(true);
+        const result = await axios.post(
+            `${backend_url}/auth/resend-otp`,
+            {
+                ...data
+            },
+            {
+                withCredentials: true
+            }
+        );
+        setIsLoadingBtn(false);
+        toast.success(result?.data?.message);
+        successFunction();
+
+    } catch (err) {
+        setIsLoadingBtn(false);
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }

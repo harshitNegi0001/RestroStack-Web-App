@@ -17,7 +17,6 @@ class Auth {
         email = email.trim();
         name = name.trim();
         pass = pass.trim();
-
         try {
             const emailCheck = await db.query(
                 `SELECT 1
@@ -53,28 +52,17 @@ class Auth {
 
             const userInfo = await getUserInfo(res, user.rows[0].id);
 
-            const token = createToken({ id: userInfo, role: userInfo.role, email: userInfo.email });
+            await this.generateOtp(res, email, 'Verify Email', 'Please use the following code to verify your email address.');
 
-            res.cookie('authToken', token, {
-                httpOnly: true,
-                secure: isProduction,
-                sameSite: isProduction ? 'none' : 'lax',
-                maxAge: 1000 * 60 * 60 * 24 * 7
-            });
-
-            await this.generateOtp(res,email,'Verify email','Please use the following code to verify your email address.');
-
-
-
-            return returnRes(res, 200, { success: true, error: false, message: 'Account created and email verification otp sent', userInfo: userInfo });
+            return returnRes(res, 201, { success: true, error: false, message: 'Account created and email verification otp sent', userInfo: userInfo });
 
 
         } catch (err) {
-            return returnRes(res, 500, { success: false, error: true, message: 'Internal Server Error!', error: 'Internal server error!' });
+            return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }
     // helper function to generate and send otp
-    generateOtp = async (res, email,subject,cstmMsg) => {
+    generateOtp = async (res, email, subject, cstmMsg) => {
         try {
 
             const emailCheck = await db.query(
@@ -101,7 +89,7 @@ class Auth {
 
                 if (otp_rate_check.rows.length > 0) {
                     if (otp_rate_check.rows[0].count >= 10) {
-                        return returnRes(res, 429, { success: false, error: true, message: 'You’ve reached today’s OTP request limit. Please try again tomorrow.', error: 'Too Many Requests' });
+                        return returnRes(res, 429, { success: false,  message: 'You’ve reached today’s OTP request limit. Please try again tomorrow.', error: 'TOO_MANY_REQUESTS' });
                     }
                     const lastSentAt = new Date(otp_rate_check.rows[0].last_sent_at);
                     const currentTime = new Date();
@@ -109,23 +97,271 @@ class Auth {
                     const threeMinutes = 3 * 60 * 1000;
                     if (timeDiff < threeMinutes) {
                         const remainingSecs = Math.ceil((threeMinutes - timeDiff) / 1000);
-                        return returnRes(res, 429, { success: false, error: true, message: `Please wait ${remainingSecs} seconds before requesting a new OTP.`, error: 'Too Many Requests' });
+                        return returnRes(res, 429, { success: false,  message: `Please wait ${remainingSecs} seconds before requesting a new OTP.`, error: 'TOO_MANY_REQUESTS' });
                     }
                 }
 
                 const otp = Math.floor(100000 + Math.random() * 900000);
                 const otp_hash = await bcrypt.hash(String(otp), 10);
 
-                const message = createOtpMail(otp,subject,cstmMsg);
-                await sendEmail(email,subject,message);
+                const message = createOtpMail(otp, subject, cstmMsg);
+                await sendEmail(email, subject, message);
 
+
+                await db.query(
+                    `INSERT INTO 
+                    rate_limit_count
+                    (
+                        identifier,
+                        identifier_type,
+                        action_type,
+                        count,
+                        window_start,
+                        last_sent_at
+                    )
+                    VALUES(
+                        $1,'email','otp',1,now(),now()
+                    )
+                    ON CONFLICT (identifier,action_type)
+                    DO
+                        UPDATE 
+                        SET 
+                            count =
+                                CASE 
+                                    WHEN rate_limit_count.window_start::DATE=CURRENT_DATE
+                                    THEN rate_limit_count.count + 1
+                                    ELSE 1
+                                END,
+                            window_start =
+                                CASE
+                                    WHEN rate_limit_count.window_start::DATE=CURRENT_DATE
+                                    THEN rate_limit_count.window_start
+                                    ELSE  now()
+                                END,
+                            last_sent_at = now()`,
+                    [email]
+                );
+                const otp_type = (subject == 'Verify Email') ? 'verification' : 'reset_pass'
+                await db.query(
+                    `INSERT INTO 
+                    otp_table(
+                        identifier,
+                        identifier_type,
+                        hashed_otp,
+                        otp_type
+                    )
+                    VALUES(
+                        $1,'email',$2,$3
+                    )
+                    ON CONFLICT (identifier,otp_type)
+                        DO
+                            UPDATE 
+                            SET
+                                hashed_otp=EXCLUDED.hashed_otp,
+                                status='pending',
+                                expires_at = now()+INTERVAL '10 minutes',
+                                created_at = now(),
+                                attempts_count=0
+                    `,
+                    [email, otp_hash, otp_type]
+                );
+                return;
             }
             else {
-                return returnRes(res, 404, { success: false, error: true, message: 'No user found with this email.', error: 'User Not Found' });
+                return returnRes(res, 404, { success: false,  message: 'No user found with this email.', error: 'USER_NOT_FOUND' });
 
             }
         } catch (err) {
-            return returnRes(res, 500, { success: false, error: true, message: 'Internal Server Error!', error: 'Internal Server Error!' });
+            return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+        }
+    }
+
+    // controller function to verify otp
+    verifyOtp = async (req, res) => {
+        let { email, otp, otp_type = 'verification' } = req.body;
+        email = email.trim();
+        otp = otp.trim();
+        otp_type = otp_type.trim();
+        try {
+            const otp_check = await db.query(
+                `SELECT * 
+                FROM otp_table
+                WHERE identifier=$1
+                    AND identifier_type='email'
+                    AND otp_type=$2
+                    `,
+                [email, otp_type]
+            );
+            const user_check = await db.query(
+                `SELECT id
+                FROM users
+                WHERE email=$1
+                `, [email]
+            );
+            const isExistEmail = user_check.rows.length > 0;
+            if (!isExistEmail) {
+                return returnRes(res, 404, { success: false,  message: 'No user found with this email.', error: 'USER_NOT_FOUND' });
+
+            }
+            const otp_data = otp_check.rows?.[0];
+
+            if (otp_check.rows.length == 0 || otp_data?.status == 'expired' || otp_data?.status == 'verified' || otp_data?.status == 'failed') {
+                return returnRes(res, 400, { success: false,  message: 'The OTP has either expired or was never requested.\nPlease trigger a new verification email.', error: 'INVALID_OR_EXPIRED_OTP' });
+            }
+            const expiresAt = new Date(otp_data.expires_at);
+            const currentTime = new Date();
+            if (expiresAt <= currentTime) {
+                await db.query(
+                    `UPDATE otp_table
+                    SET 
+                        status='expired'
+                    WHERE identifier=$1
+                        AND identifier_type='email'
+                        AND otp_type=$2 `,
+                    [email, otp_type]
+                );
+                return returnRes(res, 400, { success: false,  message: 'The OTP has either expired or was never requested.\nPlease trigger a new verification email.', error: 'INVALID_OR_EXPIRED_OTP' });
+            }
+
+            const is_correct = await bcrypt.compare(otp, otp_data.hashed_otp);
+            if (is_correct) {
+
+                await db.query(
+                    `UPDATE otp_table
+                    SET 
+                        status='verified'
+                    WHERE identifier=$1
+                        AND identifier_type='email'
+                        AND otp_type=$2 `,
+                    [email, otp_type]
+                );
+                const userId = user_check.rows[0].id;
+                if (otp_type == 'verification') {
+                    await db.query(
+                        `UPDATE users
+                    SET 
+                        verified_email=TRUE
+                    WHERE id=$1`,
+                        [userId]
+                    );
+                }
+
+
+                const userInfo = await getUserInfo(res, userId);
+                const token = createToken({ id: userInfo, role: userInfo.role, email: userInfo.email });
+
+                res.cookie('authToken', token, {
+                    httpOnly: true,
+                    secure: isProduction,
+                    sameSite: isProduction ? 'none' : 'lax',
+                    maxAge: 1000 * 60 * 60 * 24 * 7
+                });
+                return returnRes(res, 200, { success: true, error: false, isVerified: true, message: 'Email verification successful. Your account is now active.', userInfo: userInfo });
+
+            }
+            else {
+                await db.query(
+                    `UPDATE otp_table
+                    SET attempts_count = attempts_count+1
+                    WHERE identifier=$1
+                        AND identifier_type='email'
+                        AND otp_type=$2`,
+                    [email, otp_type]
+                );
+                if (otp_data.attempts_count + 1 >= 5) {
+                    await db.query(
+                        `UPDATE otp_table
+                    SET 
+                        status='failed'
+                    WHERE identifier=$1
+                        AND identifier_type='email'
+                        AND otp_type=$2 `,
+                        [email, otp_type]
+                    );
+                    return returnRes(res, 429, { success: false,  message: 'Verification failed too many times. For security reasons, this OTP is now invalid. \nPlease request a new one.', error: 'TOO_MANY_ATTEMPTS' });
+                }
+                return returnRes(res, 401, { success: false,  message: 'The OTP entered is incorrect.\nPlease check the code and try again.', error: 'INVALID_OTP' });
+            }
+
+        } catch (err) {
+            // console.log(err);
+            return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+
+        }
+    }
+
+    // Controller function to ask for otp
+    resendOtp = async (req, res) => {
+        let { email, otp_type = "verification" } = req.body;
+        email = email.trim();
+        otp_type = otp_type.trim();
+
+
+        try {
+            const subject = otp_type == 'verification' ? 'Verify Email' : 'Reset your password'
+            const cstm_msg = otp_type == 'verification' ? 'Please use the following code to verify your email address.' : 'Please use the following code to verify your email address and reset password'
+            await this.generateOtp(res, email, subject, cstm_msg);
+            return returnRes(res, 200, { success: true, error: false, message: 'Verification otp sent.' });
+
+        } catch (error) {
+            return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+
+        }
+    }
+
+    // controller function to login user
+    loginUser = async (req, res) => {
+        let { email, pass } = req.body;
+        email = email.trim();
+        pass = pass.trim();
+
+        try {
+            const user = await db.query(
+                `SELECT 
+                    id,
+                    email,
+                    hashed_pass,
+                    verified_email
+                FROM users
+                WHERE email = $1`,
+                [email]
+            );
+            if (user.rows.length == 0) {
+                return returnRes(res, 401, {
+                    success: false,
+                    
+                    message: 'Invalid email or password. Please check your credentials and try again.',
+                    error: 'UNAUTHORIZED_ACCESS'
+                });
+            }
+            const user_data = user.rows[0];
+            const isMatched = await bcrypt.compare(pass, user_data.hashed_pass);
+
+            if (isMatched) {
+                const verified_email = user_data.verified_email;
+                const userInfo = await getUserInfo(res, user_data.id);
+                if (verified_email) {
+                    const token = createToken({ id: userInfo, role: userInfo.role, email: userInfo.email });
+                    res.cookie('authToken', token, {
+                        httpOnly: true,
+                        secure: isProduction,
+                        sameSite: isProduction ? 'none' : 'lax',
+                        maxAge: 1000 * 60 * 60 * 24 * 7
+                    });
+                    return returnRes(res, 200, { success: true, error: false, isVerified: true, message: 'Login successful! \nWelcome back!', userInfo: userInfo });
+                }
+                else {
+                    return returnRes(res, 200, { success: true, error: false, isVerified: false, message: 'Your email address is not verified. \nPlease verify your email to access the dashboard.', userInfo: userInfo });
+                }
+            }
+
+            return returnRes(res, 401, {
+                success: false,
+                message: 'Invalid email or password. Please check your credentials and try again.',
+                error: 'UNAUTHORIZED_ACCESS'
+            });
+        } catch (error) {
+            return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
 
         }
     }

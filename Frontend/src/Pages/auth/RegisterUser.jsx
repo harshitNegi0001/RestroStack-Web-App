@@ -7,11 +7,12 @@ import { MdOutlineVpnKey } from 'react-icons/md';
 import { FaRegUser } from 'react-icons/fa';
 import { registerUser } from '../../Apis/Auth';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-
+import {useSelector,useDispatch} from 'react-redux';
+import { setState } from '../../Store/Auth/authReducer';
 
 
 export default function Register() {
-    const [state, setState] = useState({
+    const [state, setInputState] = useState({
         name: '',
         email: '',
         pass: '',
@@ -23,17 +24,22 @@ export default function Register() {
         email: '',
         pass: '',
         confirmPass: ''
-    })
+    });
     const [visible, setVisible] = useState({
         pass: false,
         confirmPass: false
     });
 
-    const backend_url = import.meta.env.VITE_BACKEND_URL;
+
+    const dispatch=useDispatch();
     const navigate = useNavigate();
 
     const handleRegister = async (e) => {
-        await registerUser(e, state, setIsLoadingBtn, navigate, backend_url, setInputError);
+        const successFunction =(userInfo)=>{
+            dispatch(setState({userInfo:userInfo}));
+            navigate('/verify-email', { state: { email: state.email,prev:'/register',otp_type:'verification' } });
+        }
+        await registerUser(e, state, setIsLoadingBtn, setInputError,successFunction);
     }
 
     return (
@@ -41,7 +47,7 @@ export default function Register() {
 
             className="w-dvw min-h-dvh flex justify-center items-center p-2">
             <div
-                className="w-[100%] max-w-[550px] flex flex-col items-center gap-3 justify-center bg-half-trans-bg border-2 border-divider p-5 rounded-2xl">
+                className="w-[100%] max-w-[500px] flex flex-col items-center gap-3 justify-center bg-half-trans-bg border-2 border-divider p-5 rounded-2xl">
                 <div
                     className='w-full flex justify-start '>
                     <div onClick={() => navigate('/auth-window')}
@@ -81,7 +87,7 @@ export default function Register() {
                                     <HiOutlineMail />
                                 </label>
                                 <input id='email-input' type="email"
-                                    value={state.email} onChange={(e) => setState(prev => ({ ...prev, email: e.target.value }))}
+                                    value={state.email} onChange={(e) => setInputState(prev => ({ ...prev, email: e.target.value }))}
                                     placeholder='Enter your email' required
                                     onFocus={() => setInputError(prev => ({ ...prev, email: '' }))}
                                     className={`
@@ -105,7 +111,7 @@ export default function Register() {
                                     <FaRegUser />
                                 </label>
                                 <input id='name-input' type="text"
-                                    value={state.name} onChange={(e) => setState(prev => ({ ...prev, name: e.target.value }))}
+                                    value={state.name} onChange={(e) => setInputState(prev => ({ ...prev, name: e.target.value }))}
                                     placeholder='Enter your full name' required
                                     onFocus={() => setInputError(prev => ({ ...prev, name: '' }))}
                                     className={`
@@ -131,11 +137,11 @@ export default function Register() {
                                 <span onClick={() => setVisible(prev => ({ ...prev, pass: !prev.pass }))}
                                     className='absolute bottom-1 md:bottom-1.5 right-1 md:right-1.5 text-low-text flex justify-center items-center rounded-lg
                                             size-[30px] md:size-[34px] 
-                                            text-[16px] md:text-[18px]'>{visible.pass ? <FaEyeSlash title='hide'/> : <FaEye title='show'/>}</span>
+                                            text-[16px] md:text-[18px]'>{visible.pass ? <FaEyeSlash title='hide' /> : <FaEye title='show' />}</span>
                                 <input id='pass-input' type={visible.pass ? 'text' : 'password'}
                                     placeholder='Create a password' required
                                     onFocus={() => setInputError(prev => ({ ...prev, pass: '' }))}
-                                    value={state.pass} onChange={(e) => setState(prev => ({ ...prev, pass: e.target.value }))}
+                                    value={state.pass} onChange={(e) => setInputState(prev => ({ ...prev, pass: e.target.value }))}
                                     className={`
                                     ${inputError.pass ? 'border-red-600' : 'border-divider '}
                                             border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
@@ -158,11 +164,11 @@ export default function Register() {
                                 <span onClick={() => setVisible(prev => ({ ...prev, confirmPass: !prev.confirmPass }))}
                                     className='absolute bottom-1 md:bottom-1.5 right-1 md:right-1.5 text-low-text flex justify-center items-center rounded-lg
                                             size-[30px] md:size-[34px] 
-                                            text-[16px] md:text-[18px]'>{visible.confirmPass ?  <FaEyeSlash title='hide'/> : <FaEye title='show'/>}</span>
+                                            text-[16px] md:text-[18px]'>{visible.confirmPass ? <FaEyeSlash title='hide' /> : <FaEye title='show' />}</span>
                                 <input id='confirm-pass-input' type={visible.confirmPass ? 'text' : 'password'}
                                     placeholder='Confirm your password' required
                                     onFocus={() => setInputError(prev => ({ ...prev, confirmPass: '' }))}
-                                    value={state.confirmPass} onChange={(e) => setState(prev => ({ ...prev, confirmPass: e.target.value }))}
+                                    value={state.confirmPass} onChange={(e) => setInputState(prev => ({ ...prev, confirmPass: e.target.value }))}
                                     className={`
                                     ${inputError.confirmPass ? 'border-red-600' : 'border-divider '}
                                             border-1 focus:outline-1 px-9 md:px-11 focus:outline-active-border focus:border-active-border outline-0 
@@ -176,7 +182,7 @@ export default function Register() {
                             disabled={isLoadingBtn}
                             className={`w-full mt-3 h-[35px] md:h-[50px] rounded-lg bg-linear-0 text-white text-[13px] md:text-[15px] lg:text-[17px] font-[600] flex items-center justify-center
                          
-                         ${isLoadingBtn ? 'bg-disabled-btn/60' : 'to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}>
+                        ${isLoadingBtn ? 'bg-disabled-btn/60 cursor-not-allowed' : 'to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}>
                             {isLoadingBtn ? <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

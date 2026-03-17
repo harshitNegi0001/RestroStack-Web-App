@@ -1,6 +1,8 @@
 import axios from "axios";
 import dotenv from 'dotenv';
 
+dotenv.config();
+
 export const sendEmail = async (userEmail, subject,mailData) => {
   try {
     const response = await axios.post(

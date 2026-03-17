@@ -6,10 +6,10 @@ export const createOTPTable = async(pool)=>{
                 identifier TEXT NOT NULL, 
                 identifier_type VARCHAR(30) NOT NULL DEFAULT 'email',
                 hashed_otp TEXT NOT NULL,
-                otp_type VARCHAR(20) NOT NULL DEFAULT 'login',
+                otp_type VARCHAR(20) NOT NULL DEFAULT 'verification',
                 status VARCHAR(15) NOT NULL DEFAULT 'pending',
 
-                expires_at TIMESTAMPTZ NOT NULL DEFAULT now()+INTERVAL '5 minutes',
+                expires_at TIMESTAMPTZ NOT NULL DEFAULT now()+INTERVAL '10 minutes',
                 created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
                 attempts_count INT DEFAULT 0,
