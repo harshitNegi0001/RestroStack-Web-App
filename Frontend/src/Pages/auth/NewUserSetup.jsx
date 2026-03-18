@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import SelectRole from "./SelectRole";
 import { useSelector } from "react-redux";
 import RestaurantSetup from "./RestaurantSetup";
+import EmployeeSetup from "./components/EmployeeSetup";
 
 
 export default function NewUserSetup() {
@@ -19,7 +20,7 @@ export default function NewUserSetup() {
             setActivePage('restaurant-setup');
         }
         else {
-            setActivePage('role-select');
+            setActivePage('employee-setup');
         }
 
     }, [userInfo])
@@ -33,7 +34,9 @@ export default function NewUserSetup() {
             {
                 activePage == 'restaurant-setup' && <RestaurantSetup setActivePage={setActivePage} />
             }
-
+            {
+                activePage=='employee-setup' && <EmployeeSetup setActivePage={setActivePage} />
+            }
 
         </div>
     )

@@ -1,5 +1,5 @@
 @import "tailwindcss";
-
+@plugin "tailwind-scrollbar";
 @custom-variant dark (&:where(.dark, .dark *));
 
 
@@ -15,8 +15,20 @@
     --color-success-bg: var(--success-toast-bg);
     --color-error-bg: var(--error-toast-bg);
     --color-toast-bg: var(--toast-bg);
-    --font-main-toast:var(--toast-main-font);
+    --font-main-toast: var(--toast-main-font);
+    --animation-wave: wave 2s linear infinite;
 
+
+}
+
+@keyframes wave {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
 }
 
 :root {
@@ -31,7 +43,10 @@
     --success-toast-bg: var(--color-green-200);
     --error-toast-bg: var(--color-red-200);
     --toast-bg: var(--color-gray-200);
-    --toast-main-font:12px;
+    --toast-main-font: 12px;
+    --scrollbar-clr: #758873d8;
+    --skeleton: #44504350;
+    --skeleton-wave: #4b615c80;
 
 }
 
@@ -47,11 +62,16 @@
     --success-toast-bg: var(--color-green-950);
     --error-toast-bg: var(--color-red-950);
     --toast-bg: var(--color-gray-950);
+    --scrollbar-clr: #69b962a9;
+    --skeleton: #6e886b46;
+    --skeleton-wave: #7e9e9780;
+
 
 }
+
 @media (min-width:640px) {
-    :root{
-        --toast-main-font:14px;
+    :root {
+        --toast-main-font: 14px;
     }
 }
 
@@ -59,7 +79,68 @@
     scrollbar-width: none;
 }
 
+*::-webkit-scrollbar {
+    display: none;
+}
+
+.animate-wave {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--skeleton);
+    /* Base color */
+    opacity: 0.5;
+}
+
+.animate-wave::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            var(--skeleton-wave) 50%,
+            transparent 100%);
+    animation: var(--animation-wave);
+}
+
+.mask-bottom-fade {
+  /* Webkit browsers (Chrome, Safari, Edge) */
+  -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+  
+  /* Standard property */
+  mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+  
+  /* Mask ko repeat hone se rokne ke liye */
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+}
+.show-custom-scrollbar {
+    scrollbar-width: thin !important;
+    /* Firefox mein on karega */
+    scrollbar-color: var(--scrollbar-clr) var(--bg-primary) !important;
+}
+
+.show-custom-scrollbar::-webkit-scrollbar {
+    display: block !important;
+    /* Chrome mein wapas on karega */
+    width: 6px;
+}
+
+.show-custom-scrollbar::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+    border-radius: 10px;
+}
+
+.show-custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: var(--active-border);
+    border-radius: 20px;
+    border: 1px solid var(--bg-primary);
+    /* Padding effect */
+}
+
 input::-ms-reveal,
-input::-ms-clear{
+input::-ms-clear {
     display: none;
 }

@@ -112,9 +112,9 @@ export default function RestaurantSetup({ setActivePage }) {
         <div
             className="w-full max-w-[500px] flex flex-col gap-4 items-center c p-2 md:p-4">
             <div
-                className="w-[80px] h-[80px] bg-green-900/30 rounded-2xl flex justify-center items-center"
+                className="w-[60px] h-[60px] md:w-[70px] md:h-[70px]  bg-green-900/30 rounded-2xl flex justify-center items-center"
             >
-                <img src={applogo} className='w-[55px] h-[55px] object-contain' alt="" />
+                <img src={applogo} className='w-[45px] h-[45px] md:w-[50px] md:h-[50px] object-contain' alt="" />
 
             </div>
             <div
