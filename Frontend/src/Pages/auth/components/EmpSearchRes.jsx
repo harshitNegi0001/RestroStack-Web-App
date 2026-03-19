@@ -150,7 +150,7 @@ export default function EmpSearchRes() {
             {loadingRes && <div
                 className='w-full max-h-[400px] show-custom-scrollbar overflow-auto flex flex-col gap-1.5 mask-bottom-fade'>
                 <span
-                    className='text-active-border font-[600] text-[12px] md:text-[13px] lg:text-[14px]'>
+                    className='text-active-border font-[600] text-[12px] md:text-[13px] lg:text-[14px] animate-pulse'>
                     Searching...</span>
                 {
                     [1,2,3,4].map(r =>

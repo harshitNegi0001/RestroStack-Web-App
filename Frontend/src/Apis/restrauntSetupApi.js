@@ -3,10 +3,8 @@ import toast from "react-hot-toast";
 
 
 const checkEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const restaurantNameCheck = /^[a-zA-Z0-9\s&'-]{3,50}$/;
 const phoneNoCheck = /^(\+?\d{1,4}|\d{0,4})?\d{7,12}$/;
 const gstNoCheck = /^[a-zA-Z0-9-]{5,20}$/;
-const addressCheck = /^[a-zA-Z0-9\s,.'#\-\/]{10,255}$/;
 const FssaiLiNoCheck = /^[a-zA-Z0-9\s/-]{5,30}$/;
 
 
@@ -31,12 +29,7 @@ export const submitRestrauntData = async ( state, setActiveTab,setInputError,set
         toast.error('All fields are required.');
         return;
     }
-    if (!restaurantNameCheck.test(restaurantName)) {
-        // toast.error("Restaurant name must be between 3-50 characters and can only include letters, numbers, and symbols (&, ', -)")
-        setInputError(prev => ({ ...prev, restaurantName: "Invalid name. Use 3-50 alphanumeric characters." }))
-        setActiveTab('basic-info');
-        return;
-    }
+    
     if (!addressCheck.test(oneLineAddress)) {
         setInputError(prev => ({ ...prev, oneLineAddress: "Please enter a valid address (10-255 characters)" }))
         setActiveTab('basic-info');

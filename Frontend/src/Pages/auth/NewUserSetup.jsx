@@ -20,7 +20,7 @@ export default function NewUserSetup() {
             setActivePage('restaurant-setup');
         }
         else {
-            setActivePage('employee-setup');
+            setActivePage('role-select');
         }
 
     }, [userInfo])

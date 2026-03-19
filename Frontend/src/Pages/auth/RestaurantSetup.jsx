@@ -14,99 +14,42 @@ export default function RestaurantSetup({ setActivePage }) {
     const [activeTab, setActiveTab] = useState('basic-info');
     const [doneQueue, setDoneQueue] = useState([]);
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
-    const [state, setState] = useState({
-        restaurantName: '',
-        oneLineAddress: '',
-        phoneNum: '',
-        busiEmail: '',
-        gstNum: '',
-        fssaiLiNum: '',
-        currency: 'INR',
-        restType: 'casual_dining',
-        texPrecent: '0',
-        openingTimimgs: {
-            'Monday': {
-                opening: '',
-                closing: '',
-                selected: true
-            },
-            'Tuesday': {
-                opening: '',
-                closing: '',
-                selected: true
-            },
-            'Wednesday': {
-                opening: '',
-                closing: '',
-                selected: true
-            },
-            'Thursday': {
-                opening: '',
-                closing: '',
-                selected: true
-            },
-            'Friday': {
-                opening: '',
-                closing: '',
-                selected: true
-            },
-            'Saturday': {
-                opening: '',
-                closing: '',
-                selected: true
-            },
-            'Sunday': {
-                opening: '',
-                closing: '',
-                selected: true
-            },
-        }
-    })
-    const [inputError, setInputError] = useState({
-        restaurantName: '',
-        oneLineAddress: '',
-        phoneNum: '',
-        busiEmail: '',
-        gstNum: '',
-        fssaiLiNum: '',
-        openingTimimgs: ''
-    });
-
-    const handleNext = async() => {
-        if (activeTab == 'basic-info') {
-            setActiveTab('contact');
-            setDoneQueue(prev => ([...prev, 'basic-info']));
-            return;
-        }
-        if (activeTab == 'contact') {
-            setActiveTab('details');
-            setDoneQueue(prev => ([...prev, 'contact']));
-            return;
-        }
-        if (activeTab == 'details') {
-            setDoneQueue(prev => ([...prev, 'details']));
-            console.log('userPressedSubmit')
-            await submitRestrauntData(state, setActiveTab, setInputError, setIsLoadingBtn)
-            // return;
-        }
+    const [restaurantInfo, setRestaurantInfo] = useState({});
+    const [inputError, setInputError] = useState({});
+    const handleNext = async () => {
+        // if (activeTab == 'basic-info') {
+        //     setActiveTab('contact');
+        //     setDoneQueue(prev => ([...prev, 'basic-info']));
+        //     return;
+        // }
+        // if (activeTab == 'contact') {
+        //     setActiveTab('details');
+        //     setDoneQueue(prev => ([...prev, 'contact']));
+        //     return;
+        // }
+        // if (activeTab == 'details') {
+        //     setDoneQueue(prev => ([...prev, 'details']));
+        //     // console.log('userPressedSubmit')
+        //     // await submitRestrauntData(state, setActiveTab, setInputError, setIsLoadingBtn)
+        //     // return;
+        // }
     }
-    const handleBackBtn =  () => {
-        if (activeTab == 'basic-info') {
-            setActivePage('role-select');
-        }
-        if (activeTab == 'contact') {
-            setActiveTab('basic-info');
-            const filtedList = doneQueue.filter(d => d != 'basic-info');
-            setDoneQueue(filtedList);
-            return;
-        }
-        if (activeTab == 'details') {
-            setActiveTab('contact');
-            const filtedList = doneQueue.filter(d => d != 'contact');
-            setDoneQueue(filtedList);
-
-            return;
-        }
+    const handleBackBtn = () => {
+        // if (activeTab == 'basic-info') {
+        //     setActivePage('role-select');
+        // }
+        // if (activeTab == 'contact') {
+        //     setActiveTab('basic-info');
+        //     const filtedList = doneQueue.filter(d => d != 'basic-info');
+        //     setDoneQueue(filtedList);
+        //     return;
+        // }
+        // if (activeTab == 'details') {
+        //     setActiveTab('contact');
+        //     const filtedList = doneQueue.filter(d => d != 'contact');
+        //     setDoneQueue(filtedList);
+        //     return;
+        // }
     }
     return (
         <div
@@ -114,7 +57,8 @@ export default function RestaurantSetup({ setActivePage }) {
             <div
                 className="w-[60px] h-[60px] md:w-[70px] md:h-[70px]  bg-green-900/30 rounded-2xl flex justify-center items-center"
             >
-                <img src={applogo} className='w-[45px] h-[45px] md:w-[50px] md:h-[50px] object-contain' alt="" />
+                <img src={'https://res.cloudinary.com/dns5lxuvy/image/upload/v1773712565/dhd5mphtokjeobqrtafs.png'}
+                    className='w-[45px] h-[45px] md:w-[50px] md:h-[50px] object-contain' alt="" />
 
             </div>
             <div
@@ -135,13 +79,13 @@ export default function RestaurantSetup({ setActivePage }) {
             <RestSetupSteps setDoneQueue={setDoneQueue} doneQueue={doneQueue} activeTab={activeTab} setActiveTab={setActiveTab} />
 
             {
-                activeTab == 'basic-info' && <RestBasicInfo setBtnDisabled={setBtnDisabled} state={state} setState={setState} inputError={inputError} setInputError={setInputError} />
+                activeTab == 'basic-info' && <RestBasicInfo setActiveTab={setActiveTab} state={restaurantInfo} setState={setRestaurantInfo} />
             }
             {
-                activeTab == 'contact' && <RestContact setBtnDisabled={setBtnDisabled} state={state} setState={setState} inputError={inputError} setInputError={setInputError}/>
+                activeTab == 'contact' && <RestContact setActiveTab={setActiveTab} state={restaurantInfo} setState={setRestaurantInfo} />
             }
             {
-                activeTab == 'details' && <RestAllDetails setBtnDisabled={setBtnDisabled} state={state} setState={setState} inputError={inputError} setInputError={setInputError}/>
+                activeTab == 'details' && <RestAllDetails setActiveTab={setActiveTab} state={restaurantInfo} setState={setRestaurantInfo} />
             }
             <div
                 className="w-full flex justify-between items-center">

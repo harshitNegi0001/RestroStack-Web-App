@@ -16,6 +16,7 @@
     --color-error-bg: var(--error-toast-bg);
     --color-toast-bg: var(--toast-bg);
     --font-main-toast: var(--toast-main-font);
+    --color-card-bg: var(--card-bg);
     --animation-wave: wave 2s linear infinite;
 
 
@@ -43,6 +44,7 @@
     --success-toast-bg: var(--color-green-200);
     --error-toast-bg: var(--color-red-200);
     --toast-bg: var(--color-gray-200);
+    --card-bg: #fff;
     --toast-main-font: 12px;
     --scrollbar-clr: #758873d8;
     --skeleton: #44504350;
@@ -65,6 +67,7 @@
     --scrollbar-clr: #69b962a9;
     --skeleton: #6e886b46;
     --skeleton-wave: #7e9e9780;
+    --card-bg: #000;
 
 
 }
@@ -106,16 +109,17 @@
 }
 
 .mask-bottom-fade {
-  /* Webkit browsers (Chrome, Safari, Edge) */
-  -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
-  
-  /* Standard property */
-  mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
-  
-  /* Mask ko repeat hone se rokne ke liye */
-  mask-repeat: no-repeat;
-  -webkit-mask-repeat: no-repeat;
+    /* Webkit browsers (Chrome, Safari, Edge) */
+    -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+
+    /* Standard property */
+    mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+
+    /* Mask ko repeat hone se rokne ke liye */
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
 }
+
 .show-custom-scrollbar {
     scrollbar-width: thin !important;
     /* Firefox mein on karega */
