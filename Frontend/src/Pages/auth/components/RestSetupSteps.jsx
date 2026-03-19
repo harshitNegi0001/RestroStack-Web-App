@@ -5,7 +5,7 @@ import { GiConfirmed } from "react-icons/gi";
 import { LuBuilding2 } from "react-icons/lu";
 
 
-export default function RestSetupSteps({setDoneQueue,doneQueue,activeTab,setActiveTab}) {
+export default function RestSetupSteps({doneQueue,activeTab}) {
 
     return (
         <div

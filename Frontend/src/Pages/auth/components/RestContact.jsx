@@ -1,27 +1,39 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { IoCallOutline } from "react-icons/io5";
 import { HiOutlineMail } from 'react-icons/hi';
+import { MdNavigateBefore, MdNavigateNext } from "react-icons/md";
 
+const checkEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneNoCheck = /^(\+?\d{1,4}|\d{0,4})?\d{7,12}$/;
 
+export default function RestContact({ state, setState, setActiveTab }) {
 
+    const [localState, setLocalState] = useState({
+        phone_no: state.phone_no || '',
+        email: state.email || ''
+    });
+    const [inputError, setInputError] = useState({
+        phone_no: '',
+        email: ''
+    });
 
-export default function RestContact({ setBtnDisabled, state, setState, inputError, setInputError }) {
-
-
-
-    useEffect(() => {
-        setBtnDisabled(true);
-    }, [])
-
-    useEffect(() => {
-        if (state?.phoneNum?.trim() && state?.busiEmail?.trim()) {
-            setBtnDisabled(false);
+    const handleNext = () => {
+        if (!checkEmail.test(localState.email)) {
+            setInputError(prev => ({ ...prev, email: 'Please enter a valid email address.' }));
+            return;
         }
-        else {
-            setBtnDisabled(true);
 
+        if (!phoneNoCheck.test(localState.phone_no)) {
+            setInputError(prev => ({ ...prev, phone_no: "Please enter a valid phone number (eg. +919876543210 or 9876543210)." }))
+            return;
         }
-    }, [state])
+
+        setState(prev => ({ ...prev, ...localState }));
+
+        setActiveTab('details');
+    }
+    
+    const btnDisabled = Boolean(!localState.phone_no.trim() || !localState.email.trim());
 
     return (
         <div
@@ -58,14 +70,14 @@ export default function RestContact({ setBtnDisabled, state, setState, inputErro
                     </label>
                     <input id='phoneNum-input' type="text"
                         autoComplete="phoneNum-input"
-                        onFocus={() => setInputError(prev => ({ ...prev, phoneNum: '' }))}
-                        value={state.phoneNum} onChange={(e) => setState(prev => ({ ...prev, phoneNum: e.target.value }))}
+                        onFocus={() => setInputError(prev => ({ ...prev, phone_no: '' }))}
+                        value={localState.phone_no} onChange={(e) => setLocalState(prev => ({ ...prev, phone_no: e.target.value }))}
                         placeholder='eg. +91XXXXXXXXXX' required
-                        className={`${inputError.phoneNum ? 'border-red-600' : 'border-divider '}
+                        className={`${inputError.phone_no ? 'border-red-600' : 'border-divider '}
                                             border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
                                             rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]`} />
                 </div>
-                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.phoneNum}</span>
+                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.phone_no}</span>
             </div>
             <div className='w-full flex flex-col gap-0 relative pb-2'>
 
@@ -83,14 +95,30 @@ export default function RestContact({ setBtnDisabled, state, setState, inputErro
                     <input id='busiEmail-input' type='text'
                         autoComplete="busiEmail-input"
                         placeholder='eg. re*******@gmail.com' required
-                        onFocus={() => setInputError(prev => ({ ...prev, busiEmail: '' }))}
-                        value={state.busiEmail} onChange={(e) => setState(prev => ({ ...prev, busiEmail: e.target.value }))}
-                        className={`${inputError.busiEmail ? 'border-red-600' : 'border-divider '}
+                        onFocus={() => setInputError(prev => ({ ...prev, email: '' }))}
+                        value={localState.email} onChange={(e) => setLocalState(prev => ({ ...prev, email: e.target.value }))}
+                        className={`${inputError.email ? 'border-red-600' : 'border-divider '}
                                             border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
                                             rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]`} />
                 </div>
-                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.busiEmail}</span>
+                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.email}</span>
 
+            </div>
+
+            <div
+                className="w-full flex justify-between items-center">
+                <button onClick={() => setActiveTab('basic-info')}
+                    className='mt-3 w-[75px] md:w-[80px] py-2  rounded-lg  border-1 flex items-center text-center justify-center
+                border-low-text/80 hover:border-low-text hover:bg-low-text/10 active:border-sec-text active:bg-low-text/30
+                text-low-text/80 hover:text-low-text active:text-sec-text
+                 text-[12px] md:text-[13px] lg:text-[14px] font-[600]'
+                ><MdNavigateBefore /> Back </button>
+                <button onClick={handleNext}
+                    disabled={btnDisabled}
+                    className={` mt-3 w-[75px] md:w-[80px] py-2  rounded-lg bg-linear-0  text-[12px] md:text-[13px] lg:text-[14px] font-[600] flex items-center text-center justify-center
+                                     ${btnDisabled ? 'bg-divider cursor-not-allowed text-low-text/70' : 'text-white to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}>
+                    Next <MdNavigateNext />
+                </button>
             </div>
         </div>
     )

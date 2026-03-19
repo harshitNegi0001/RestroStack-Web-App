@@ -1,167 +1,53 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { LuChefHat } from "react-icons/lu";
 import { MdAssignment } from 'react-icons/md';
 import { TbLicense } from 'react-icons/tb';
-import { BiRupee, BiDollar, BiEuro, BiYen, BiPound } from "react-icons/bi";
 import { HiOutlineReceiptTax } from "react-icons/hi";
 import { PiForkKnife } from "react-icons/pi";
-import { IoMdTime } from 'react-icons/io';
-const currencies = [
-    {
-        id: 1,
-        sign: <BiRupee />,
-        name: 'Indian Rupee',
-        key: 'INR',
-        symbol: '₹'
-    },
-    {
-        id: 2,
-        sign: <BiDollar />,
-        name: 'US Dollar',
-        key: 'USD',
-        symbol: '$'
-    },
-    {
-        id: 3,
-        sign: <BiEuro />,
-        name: 'Euro',
-        key: 'EUR',
-        symbol: '€'
-    },
-    {
-        id: 4,
-        sign: <BiPound />,
-        name: 'Pound',
-        key: 'GBP',
-        symbol: '£'
-    },
-    {
-        id: 5,
-        sign: <BiYen />,
-        name: 'Japanese Yen',
-        key: 'JPY',
-        symbol: '¥'
-    },
-]
-
-const cuissineTypes = [
-    {
-        id: 1,
-        label: 'Cafe/Coffee Shop',
-        value: 'cafe',
-    },
-    {
-        id: 2,
-        label: 'Fast Food Restaurant',
-        value: 'fast_food',
-    },
-    {
-        id: 3,
-        label: 'Fine Dining Restaurant',
-        value: 'fine_dining',
-    },
-    {
-        id: 4,
-        label: 'Casual Dining Restaurant',
-        value: 'casual_dining',
-    },
-    {
-        id: 5,
-        label: 'Bakery',
-        value: 'bakery',
-    },
-    {
-        id: 6,
-        label: 'Bar/Pub',
-        value: 'bar',
-    },
-    {
-        id: 7,
-        label: 'Pop-up Restaurant',
-        value: 'pop_up',
-    },
-    {
-        id: 8,
-        label: 'Family Restaurant',
-        value: 'family',
-    },
-    {
-        id: 9,
-        label: 'Theme Restaurant',
-        value: 'theme_based',
-    },
-    {
-        id: 10,
-        label: 'Fast Casual',
-        value: 'fast_casual',
-    },
-    {
-        id: 11,
-        label: 'Buffet Restaurant',
-        value: 'buffet',
-    },
-
-]
-
-const weekDays = [
-    {
-        id: 1,
-        label: 'Monday',
-
-    },
-    {
-        id: 2,
-        label: 'Tuesday',
-
-    },
-    {
-        id: 3,
-        label: 'Wednesday',
-
-    },
-    {
-        id: 4,
-        label: 'Thursday',
-
-    },
-    {
-        id: 5,
-        label: 'Friday',
-
-    },
-    {
-        id: 6,
-        label: 'Saturday',
-
-    },
-    {
-        id: 7,
-        label: 'Sunday',
-
-    },
-
-]
-export default function RestAllDetails({ setBtnDisabled, state, setState, setInputError, inputError }) {
+import { currencies, cuissineTypes, weekDays } from "../../../utils/clientSideData/setupVariables.jsx";
+import { MdNavigateBefore, MdNavigateNext } from "react-icons/md";
+import ResOpenningTime from "./ResOpenningTime.jsx";
 
 
 
-    useEffect(() => {
-        setBtnDisabled(true);
-    }, [])
+export default function RestAllDetails({ state, setState, setActiveTab }) {
 
-    useEffect(() => {
-        if (state?.gstNum?.trim() && state?.fssaiLiNum?.trim()) {
-            setBtnDisabled(false);
-        }
-        else {
-            setBtnDisabled(true);
+    const [localState, setLocalState] = useState({
+        res_type: state.res_type || 'family',
+        fssai_no: state.fssai_no || '',
+        gstin: state.gstin || '',
+        currency: state.currency || 'INR',
+        tax_prec: state.tax_prec || '0',
+        opening_timeing: state.opening_timeing || [
+            ...weekDays.map(w=>{
+                return{
+                    isClosed:false,
+                    opening:'08:00',
+                    closing:'20:00'
+                }
+            })
+        ]
+    });
 
-        }
-    }, [state])
+    const [inputError, setInputError] = useState({
+        fssai_no: '',
+        gstin: '',
+        opening_timeing: '',
+        tax_prec: ''
+    });
+
+    const handleNext = () => {
+
+
+        // setState(prev => ({ ...prev, ...localState }));
+
+        // setActiveTab('details');
+    }
+    const btnDisabled = Boolean(!localState.fssai_no.trim() || !localState.gstin.trim() || !localState.tax_prec.trim());
 
     return (
         <div
-            className="w-full p-2 flex flex-col gap-2">
+            className="w-full p-2 flex flex-col gap-2 overflow-x-hidden">
             <div
                 className="flex flex-col gap-1 pb-4">
                 <div
@@ -195,13 +81,13 @@ export default function RestAllDetails({ setBtnDisabled, state, setState, setInp
                     <input id='fssaiLiNum-input' type='text'
                         autoComplete="fssaiLiNum-input"
                         placeholder='eg. 12345678901234' required
-                        onFocus={() => setInputError(prev => ({ ...prev, fssaiLiNum: '' }))}
-                        value={state.fssaiLiNum} onChange={(e) => setState(prev => ({ ...prev, fssaiLiNum: e.target.value }))}
-                        className={`${inputError.fssaiLiNum ? 'border-red-600' : 'border-divider '}
+                        onFocus={() => setInputError(prev => ({ ...prev, fssai_no: '' }))}
+                        value={localState.fssai_no} onChange={(e) => setLocalState(prev => ({ ...prev, fssai_no: e.target.value }))}
+                        className={`${inputError.fssai_no ? 'border-red-600' : 'border-divider '}
                                             border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
                                             rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]`} />
                 </div>
-                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.fssaiLiNum}</span>
+                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.fssai_no}</span>
 
             </div>
             <div className='w-full flex flex-col gap-0 relative pb-2'>
@@ -220,16 +106,16 @@ export default function RestAllDetails({ setBtnDisabled, state, setState, setInp
                     <input id='gstNum-input' type='text'
                         autoComplete="gstNum-input"
                         placeholder='eg. 05AAAAA0000A1Z5' required
-                        onFocus={() => setInputError(prev => ({ ...prev, gstNum: '' }))}
-                        value={state.gstNum} onChange={(e) => setState(prev => ({ ...prev, gstNum: e.target.value }))}
-                        className={`${inputError.gstNum ? 'border-red-600' : 'border-divider '}
+                        onFocus={() => setInputError(prev => ({ ...prev, gstin: '' }))}
+                        value={localState.gstin} onChange={(e) => setLocalState(prev => ({ ...prev, gstin: e.target.value }))}
+                        className={`${inputError.gstin ? 'border-red-600' : 'border-divider '}
                                             border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
                                             rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]`} />
                 </div>
-                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.gstNum}</span>
+                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.gstin}</span>
 
             </div>
-            <div className="flex flex-row items-center gap-3 ">
+            <div className="w-full flex items-center  gap-3 ">
                 <div
                     className='w-[45%] flex flex-col gap-1 relative'>
                     <label htmlFor="currency-input"
@@ -239,10 +125,10 @@ export default function RestAllDetails({ setBtnDisabled, state, setState, setInp
                         className='absolute bottom-1 md:bottom-1.5 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
                         size-[30px] md:size-[34px] 
                         text-[20px] md:text-[24px]'>
-                        {currencies.find(c => c.key == state?.currency).sign}
+                        {currencies.find(c => c.key == localState?.currency).sign}
                     </label>
                     <select id="currency-input"
-                        value={state.currency} onChange={(e) => setState(prev => ({ ...prev, currency: e.target.value }))}
+                        value={localState.currency} onChange={(e) => setLocalState(prev => ({ ...prev, currency: e.target.value }))}
                         className='border-divider 
                         border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
                         rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]'>
@@ -254,10 +140,10 @@ export default function RestAllDetails({ setBtnDisabled, state, setState, setInp
                     </select>
 
                 </div>
-                <div className='w-full flex flex-col gap-0 relative pb-2'>
+                <div className='w-[45%] flex flex-col gap-0 relative'>
 
                     <div
-                        className='w-[45%] flex flex-col gap-1 relative'>
+                        className='w-full flex flex-col gap-1 relative'>
                         <label htmlFor="texPrecent-input"
                             className='text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px]'>Tax Precentage</label>
 
@@ -275,13 +161,13 @@ export default function RestAllDetails({ setBtnDisabled, state, setState, setInp
                         </label>
                         <input id='texPrecent-input' type='text'
                             placeholder='eg. 5' required
-                            onFocus={() => setInputError(prev => ({ ...prev, texPrecent: '' }))}
-                            value={state.texPrecent} onChange={(e) => setState(prev => ({ ...prev, texPrecent: e.target.value }))}
-                            className={`${inputError.texPrecent ? 'border-red-600' : 'border-divider '}
+                            onFocus={() => setInputError(prev => ({ ...prev, tax_prec: '' }))}
+                            value={localState.tax_prec} onChange={(e) => setLocalState(prev => ({ ...prev, tax_prec: e.target.value }))}
+                            className={`${inputError.tax_prec ? 'border-red-600' : 'border-divider '}
                                             border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
                                             rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]`} />
                     </div>
-                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.texPrecent}</span>
+                    <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.tax_prec}</span>
 
                 </div>
             </div>
@@ -297,7 +183,7 @@ export default function RestAllDetails({ setBtnDisabled, state, setState, setInp
                     <PiForkKnife />
                 </label>
                 <select id="restType-input"
-                    value={state.restType} onChange={(e) => setState(prev => ({ ...prev, restType: e.target.value }))}
+                    value={localState.res_type} onChange={(e) => setLocalState(prev => ({ ...prev, res_type: e.target.value }))}
                     className='border-divider 
                         border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 
                         rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]'>
@@ -309,78 +195,22 @@ export default function RestAllDetails({ setBtnDisabled, state, setState, setInp
                 </select>
 
             </div>
+            <ResOpenningTime localState={localState} setLocalState={setLocalState}/>
             <div
-                className="border-1 border-divider rounded-2xl p-2
-            flex flex-col gap-3 w-full mt-5">
-                <div
-                    className="flex gap-1 items-center text-main-text text-[16px] md:text-[18px]">
-                    <IoMdTime color="orange" />
-                    <span>
-                        Opening Hours
-                    </span>
-                </div>
-                {weekDays.map(d => <div key={d.id}
-                    className="w-full flex flex-col gap-1.5 items-start">
-                    <div className=" flex gap-1 items-center">
-                        <input type="checkbox" id={`day-check-${d.id}`}
-                            checked={state.openingTimimgs[d.label].selected}
-                            onChange={(e) => setState(prev => ({
-                                ...prev, openingTimimgs: {
-                                    ...prev.openingTimimgs,
-                                    [d.label]: {
-                                        ...prev.openingTimimgs[d.label],
-                                        selected: e.target.checked
-                                    }
-                                }
-                            }))}
-                            className="accent-active-border cursor-pointer" />
-                        <label htmlFor={`day-check-${d.id}`}
-                            className="text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px] cursor-pointer">{d.label}</label>
-                    </div>
-                    <div
-                        className="flex gap-2 items-center">
-                        <div>
-                            <input type="time" name="" id=""
-
-                                value={state.openingTimimgs[d.label].opening}
-                                onChange={(e) => setState(prev => ({
-                                    ...prev,
-                                    openingTimimgs: {
-                                        ...prev.openingTimimgs,
-                                        [d.label]: {
-                                            ...prev.openingTimimgs[d.label],
-                                            opening: e.target.value
-                                        }
-                                    }
-                                }))}
-                                className="border-divider 
-                        border-1 focus:outline-1  w-[120px] md:w-[180px] focus:outline-active-border focus:border-active-border outline-0 
-                        rounded-lg p-1.5  text-main-text text-[14px] md:text-[16px]"/>
-                        </div>
-                        <span className="text-[14px] md:text-[16px] text-sec-text/80">to</span>
-                        <div>
-
-                            <input type="time" name="" id=""
-                                value={state.openingTimimgs[d.label].closing}
-                                onChange={(e) => setState(prev => ({
-                                    ...prev,
-                                    openingTimimgs: {
-                                        ...prev.openingTimimgs,
-                                        [d.label]: {
-                                            ...prev.openingTimimgs[d.label],
-                                            closing: e.target.value
-                                        }
-                                    }
-                                }))}
-                                disabled={!state.openingTimimgs[d.label].selected}
-                                className="border-divider 
-                        border-1 focus:outline-1  w-[120px] md:w-[180px] focus:outline-active-border focus:border-active-border outline-0 
-                        rounded-lg p-1.5  text-main-text text-[14px] md:text-[16px] [&::-webkit-time-picker-indicator]:hidden"/>
-                        </div>
-                    </div>
-
-                </div>)}
-
+                className="w-full flex justify-between items-center">
+                <button onClick={() => setActiveTab('contact')}
+                    className='mt-3 w-[75px] md:w-[80px] py-2  rounded-lg  border-1 flex items-center text-center justify-center
+                            border-low-text/80 hover:border-low-text hover:bg-low-text/10 active:border-sec-text active:bg-low-text/30
+                            text-low-text/80 hover:text-low-text active:text-sec-text
+                             text-[12px] md:text-[13px] lg:text-[14px] font-[600]'
+                ><MdNavigateBefore /> Back </button>
+                <button
+                    onClick={handleNext}
+                    disabled={btnDisabled}
+                    className={` mt-3 w-[75px] md:w-[80px] py-2  rounded-lg bg-linear-0  text-[12px] md:text-[13px] lg:text-[14px] font-[600] flex items-center text-center justify-center
+                                                 ${btnDisabled ? 'bg-divider cursor-not-allowed text-low-text/70' : 'text-white to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}>
+                    Next <MdNavigateNext />
+                </button>
             </div>
         </div>
     )

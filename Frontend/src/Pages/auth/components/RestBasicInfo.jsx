@@ -8,14 +8,13 @@ import { MdNavigateNext } from "react-icons/md";
 const restaurantNameCheck = /^[a-zA-Z0-9\s&'-]{3,50}$/;
 const locationCheck = /^[a-zA-Z0-9\s,.'#\-\/]{10,255}$/;
 
-
 export default function RestBasicInfo({ state, setState, setActiveTab }) {
 
     const [suggestions, setSuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
     const [localState, setLocalState] = useState({
-        res_name: state.resName || '',
+        res_name: state.res_name || '',
         logo: state.logo || '',
         full_location: state.full_location || '',
         address: state.address ?? {
@@ -52,10 +51,6 @@ export default function RestBasicInfo({ state, setState, setActiveTab }) {
             setInputError(prev => ({ ...prev, full_location: "Please enter a valid address (10-255 characters)" }))
             return;
         }
-        // if(!localState.address){
-        //     setInputError(prev => ({ ...prev, full_location: "Please select address from suggestions." }));
-        //     return;
-        // }
 
         setState(prev => ({ ...prev, ...localState }));
 
@@ -66,8 +61,7 @@ export default function RestBasicInfo({ state, setState, setActiveTab }) {
         const { name, city, state: prov, country, district } = item.properties;
         const [lng, lat] = item.geometry.coordinates;
 
-        const fullAddr = `${name}${district ? `, ${district}` : ""}${city ? `, ${city}` : ""}, ${prov}, ${country}`;
-console.log('fulladd',fullAddr)
+        const fullAddr = `${name}${city ? `, ${city}` : ""}${district ? `, ${district}` : ""}, ${prov}, ${country}`;
         const addr = {
             name: name,
             city: city || district || "",
@@ -85,8 +79,7 @@ console.log('fulladd',fullAddr)
         setSuggestions([]);
     };
 
-    const btnDisabled = Boolean(!localState.res_name.trim() || !localState.full_location);
-
+    const btnDisabled = Boolean(!localState.res_name.trim() || !localState.full_location.trim());
 
     return (
         <div
@@ -189,12 +182,6 @@ console.log('fulladd',fullAddr)
             <div
                 className="w-full flex justify-end items-center">
 
-                {/* <button onClick={handleBackBtn}
-                    className='mt-3 py-2 px-6  rounded-lg border-1 
-                border-low-text/80 hover:border-low-text hover:bg-low-text/10 active:border-sec-text active:bg-low-text/30
-                text-low-text/80 hover:text-low-text active:text-sec-text
-                 text-[12px] md:text-[13px] lg:text-[14px] font-[600]'
-                >Back</button> */}
                 <button onClick={handleNext}
                     disabled={btnDisabled}
                     className={` mt-3 w-[75px] md:w-[80px] py-2  rounded-lg bg-linear-0  text-[12px] md:text-[13px] lg:text-[14px] font-[600] flex items-center text-center justify-center
