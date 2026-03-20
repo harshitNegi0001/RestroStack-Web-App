@@ -1,17 +1,16 @@
 
 import db from './db.js';
-import { returnRes } from './returnRes.js';
 
-export const getUserInfo = async (res, userId) => {
+export const getUserInfo = async ( userId) => {
     try {
         const result = await db.query(
             `SELECT 
                 id,
                 email,
+                image,
                 name,
-                role,
                 verified_email,
-                is_active,
+                acc_status,
                 created_at
             FROM users 
             WHERE id =$1
@@ -21,6 +20,6 @@ export const getUserInfo = async (res, userId) => {
 
         return result.rows[0];
     } catch (err) {
-        return returnRes(res, 500, { success: false, error: true, message: 'Internal Server Error!' });
+        throw err
     }
 }

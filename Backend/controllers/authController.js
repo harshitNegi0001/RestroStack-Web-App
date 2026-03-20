@@ -50,7 +50,7 @@ class Auth {
                 [email, name, hashedPass]
             );
 
-            const userInfo = await getUserInfo(res, user.rows[0].id);
+            const userInfo = await getUserInfo( user.rows[0].id);
 
             await this.generateOtp(res, email, 'Verify Email', 'Please use the following code to verify your email address.');
 
@@ -58,6 +58,7 @@ class Auth {
 
 
         } catch (err) {
+            console.log(err);
             return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }
@@ -172,6 +173,7 @@ class Auth {
 
             }
         } catch (err) {
+            console.log(err);
             return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }
@@ -247,8 +249,8 @@ class Auth {
                 }
 
 
-                const userInfo = await getUserInfo(res, userId);
-                const token = createToken({ id: userInfo, role: userInfo.role, email: userInfo.email });
+                const userInfo = await getUserInfo( userId);
+                const token = createToken({ id: userInfo.id, email: userInfo.email });
 
                 res.cookie('authToken', token, {
                     httpOnly: true,
@@ -284,7 +286,7 @@ class Auth {
             }
 
         } catch (err) {
-            // console.log(err);
+            console.log(err);
             return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
 
         }
@@ -303,7 +305,7 @@ class Auth {
             await this.generateOtp(res, email, subject, cstm_msg);
             return returnRes(res, 200, { success: true, error: false, message: 'Verification otp sent.' });
 
-        } catch (error) {
+        } catch (err) {
             return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
 
         }
@@ -339,9 +341,9 @@ class Auth {
 
             if (isMatched) {
                 const verified_email = user_data.verified_email;
-                const userInfo = await getUserInfo(res, user_data.id);
+                const userInfo = await getUserInfo( user_data.id);
                 if (verified_email) {
-                    const token = createToken({ id: userInfo, role: userInfo.role, email: userInfo.email });
+                    const token = createToken({ id: userInfo.id, email: userInfo.email });
                     res.cookie('authToken', token, {
                         httpOnly: true,
                         secure: isProduction,
@@ -360,7 +362,8 @@ class Auth {
                 message: 'Invalid email or password. Please check your credentials and try again.',
                 error: 'UNAUTHORIZED_ACCESS'
             });
-        } catch (error) {
+        } catch (err) {
+            console.log(err)
             return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
 
         }
