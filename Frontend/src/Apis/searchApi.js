@@ -11,7 +11,7 @@ export const searchLocation = async (query) => {
         return data;
     } catch (err) {
         console.log(err);
-        toast.error('Something Went Wrong!');
+        // toast.error('Something Went Wrong!');
         return [];
     }
 }

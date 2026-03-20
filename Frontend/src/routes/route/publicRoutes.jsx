@@ -1,5 +1,7 @@
 import { lazy } from "react";
 import NewUserSetup from "../../Pages/auth/NewUserSetup";
+import SubscriptionWindow from "../../components/SubscriptionWindow";
+import MainLayout from "../../Pages/layout/MainLayout";
 
 // const   = lazy(()=>import(''));
 const Login = lazy(() => import('../../Pages/auth/Login'));
@@ -44,6 +46,18 @@ export const publicRoutes = [
         id: 6,
         path: '/setup-user',
         element: <NewUserSetup />
+
+    },
+    {
+        id: 7,
+        path: '/subscription_window',
+        element: <SubscriptionWindow />
+
+    },
+    {
+        id: 8,
+        path: '/',
+        element: <MainLayout />
 
     },
 ]

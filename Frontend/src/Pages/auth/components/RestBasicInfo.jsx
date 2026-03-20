@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { IoRestaurantOutline } from "react-icons/io5";
 import { IoLocationOutline } from "react-icons/io5";
 import { LuBuilding2 } from "react-icons/lu";
-import { searchLocation } from "../../../Apis/rearchApis";
+import { searchLocation } from "../../../Apis/searchApi";
 import { MdNavigateNext } from "react-icons/md";
 
 const restaurantNameCheck = /^[a-zA-Z0-9\s&'-]{3,50}$/;
