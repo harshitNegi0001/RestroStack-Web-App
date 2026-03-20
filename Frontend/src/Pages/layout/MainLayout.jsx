@@ -6,7 +6,7 @@ import DesktopSideabr from "./DesktopSidebar";
 
 
 export default function MainLayout() {
-    const [openSidebar, setOpenSidebar] = useState(true);
+    const [openSidebar, setOpenSidebar] = useState(false);
     useEffect(() => {
 
     }, []);
