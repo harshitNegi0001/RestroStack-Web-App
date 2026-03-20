@@ -33,7 +33,7 @@ const authReducer = createSlice({
         setState: (state, action) => {
             if (action.payload.theme) {
                 state.theme = action.payload.theme
-                localStorage.setItem('app-theme', action.payload);
+                localStorage.setItem('app-theme', action.payload.theme);
             }
             if (action.payload.isLoading) {
                 state.isLoading = action.payload.isLoading

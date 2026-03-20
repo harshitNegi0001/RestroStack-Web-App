@@ -1,7 +1,7 @@
 import { TbLayoutSidebarInactive } from 'react-icons/tb';
 import { MdOutlineLightMode,MdOutlineDarkMode  } from "react-icons/md";
 import {useDispatch, useSelector, } from 'react-redux';
-import { setState } from '../../Store/Auth/authReducer';
+import {  setTheme } from '../../Store/Auth/authReducer';
 
 export default function Appbar({ setOpenSidebar }) {
 
@@ -19,7 +19,7 @@ export default function Appbar({ setOpenSidebar }) {
                         <TbLayoutSidebarInactive />
                 
             </div>
-            <div onClick={()=>dispatch(setState({theme:theme=='dark'?'light':'dark'}))}
+            <div onClick={()=>dispatch(setTheme(theme=='dark'?'light':'dark'))}
              className={`size-[43px] flex justify-center rounded-[50%] items-center hover:bg-main-text/20
                text-sec-text/80 hover:text-sec-text text-[22px]
                 ${theme=='dark'?'rotate-0':'rotate-360'} transition-all duration-500`}>
