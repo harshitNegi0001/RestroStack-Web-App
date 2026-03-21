@@ -6,7 +6,7 @@ import { HiOutlineCreditCard } from "react-icons/hi2";
 import { LuSettings } from "react-icons/lu";
 import { useState } from "react";
 import RestaurantSelectComponent from "./RestaurantSelect";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import { TbLogout } from "react-icons/tb";
 
@@ -17,7 +17,7 @@ const sidebarOtions = {
             title: 'Operations',
             options: [
                 {
-                    path: '#',
+                    path: '/',
                     icon: <LuLayoutDashboard />,
                     name: 'Dashboard'
                 },
@@ -67,7 +67,9 @@ const sidebarOtions = {
 
 
 export default function Sidebar({ openSidebar, setOpenSidebar }) {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const { pathname } = useLocation();
+
     return (
         <div
             className={`absolute top-0 lg:hidden bg-card-bg   z-100 h-[100dvh]  w-fit flex flex-col gap-2
@@ -86,10 +88,10 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
                         {nav.title}
                     </span>
                     {nav.options.map((o, i) => <div key={i}
-                        onClick={() => {navigate(o.path); setOpenSidebar(false)}}
+                        onClick={() => { navigate(o.path); setOpenSidebar(false) }}
                         className={`p-3 h-[45px] cursor-pointer rounded-2xl min-w-0 w-full
-                                 hover:bg-sec-text/5 active:bg-sec-text/20 flex items-center gap-1 text-low-text/70 hover:text-low-text active:text-sec-text
-                                text-[16px] shrink-0`}>
+                    ${o.path == pathname ? 'bg-active-border/30 text-active-border' : 'hover:bg-sec-text/5 active:bg-sec-text/20 text-low-text/70 hover:text-low-text active:text-sec-text'} 
+                    flex items-center gap-1 text-[16px] shrink-0`}>
                         <div className="size-[24px] flex items-center justify-center shrink-0">
                             {o.icon}
                         </div>
@@ -98,9 +100,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
                 </div>)}
             </div>
             <div className="py-3 px-2 w-full border-t-1 border-divider flex items-center gap-2">
-                <div className="size-[43px] flex justify-center rounded-[50%] items-center text-center bg-gray-600
-                                    text-white text-[43px]
-                                    ">
+                <div className="size-[35px] flex justify-center rounded-[50%] items-center text-center bg-gray-600
+                        text-white text-[35px]">
                     {
                         false ?
                             <img src="" alt="" /> :
@@ -113,7 +114,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
                     <span className="w-full truncate text-low-text/70 text-[12px]">Owner</span>
                 </div>
                 <button type="button"
-                    onClick={() => setDropdownOpen(prev => !prev)}
+                    // onClick={() => setDropdownOpen(prev => !prev)}
                     className={` flex justify-center items-center text-center p-3 rounded-[50%] text-sec-text/80 
                                             hover:bg-divider/30 active:bg-divider/50 hover:text-sec-text active:text-main-text`}>
                     <TbLogout />

@@ -126,6 +126,7 @@
 .show-custom-scrollbar {
     scrollbar-width: thin !important;
     /* Firefox mein on karega */
+    scrollbar-gutter: stable;
     scrollbar-color: var(--scrollbar-clr) var(--bg-primary) !important;
 }
 

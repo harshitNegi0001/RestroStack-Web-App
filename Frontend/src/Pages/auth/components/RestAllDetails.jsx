@@ -7,9 +7,12 @@ import { PiForkKnife } from "react-icons/pi";
 import { currencies, cuissineTypes, weekDays } from "../../../utils/clientSideData/setupVariables.jsx";
 import { MdNavigateBefore, MdNavigateNext } from "react-icons/md";
 import ResOpenningTime from "./ResOpenningTime.jsx";
+import toast from "react-hot-toast";
 
 
-
+const gstNoCheck = /^[a-zA-Z0-9-]{5,20}$/;
+const FssaiLiNoCheck = /^[a-zA-Z0-9\s/-]{5,30}$/;
+const nonNegativeRegex = /^\d*\.?\d+$/;
 export default function RestAllDetails({ state, setState, setActiveTab }) {
 
     const [localState, setLocalState] = useState({
@@ -19,11 +22,11 @@ export default function RestAllDetails({ state, setState, setActiveTab }) {
         currency: state.currency || 'INR',
         tax_prec: state.tax_prec || '0',
         opening_timeing: state.opening_timeing || [
-            ...weekDays.map(w=>{
-                return{
-                    isClosed:false,
-                    opening:'08:00',
-                    closing:'20:00'
+            ...weekDays.map(w => {
+                return {
+                    isClosed: false,
+                    opening: '08:00',
+                    closing: '20:00'
                 }
             })
         ]
@@ -36,12 +39,26 @@ export default function RestAllDetails({ state, setState, setActiveTab }) {
         tax_prec: ''
     });
 
-    const handleNext = () => {
-
-
-        // setState(prev => ({ ...prev, ...localState }));
-
-        // setActiveTab('details');
+    const handleNext = async () => {
+        if (!gstNoCheck.test(localState.gstin)) {
+            setInputError(prev => ({ ...prev, gstin: 'Please enter a valid Tax ID or VAT number (5-20 characters).' }));
+            return;
+        }
+        if (!FssaiLiNoCheck.test(localState.fssai_no)) {
+            setInputError(prev => ({ ...prev, fssai_no: 'Please enter a valid Food Safety License or Health Permit number.' }));
+            return;
+        }
+        if (!nonNegativeRegex.test(localState.tax_prec)) {
+            toast.error('Tax percentage cannot be negative or contain invalid characters.');
+            return;
+        }
+        const openingdays= localState.opening_timeing;
+        const hasOpenDay=openingdays.some(day => !day.isClosed);
+        if(!hasOpenDay){
+            toast.error('Select alteast one day to open restaurant.')
+            // setInputError(prev => ({ ...prev, opening_timeing: 'Select alteast one day to open restaurant.' }));
+            return;
+        }
     }
     const btnDisabled = Boolean(!localState.fssai_no.trim() || !localState.gstin.trim() || !localState.tax_prec.trim());
 
@@ -195,7 +212,7 @@ export default function RestAllDetails({ state, setState, setActiveTab }) {
                 </select>
 
             </div>
-            <ResOpenningTime localState={localState} setLocalState={setLocalState}/>
+            <ResOpenningTime localState={localState} setLocalState={setLocalState} />
             <div
                 className="w-full flex justify-between items-center">
                 <button onClick={() => setActiveTab('contact')}
@@ -209,7 +226,7 @@ export default function RestAllDetails({ state, setState, setActiveTab }) {
                     disabled={btnDisabled}
                     className={` mt-3 w-[75px] md:w-[80px] py-2  rounded-lg bg-linear-0  text-[12px] md:text-[13px] lg:text-[14px] font-[600] flex items-center text-center justify-center
                                                  ${btnDisabled ? 'bg-divider cursor-not-allowed text-low-text/70' : 'text-white to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}>
-                    Next <MdNavigateNext />
+                    Submit <MdNavigateNext />
                 </button>
             </div>
         </div>

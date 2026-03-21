@@ -10,7 +10,7 @@ import { submitRestrauntData } from '../../Apis/restrauntSetupApi';
 export default function RestaurantSetup({ setActivePage }) {
 
     const [btnDisabled, setBtnDisabled] = useState(true);
-    const [activeTab, setActiveTab] = useState('details');
+    const [activeTab, setActiveTab] = useState('basic-info');
     const [doneQueue, setDoneQueue] = useState([]);
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
     const [restaurantInfo, setRestaurantInfo] = useState({});

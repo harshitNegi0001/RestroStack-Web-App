@@ -3,10 +3,12 @@ import axios from 'axios';
 
 
 const backend_url = import.meta.env.VITE_BACKEND_URL
-const theme = localStorage.getItem('app-theme') || 'light';
+const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+const theme = localStorage.getItem('app-theme') || systemTheme;
 const initialState = {
     theme:theme,
     userInfo: null,
+    role:'owner',
     isLoading: false
 }
 
@@ -41,7 +43,9 @@ const authReducer = createSlice({
             }
             if (action.payload.userInfo) {
                 state.userInfo = action.payload.userInfo
-
+            }
+            if (action.payload.role) {
+                state.role = action.payload.role
             }
         }
 
