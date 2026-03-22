@@ -43,13 +43,13 @@
     --disable-btn: var(--color-gray-800);
     --success-toast-bg: var(--color-green-200);
     --error-toast-bg: var(--color-red-200);
-    --toast-bg: var(--color-gray-200);
+    --toast-bg: #e3eee2;
     --card-bg: #fff;
     --toast-main-font: 12px;
     --scrollbar-clr: #758873d8;
     --skeleton: #44504350;
     --skeleton-wave: #4b615c80;
-
+    
 }
 
 .dark {
@@ -63,7 +63,7 @@
     --disable-btn: var(--color-gray-500);
     --success-toast-bg: var(--color-green-950);
     --error-toast-bg: var(--color-red-950);
-    --toast-bg: var(--color-gray-950);
+    --toast-bg: #1d201d;
     --scrollbar-clr: #69b962a9;
     --skeleton: #6e886b46;
     --skeleton-wave: #7e9e9780;

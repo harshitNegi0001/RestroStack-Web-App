@@ -10,7 +10,6 @@ import { IoReceiptOutline } from "react-icons/io5";
 import { LuPackage } from "react-icons/lu";
 
 export const sidebarNavs = [
-    // operations sections
     {
         id: 1,
         title: 'Operations',
@@ -19,7 +18,7 @@ export const sidebarNavs = [
                 id: 1,
                 title: 'Dashboard',
                 icon: <LuLayoutDashboard />,
-                path: '/',
+                path: '/dashboard',
                 permission: 'view_dashboard'
             },
             {
@@ -52,7 +51,6 @@ export const sidebarNavs = [
             // },
         ]
     },
-    // staff & roles
     {
         id: 2,
         title: 'Workforce',
@@ -73,7 +71,6 @@ export const sidebarNavs = [
             },
         ]
     },
-
     {
         id: 3,
         title: 'Finance',
@@ -107,11 +104,4 @@ export const sidebarNavs = [
             },
         ]
     }
-    // 
-
-
-
-
-
-
 ]

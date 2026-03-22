@@ -4,10 +4,10 @@
 
 
 export const permissionBasedRoutes = [
-    // {
-    //     id:1,
-    //     path:'/',
-    //     permission:'',
-    //     element:null
-    // }
+    {
+        id:1,
+        path:'/',
+        permission:'',
+        element:<Dasboard />
+    }
 ]

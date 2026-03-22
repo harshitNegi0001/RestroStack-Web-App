@@ -1,22 +1,28 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import Sidebar from "./MobileSidebar";
-import Appbar from "./DesktopAppbar";
+import Appbar from "./Appbar";
 import DesktopSideabr from "./DesktopSidebar";
-
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 
 export default function MainLayout() {
     const [openSidebar, setOpenSidebar] = useState(false);
-    useEffect(() => {
+    const { pathname } = useLocation();
+    const navigate = useNavigate();
 
+    useEffect(() => {
+        if (pathname == '/') {
+            navigate('/dashboard');
+        }
     }, []);
     return (
         <div
             className="w-[100dvw] h-[100dvh]  relative flex flex-row">
-                <DesktopSideabr openSidebar={openSidebar}/>
-            <div 
-            className="flex flex-row flex-1">
-                <Appbar setOpenSidebar={setOpenSidebar}/>
+            <DesktopSideabr openSidebar={openSidebar} />
+            <div
+                className="flex flex-row flex-1">
+                <Appbar setOpenSidebar={setOpenSidebar} />
+                <Outlet/>
             </div>
             {openSidebar && <div
                 onClick={() => setOpenSidebar(false)}

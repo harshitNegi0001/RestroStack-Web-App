@@ -1,7 +1,8 @@
 
 import { LuBuilding2 } from "react-icons/lu";
 import { FaChevronDown } from "react-icons/fa6";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { useOutsideClick } from "../../utils/coustomHook/useOutsideClick";
 
 const restaurant_data = [
     {
@@ -25,7 +26,9 @@ const restaurant_data = [
 ]
 export default function RestaurantSelectComponent({openSidebar}) {
     const [activeRes, setActiveRes] = useState(restaurant_data[1]);
-
+    const dropdownRef=useRef();
+    const clickBtnRef=useRef();
+    useOutsideClick(dropdownRef,()=>setDropdownOpen(false),clickBtnRef)
     const [dropdownOpen, setDropdownOpen] = useState(false);
     return (
         <div
@@ -46,17 +49,15 @@ export default function RestaurantSelectComponent({openSidebar}) {
                 {activeRes.res_name}
             </span>
             <button type="button"
+            ref={clickBtnRef}
                 onClick={() => setDropdownOpen(prev => !prev)}
                 className={` flex justify-center items-center text-center p-3 rounded-[50%] text-sec-text/80 
                             hover:bg-divider/30 active:bg-divider/50 hover:text-sec-text active:text-main-text
                             ${dropdownOpen ? 'rotate-180' : 'rotate-0'} transition-all duration-[200ms] `}>
                 <FaChevronDown />
             </button></>}
-            {dropdownOpen&&<div  onClick={()=>setDropdownOpen(false)}
-            className="fixed top-0 left-0  w-[100dvw] h-[100dvh] z-2">
-
-            </div>}
-            <div
+            
+            <div ref={dropdownRef}
                 className={`
                 ${dropdownOpen ? 'top-[110%] opacity-100 pointer-events-auto' : 'top-[50%] opacity-0 pointer-events-none'} 
                 p-2 bg-toast-bg w-full absolute z-4 transition-all duration-200 rounded-2xl flex flex-col

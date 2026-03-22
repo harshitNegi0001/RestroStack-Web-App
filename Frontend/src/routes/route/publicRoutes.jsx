@@ -60,4 +60,10 @@ export const publicRoutes = [
         element: <MainLayout />
 
     },
+    {
+        id: 9,
+        path: '/dashboard',
+        element: <MainLayout />
+
+    },
 ]

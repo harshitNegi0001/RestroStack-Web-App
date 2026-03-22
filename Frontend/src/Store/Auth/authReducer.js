@@ -2,13 +2,14 @@ import { asyncThunkCreator, createSlice } from "@reduxjs/toolkit";
 import axios from 'axios';
 
 
-const backend_url = import.meta.env.VITE_BACKEND_URL
+const backend_url = import.meta.env.VITE_BACKEND_URL;
 const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 const theme = localStorage.getItem('app-theme') || systemTheme;
 const initialState = {
     theme:theme,
     userInfo: null,
-    role:'owner',
+    role:null,
+    permissions:{},
     isLoading: false
 }
 
@@ -16,7 +17,12 @@ const initialState = {
 //     'auth/getInitialState',
 //     async (_, thunkAPI) => {
 //         try {
-//             const result = await axios.get()
+//             const result = await axios.get(
+//                 `${backend_url}/auth/get-my-info`,
+//                 {
+//                     withCredentials:true
+//                 }
+//             )
 //         } catch (err) {
 //             console.log(err);
 //             return thunkAPI.rejectWithValue(err.message);
@@ -46,6 +52,9 @@ const authReducer = createSlice({
             }
             if (action.payload.role) {
                 state.role = action.payload.role
+            }
+            if (action.payload.permissions) {
+                state.permissions = action.payload.permissions
             }
         }
 

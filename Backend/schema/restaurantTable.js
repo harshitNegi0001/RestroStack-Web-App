@@ -24,7 +24,6 @@ export const createRestaurantTable = async (pool) => {
                 gst_tax DECIMAL NOT NULL DEFAULT 0,
                 currency VARCHAR(5),
 
-
                 verified_email BOOLEAN DEFAULT FALSE,
 
                 updated_at TIMESTAMPTZ DEFAULT now(),

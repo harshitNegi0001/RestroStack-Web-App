@@ -19,13 +19,16 @@ class Auth {
         pass = pass.trim();
         try {
             const emailCheck = await db.query(
-                `SELECT 1
+                `SELECT 
+                email,
+                verified_email
                 FROM users
                 WHERE email = $1`,
                 [email]
             );
-
-            if (emailCheck.rows.length > 0) {
+            const isExists = emailCheck.rows.length > 0;
+            const isVerified = isExists ? emailCheck.rows[0].verified_email : false;
+            if (isExists && isVerified) {
                 return returnRes(res, 409, {
                     error: 'Email already exists',
                     message: 'An account with this email already exists. Please use a different email or log in.'
@@ -33,9 +36,22 @@ class Auth {
             }
 
             const hashedPass = await bcrypt.hash(pass, 10);
-
-            const user = await db.query(
-                `INSERT INTO users
+            let user;
+            if (isExists && !isVerified) {
+                // update hashpass
+                user = await db.query(
+                    `UPDATE users
+                    SET name =$1,
+                        hashed_pass =$2,
+                        created_at =now()
+                    WHERE email =$3
+                    RETURNING id`,
+                    [name, hashedPass, email]
+                )
+            }
+            else {
+                user = await db.query(
+                    `INSERT INTO users
                 (
                     email,
                     name,
@@ -47,35 +63,40 @@ class Auth {
                 )
                 RETURNING id
                 `,
-                [email, name, hashedPass]
-            );
+                    [email, name, hashedPass]
+                );
+            }
 
-            const userInfo = await getUserInfo( user.rows[0].id);
 
-            await this.generateOtp(res, email, 'Verify Email', 'Please use the following code to verify your email address.');
+            const userInfo = await getUserInfo(user.rows[0].id);
+
+            await this.generateOtp(email, 'Verify Email', 'Please use the following code to verify your email address.');
 
             return returnRes(res, 201, { success: true, error: false, message: 'Account created and email verification otp sent', userInfo: userInfo });
 
 
         } catch (err) {
+            if (err.status) {
+                return returnRes(res, err.status, { message: err.message, error: err.error });
+            }
             console.log(err);
-            return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+            return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }
     // helper function to generate and send otp
-    generateOtp = async (res, email, subject, cstmMsg) => {
-        try {
+    generateOtp = async (email, subject, cstmMsg) => {
 
-            const emailCheck = await db.query(
-                `SELECT 1 FROM users
+
+        const emailCheck = await db.query(
+            `SELECT 1 FROM users
                 WHERE email = $1`,
-                [email]
-            );
-            const isExistEmail = emailCheck.rows.length > 0;
+            [email]
+        );
+        const isExistEmail = emailCheck.rows.length > 0;
 
-            if (isExistEmail) {
-                const otp_rate_check = await db.query(
-                    `SELECT 
+        if (isExistEmail) {
+            const otp_rate_check = await db.query(
+                `SELECT 
                         count,
                         last_sent_at
                         
@@ -85,32 +106,32 @@ class Auth {
                         AND action_type = 'otp'
                         AND window_start :: DATE = CURRENT_DATE
                     `,
-                    [email]
-                );
+                [email]
+            );
 
-                if (otp_rate_check.rows.length > 0) {
-                    if (otp_rate_check.rows[0].count >= 10) {
-                        return returnRes(res, 429, { success: false,  message: 'You’ve reached today’s OTP request limit. Please try again tomorrow.', error: 'TOO_MANY_REQUESTS' });
-                    }
-                    const lastSentAt = new Date(otp_rate_check.rows[0].last_sent_at);
-                    const currentTime = new Date();
-                    const timeDiff = currentTime - lastSentAt;
-                    const threeMinutes = 3 * 60 * 1000;
-                    if (timeDiff < threeMinutes) {
-                        const remainingSecs = Math.ceil((threeMinutes - timeDiff) / 1000);
-                        return returnRes(res, 429, { success: false,  message: `Please wait ${remainingSecs} seconds before requesting a new OTP.`, error: 'TOO_MANY_REQUESTS' });
-                    }
+            if (otp_rate_check.rows.length > 0) {
+                if (otp_rate_check.rows[0].count >= 10) {
+                    throw { status: 429, message: 'You’ve reached today’s OTP request limit. Please try again tomorrow.', error: 'TOO_MANY_REQUESTS' }
                 }
+                const lastSentAt = new Date(otp_rate_check.rows[0].last_sent_at);
+                const currentTime = new Date();
+                const timeDiff = currentTime - lastSentAt;
+                const threeMinutes = 3 * 60 * 1000;
+                if (timeDiff < threeMinutes) {
+                    const remainingSecs = Math.ceil((threeMinutes - timeDiff) / 1000);
+                    throw { status: 429, message: `Please wait ${remainingSecs} seconds before requesting a new OTP.`, error: 'TOO_MANY_REQUESTS' }
+                }
+            }
 
-                const otp = Math.floor(100000 + Math.random() * 900000);
-                const otp_hash = await bcrypt.hash(String(otp), 10);
+            const otp = Math.floor(100000 + Math.random() * 900000);
+            const otp_hash = await bcrypt.hash(String(otp), 10);
 
-                const message = createOtpMail(otp, subject, cstmMsg);
-                await sendEmail(email, subject, message);
+            const message = createOtpMail(otp, subject, cstmMsg);
+            await sendEmail(email, subject, message);
 
 
-                await db.query(
-                    `INSERT INTO 
+            await db.query(
+                `INSERT INTO 
                     rate_limit_count
                     (
                         identifier,
@@ -140,11 +161,11 @@ class Auth {
                                     ELSE  now()
                                 END,
                             last_sent_at = now()`,
-                    [email]
-                );
-                const otp_type = (subject == 'Verify Email') ? 'verification' : 'reset_pass'
-                await db.query(
-                    `INSERT INTO 
+                [email]
+            );
+            const otp_type = (subject == 'Verify Email') ? 'verification' : 'reset_pass'
+            await db.query(
+                `INSERT INTO 
                     otp_table(
                         identifier,
                         identifier_type,
@@ -164,18 +185,16 @@ class Auth {
                                 created_at = now(),
                                 attempts_count=0
                     `,
-                    [email, otp_hash, otp_type]
-                );
-                return;
-            }
-            else {
-                return returnRes(res, 404, { success: false,  message: 'No user found with this email.', error: 'USER_NOT_FOUND' });
-
-            }
-        } catch (err) {
-            console.log(err);
-            return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+                [email, otp_hash, otp_type]
+            );
+            return;
         }
+        else {
+            throw { status: 404, message: 'No user found with this email.', error: 'USER_NOT_FOUND' }
+            // return returnRes(res, 404, { success: false, message: 'No user found with this email.', error: 'USER_NOT_FOUND' });
+
+        }
+
     }
 
     // controller function to verify otp
@@ -202,13 +221,13 @@ class Auth {
             );
             const isExistEmail = user_check.rows.length > 0;
             if (!isExistEmail) {
-                return returnRes(res, 404, { success: false,  message: 'No user found with this email.', error: 'USER_NOT_FOUND' });
+                return returnRes(res, 404, { success: false, message: 'No user found with this email.', error: 'USER_NOT_FOUND' });
 
             }
             const otp_data = otp_check.rows?.[0];
 
             if (otp_check.rows.length == 0 || otp_data?.status == 'expired' || otp_data?.status == 'verified' || otp_data?.status == 'failed') {
-                return returnRes(res, 400, { success: false,  message: 'The OTP has either expired or was never requested.\nPlease trigger a new verification email.', error: 'INVALID_OR_EXPIRED_OTP' });
+                return returnRes(res, 400, { success: false, message: 'The OTP has either expired or was never requested.\nPlease trigger a new verification email.', error: 'INVALID_OR_EXPIRED_OTP' });
             }
             const expiresAt = new Date(otp_data.expires_at);
             const currentTime = new Date();
@@ -222,7 +241,7 @@ class Auth {
                         AND otp_type=$2 `,
                     [email, otp_type]
                 );
-                return returnRes(res, 400, { success: false,  message: 'The OTP has either expired or was never requested.\nPlease trigger a new verification email.', error: 'INVALID_OR_EXPIRED_OTP' });
+                return returnRes(res, 400, { success: false, message: 'The OTP has either expired or was never requested.\nPlease trigger a new verification email.', error: 'INVALID_OR_EXPIRED_OTP' });
             }
 
             const is_correct = await bcrypt.compare(otp, otp_data.hashed_otp);
@@ -249,7 +268,7 @@ class Auth {
                 }
 
 
-                const userInfo = await getUserInfo( userId);
+                const userInfo = await getUserInfo(userId);
                 const token = createToken({ id: userInfo.id, email: userInfo.email });
 
                 res.cookie('authToken', token, {
@@ -280,15 +299,14 @@ class Auth {
                         AND otp_type=$2 `,
                         [email, otp_type]
                     );
-                    return returnRes(res, 429, { success: false,  message: 'Verification failed too many times. For security reasons, this OTP is now invalid. \nPlease request a new one.', error: 'TOO_MANY_ATTEMPTS' });
+                    return returnRes(res, 429, { success: false, message: 'Verification failed too many times. For security reasons, this OTP is now invalid. \nPlease request a new one.', error: 'TOO_MANY_ATTEMPTS' });
                 }
-                return returnRes(res, 401, { success: false,  message: 'The OTP entered is incorrect.\nPlease check the code and try again.', error: 'INVALID_OTP' });
+                return returnRes(res, 401, { success: false, message: 'The OTP entered is incorrect.\nPlease check the code and try again.', error: 'INVALID_OTP' });
             }
 
         } catch (err) {
             console.log(err);
-            return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
-
+            return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }
 
@@ -302,11 +320,15 @@ class Auth {
         try {
             const subject = otp_type == 'verification' ? 'Verify Email' : 'Reset your password'
             const cstm_msg = otp_type == 'verification' ? 'Please use the following code to verify your email address.' : 'Please use the following code to verify your email address and reset password'
-            await this.generateOtp(res, email, subject, cstm_msg);
+            await this.generateOtp(email, subject, cstm_msg);
             return returnRes(res, 200, { success: true, error: false, message: 'Verification otp sent.' });
 
         } catch (err) {
-            return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+            if (err.status) {
+                return returnRes(res, err.status, { message: err.message, error: err.error });
+            }
+            console.log(err);
+            return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
 
         }
     }
@@ -331,7 +353,7 @@ class Auth {
             if (user.rows.length == 0) {
                 return returnRes(res, 401, {
                     success: false,
-                    
+
                     message: 'Invalid email or password. Please check your credentials and try again.',
                     error: 'UNAUTHORIZED_ACCESS'
                 });
@@ -341,16 +363,46 @@ class Auth {
 
             if (isMatched) {
                 const verified_email = user_data.verified_email;
-                const userInfo = await getUserInfo( user_data.id);
+                const userInfo = await getUserInfo(user_data.id);
                 if (verified_email) {
-                    const token = createToken({ id: userInfo.id, email: userInfo.email });
+                    const roles = await this.getRoles(user_data.id);
+                    const activeRole = (roles.length == 1) ? roles[0].role_name : null;
+                    const token = createToken({ id: userInfo.id, role: activeRole, email: userInfo.email });
                     res.cookie('authToken', token, {
                         httpOnly: true,
                         secure: isProduction,
                         sameSite: isProduction ? 'none' : 'lax',
                         maxAge: 1000 * 60 * 60 * 24 * 7
                     });
-                    return returnRes(res, 200, { success: true, error: false, isVerified: true, message: 'Login successful! \nWelcome back!', userInfo: userInfo });
+                    if (roles.length == 0) {
+                        return returnRes(res, 200, {
+                            success: true,
+                            error: false,
+                            isVerified: true,
+                            message: 'Login successful! \nWelcome back!',
+                            userInfo: userInfo,
+                            redirectTo: (userInfo.is_onboarded) ? 'setup-user' : 'job-portal'
+                        });
+                    }
+                    if (roles.length == 1) {
+                        return returnRes(res, 200, {
+                            success: true,
+                            error: false,
+                            isVerified: true,
+                            message: 'Login successful! \nWelcome back!',
+                            userInfo: userInfo,
+                            role:roles[0].role_name,
+                            redirectTo: 'dashboard'
+                        });
+                    }
+                    return returnRes(res, 200, {
+                        success: true,
+                        error: false,
+                        isVerified: true,
+                        message: 'Login successful! \nWelcome back!',
+                        userInfo: userInfo,
+                        redirectTo: 'role-options'
+                    });
                 }
                 else {
                     return returnRes(res, 200, { success: true, error: false, isVerified: false, message: 'Your email address is not verified. \nPlease verify your email to access the dashboard.', userInfo: userInfo });
@@ -364,9 +416,37 @@ class Auth {
             });
         } catch (err) {
             console.log(err)
-            return returnRes(res, 500, { success: false,  message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+            return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
 
         }
+    }
+
+    // controller function to get user's roles list --how user connected with restaurants.
+    getRoles = async (userId) => {
+        const roles = await db.query(
+            `SELECT 
+                rl.role_name,
+                json_build_object(
+                    'id',r.id,
+                    'res_name',r.res_name,
+                    'res_logo',r.res_logo,
+                    'full_address',r.full_address,
+                    'res_status',r.res_status
+                ) as res_data
+
+                FROM roles AS rl
+                JOIN restaurants AS r
+                ON r.id = rl.res_id
+                WHERE r.is_active = TRUE
+                    AND r.user_id = $1
+                    AND r.res_status = 'active'
+                
+                `,
+            [userId]
+        );
+        const rolesList = roles.rows;
+
+        return rolesList;
     }
 }
 

@@ -105,9 +105,9 @@ export const loginUser = async (e, state, setIsLoadingBtn, successFunction) => {
             toast.success(result?.data?.message);
         }
         else{
-            toast.error(result?.data?.message);
+            toast(result?.data?.message);
         }
-        successFunction(result?.data?.userInfo);
+        successFunction(result?.data?.userInfo,result?.data?.redirectTo);
 
     } catch (err) {
         setIsLoadingBtn(false);
