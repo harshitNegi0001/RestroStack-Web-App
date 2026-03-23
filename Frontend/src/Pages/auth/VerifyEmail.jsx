@@ -38,7 +38,6 @@ export default function VerifyEmail() {
             setAskOtpGenerate(true);
             return;
         }
-
         setOtpCountdown(180);
 
     }, []);

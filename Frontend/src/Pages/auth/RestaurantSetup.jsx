@@ -64,7 +64,7 @@ export default function RestaurantSetup({ setActivePage }) {
                 activeTab == 'contact' && <RestContact setActiveTab={setActiveTab} state={restaurantInfo} setState={setRestaurantInfo} />
             }
             {
-                activeTab == 'details' && <RestAllDetails setActiveTab={setActiveTab} state={restaurantInfo} setState={setRestaurantInfo} />
+                activeTab == 'details' && <RestAllDetails setActiveTab={setActiveTab} state={restaurantInfo} setInputState={setRestaurantInfo} />
             }
             
         </div>

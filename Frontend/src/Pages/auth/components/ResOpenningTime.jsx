@@ -7,57 +7,78 @@ import { MdCheckCircleOutline } from "react-icons/md";
 import { FaRegCircle } from "react-icons/fa";
 import { FaRegCheckCircle } from "react-icons/fa";
 export default function ResOpenningTime({ localState, setLocalState }) {
-    const handleOpenClose = (index) => {
-        setLocalState(prev => {
-            const updatedTimings = [...prev.opening_timeing];
-            updatedTimings[index] = {
-                ...updatedTimings[index],
-                isClosed: !updatedTimings[index].isClosed
-            };
-            return { ...prev, opening_timeing: updatedTimings };
-        });
+    const handleOpenClose = (day) => {
+        setLocalState(prev=>({
+            ...prev,
+            opening_timeing:{
+                ...prev.opening_timeing,
+                [day]:{
+                    ...prev.opening_timeing[day],
+                    isClosed:!prev.opening_timeing[day].isClosed
+                }
+            }
+        }))
     };
-    const handleChangeOpening = (val, index) => {
-        setLocalState(prev => {
-            const updatedTimings = [...prev.opening_timeing];
-            updatedTimings[index] = {
-                ...updatedTimings[index],
-                opening: val
-            };
-            return { ...prev, opening_timeing: updatedTimings };
-        });
+    const handleChangeOpening = (val, day) => {
+        // setLocalState(prev => {
+        //     const updatedTimings = [...prev.opening_timeing];
+        //     updatedTimings[index] = {
+        //         ...updatedTimings[index],
+        //         opening: val
+        //     };
+        //     return { ...prev, opening_timeing: updatedTimings };
+        // });
+        setLocalState(prev=>({
+            ...prev,
+            opening_timeing:{
+                ...prev.opening_timeing,
+                [day]:{
+                    ...prev.opening_timeing[day],
+                    opening:val
+                }
+            }
+        }))
     }
-    const handleChangeClosing = (val, index) => {
-        setLocalState(prev => {
-            const updatedTimings = [...prev.opening_timeing];
-            updatedTimings[index] = {
-                ...updatedTimings[index],
-                closing: val
-            };
-            return { ...prev, opening_timeing: updatedTimings };
-        });
+    const handleChangeClosing = (val, day) => {
+        setLocalState(prev=>({
+            ...prev,
+            opening_timeing:{
+                ...prev.opening_timeing,
+                [day]:{
+                    ...prev.opening_timeing[day],
+                    closing:val
+                }
+            }
+        }))
     }
 
     const handleCopyMon = () => {
         setLocalState(prev => {
-            const updatedTimings = [...prev.opening_timeing];
-
-
+            const updatedTimings = {
+                'Monday':prev.opening_timeing['Monday'],
+                'Tuesday':prev.opening_timeing['Monday'],
+                'Wednesday':prev.opening_timeing['Monday'],
+                'Thursday':prev.opening_timeing['Monday'],
+                'Friday':prev.opening_timeing['Monday'],
+                'Saturday':prev.opening_timeing['Monday'],
+                'Sunday':prev.opening_timeing['Monday'],
+            };
             return {
-                ...prev, opening_timeing: updatedTimings.map(p => p = updatedTimings[0])
+                ...prev, opening_timeing: updatedTimings
             };
         });
     }
     const handleSelectAll = () => {
         setLocalState(prev => {
-            const updatedTimings = [...prev.opening_timeing?.map(p => {
-                return {
-                    ...p,
-                    isClosed: false
-                }
-            })];
-
-
+            const updatedTimings = {
+                'Monday':{...prev.opening_timeing['Monday'],isClosed:true},
+                'Tuesday':{...prev.opening_timeing['Tuesday'],isClosed:true},
+                'Wednesday':{...prev.opening_timeing['Wednesday'],isClosed:true},
+                'Thursday':{...prev.opening_timeing['Thursday'],isClosed:true},
+                'Friday':{...prev.opening_timeing['Friday'],isClosed:true},
+                'Saturday':{...prev.opening_timeing['Saturday'],isClosed:true},
+                'Sunday':{...prev.opening_timeing['Sunday'],isClosed:true},
+            };
             return {
                 ...prev, opening_timeing: updatedTimings
             };
@@ -101,17 +122,17 @@ export default function ResOpenningTime({ localState, setLocalState }) {
             <div
                 className='flex flex-col w-full   gap-2'>
                 {
-                    weekDays.map((w, i) => {
-                        const currentDayData = localState.opening_timeing[i];
-                        const isClosed = currentDayData?.isClosed;
-                        return (<div key={w.id}
+                    Object.entries(localState.opening_timeing).map(([day, value]) => {
+                        
+                        const isClosed = value.isClosed;
+                        return (<div key={day}
 
                             className={`border-1 rounded-lg  p-2 ${!isClosed ? 'bg-green-800/10 border-green-500/50' : 'bg-red-800/10 border-red-500/50'} 
                         flex flex-col gap-1`}>
                             <div
                                 className='flex justify-between font-[500] text-[13px] md:text-[14px] lg:text-[15px] text-main-text'>
-                                <span>{w.label}</span>
-                                <button onClick={() => handleOpenClose(i)}
+                                <span>{day}</span>
+                                <button onClick={() => handleOpenClose(day)}
                                     className={`${isClosed?'text-red-600':'text-green-600'}  p-2 rounded-[50%] flex justify-center items-center text-center hover:bg-divider/60 active:bg-divider`}>
                                     {!isClosed ? <FaRegCheckCircle /> : <FaRegCircle />}
                                 </button>
@@ -119,14 +140,14 @@ export default function ResOpenningTime({ localState, setLocalState }) {
                             {!isClosed && <div
                                 className='flex justify-start gap-2 text-[11px] md:text-[12px] lg:text-[13px] items-center text-sec-text/80'>
                                 <input type="time" name="" id=""
-                                    value={currentDayData?.opening}
-                                    onChange={(e) => handleChangeOpening(e.target.value, i)}
+                                    value={value.opening}
+                                    onChange={(e) => handleChangeOpening(e.target.value, day)}
                                     className='border-divider border-1 focus:outline-1  focus:outline-active-border focus:border-active-border outline-0 
                                             rounded-lg p-1.5 md:py-2 text-main-text text-[13px] md:text-[15px]' />
                                 <span>to</span>
                                 <input type="time" name="" id=""
-                                    value={currentDayData?.closing}
-                                    onChange={(e) => handleChangeClosing(e.target.value, i)}
+                                    value={value.closing}
+                                    onChange={(e) => handleChangeClosing(e.target.value, day)}
                                     className='border-divider border-1 focus:outline-1  focus:outline-active-border focus:border-active-border outline-0 
                                             rounded-lg p-1.5 md:py-2 text-main-text text-[13px] md:text-[15px]'/>
 

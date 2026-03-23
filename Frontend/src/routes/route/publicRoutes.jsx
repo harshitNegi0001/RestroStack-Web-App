@@ -1,7 +1,4 @@
 import { lazy } from "react";
-import NewUserSetup from "../../Pages/auth/NewUserSetup";
-import SubscriptionWindow from "../../components/SubscriptionWindow";
-import MainLayout from "../../Pages/layout/MainLayout";
 
 // const   = lazy(()=>import(''));
 const Login = lazy(() => import('../../Pages/auth/Login'));
@@ -9,6 +6,9 @@ const RegisterUser = lazy(() => import('../../Pages/auth/RegisterUser'));
 const PageNotFound = lazy(() => import('../../Pages/view/PageNotFound'));
 const AuthWindow = lazy(() => import('../../Pages/auth/AuthWindow'));
 const VerifyEmail = lazy(() => import('../../Pages/auth/VerifyEmail'));
+const SubscriptionWindow = lazy(() => import('../../components/SubscriptionWindow'));
+const NewUserSetup = lazy(() => import('../../Pages/auth/NewUserSetup'));
+
 
 
 export const publicRoutes = [
@@ -42,28 +42,29 @@ export const publicRoutes = [
         element: <PageNotFound />
 
     },
-    {
-        id: 6,
-        path: '/setup-user',
-        element: <NewUserSetup />
+    // {
+    //     id: 6,
+    //     path: '/setup-user',
+    //     element: <NewUserSetup />,
+    //     needAuth:true
+    // },
+    // {
+    //     id: 7,
+    //     path: '/subscription_window',
+    //     element: <SubscriptionWindow />,
+    //     needAuth:true
+    // },
 
-    },
-    {
-        id: 7,
-        path: '/subscription_window',
-        element: <SubscriptionWindow />
+    // {
+    //     id: 8,
+    //     path: '/',
+    //     element: <MainLayout />
 
-    },
-    {
-        id: 8,
-        path: '/',
-        element: <MainLayout />
+    // },
+    // {
+    //     id: 9,
+    //     path: '/dashboard',
+    //     element: <MainLayout />
 
-    },
-    {
-        id: 9,
-        path: '/dashboard',
-        element: <MainLayout />
-
-    },
+    // },
 ]

@@ -66,6 +66,7 @@ export default function RestBasicInfo({ state, setState, setActiveTab }) {
             name: name,
             city: city || district || "",
             state: prov || "",
+            country:country,
             latitude: lat,
             longitude: lng
         }

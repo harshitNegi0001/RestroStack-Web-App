@@ -102,41 +102,41 @@ export const cuissineTypes = [
     },
 ];
 
-export const weekDays = [
-    {
-        id: 1,
-        label: 'Monday',
-        key: 'mon',
+export const weekDays = {
+    'Monday': {
+        isClosed: false,
+        opening: '08:00',
+        closing: '20:00'
     },
-    {
-        id: 2,
-        label: 'Tuesday',
-        key: 'tue',
+    'Tuesday': {
+        isClosed: false,
+        opening: '08:00',
+        closing: '20:00'
     },
-    {
-        id: 3,
-        label: 'Wednesday',
-        key: 'wed',
+    'Wednesday': {
+        isClosed: false,
+        opening: '08:00',
+        closing: '20:00'
     },
-    {
-        id: 4,
-        label: 'Thursday',
-        key: 'thu',
+    'Thursday': {
+        isClosed: false,
+        opening: '08:00',
+        closing: '20:00'
     },
-    {
-        id: 5,
-        label: 'Friday',
-        key: 'fri',
+    'Friday': {
+        isClosed: false,
+        opening: '08:00',
+        closing: '20:00'
     },
-    {
-        id: 6,
-        label: 'Saturday',
-        key: 'sat',
+    'Saturday': {
+        isClosed: false,
+        opening: '08:00',
+        closing: '20:00'
     },
-    {
-        id: 7,
-        label: 'Sunday',
-        key: 'sun',
+    'Sunday': {
+        isClosed: false,
+        opening: '08:00',
+        closing: '20:00'
     },
 
-];
+};

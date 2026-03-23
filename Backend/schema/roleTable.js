@@ -8,6 +8,7 @@ export const createRolesTable = async (pool) => {
                 role_name VARCHAR(30) NOT NULL ,
                 res_id BIGINT NOT NULL,
                 user_id BIGINT NOT NULL,
+                permissions jsonb,
 
                 is_active BOOLEAN DEFAULT TRUE,
 

@@ -107,8 +107,18 @@ export const loginUser = async (e, state, setIsLoadingBtn, successFunction) => {
         else{
             toast(result?.data?.message);
         }
-        successFunction(result?.data?.userInfo,result?.data?.redirectTo);
+        const userInfo =result?.data?.userInfo;
+        const rolesList =result?.data?.rolesList;
+        const permissions =result?.data?.permissions;
+        const role =result?.data?.role;
+        const navigateTo =result?.data?.redirectTo;
 
+        successFunction({
+            userInfo,
+            rolesList,
+            permissions,
+            role
+        },navigateTo);
     } catch (err) {
         setIsLoadingBtn(false);
         console.log(err);

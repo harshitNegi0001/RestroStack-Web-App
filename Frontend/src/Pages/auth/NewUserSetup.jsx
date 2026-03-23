@@ -3,27 +3,27 @@ import SelectRole from "./SelectRole";
 import { useSelector } from "react-redux";
 import RestaurantSetup from "./RestaurantSetup";
 import EmployeeSetup from "./components/EmployeeSetup";
+import { useNavigate } from "react-router-dom";
 
 
 export default function NewUserSetup() {
 
 
     const [selectedRole, setSelectedRole] = useState('');
-    const [activePage, setActivePage] = useState('');
+    const [activePage, setActivePage] = useState('role-select');
 
-    const { userInfo } = useSelector(state => state.auth);
+    const { userInfo,role } = useSelector(state => state.auth);
     const btnDisabled = !selectedRole;
-
+    const navigate = useNavigate();
 
     useEffect(() => {
-        if (userInfo?.role && userInfo?.role == 'owner') {
-            setActivePage('restaurant-setup');
+        if(!userInfo){
+            navigate('/login');
+            return;
         }
-        else {
-            setActivePage('role-select');
-        }
+        
+    }, [userInfo]);
 
-    }, [userInfo])
     return (
 
         <div

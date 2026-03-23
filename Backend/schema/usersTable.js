@@ -12,6 +12,7 @@ export const createUsertable = async (pool) => {
                 acc_status VARCHAR(20) NOT NULL DEFAULT 'active',
                 verified_email BOOLEAN DEFAULT FALSE,
                 is_onboarded BOOLEAN DEFAULT TRUE,
+                last_role_id BIGINT ,
 
                 created_at TIMESTAMPTZ DEFAULT now(),
 

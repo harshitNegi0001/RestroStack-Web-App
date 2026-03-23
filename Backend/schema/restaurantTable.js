@@ -8,10 +8,11 @@ export const createRestaurantTable = async (pool) => {
                 owner_id BIGINT NOT NULL,
                 email TEXT NOT NULL,
                 res_name TEXT NOT NULL,
-                res_logo TEXT NOT NULL,
+                res_logo TEXT ,
                 res_type VARCHAR(50) NOT NULL,
                 contact_no VARCHAR(20) NOT NULL,
                 res_status VARCHAR(20) NOT NULL DEFAULT 'active',
+                opening_timeing jsonb,
 
                 full_address TEXT NOT NULL,
                 city TEXT NOT NULL,

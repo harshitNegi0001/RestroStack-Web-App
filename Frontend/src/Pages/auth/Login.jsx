@@ -20,12 +20,14 @@ export default function Login() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const handleLogin = async (e) => {
-        const successFunction = (userInfo,navigateTo) => {
-            dispatch(setState({ userInfo: userInfo }));
-            if (!userInfo.verified_email) {
+        const successFunction = (data, navigateTo) => {
+            dispatch(setState(data));
+            if (!data?.userInfo?.verified_email) {
                 navigate('/verify-email', { state: { email: state.email, prev: '/login', otp_type: 'verification' } });
             }
-            navigate(`/${navigateTo}`);
+            else {
+                navigate(`/${navigateTo}`);
+            }
         }
         loginUser(e, state, setIsLoadingBtn, successFunction);
     }

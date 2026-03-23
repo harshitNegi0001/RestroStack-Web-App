@@ -12,6 +12,7 @@ export const getUserInfo = async ( userId) => {
                 verified_email,
                 acc_status,
                 is_onboarded,
+                last_role_id,
                 created_at
             FROM users 
             WHERE id =$1

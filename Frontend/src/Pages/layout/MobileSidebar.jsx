@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux'
 
 
 export default function Sidebar({ openSidebar, setOpenSidebar }) {
-    const { role, permissions } = useSelector(state => state.auth);
+    const { role, permissions,userInfo } = useSelector(state => state.auth);
     const sidebarNavs = useMemo(() => getSidebarNavs(role, permissions), [role, permissions]);
 
     const { pathname } = useLocation();
@@ -49,14 +49,16 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
                         text-white text-[35px]
                         ">
                     {
-                        false ?
-                            <img src="" alt="" /> :
+                        userInfo?.image ?
+                            <img src={userInfo?.image} alt="" 
+                            className="size-full object-cover rounded-[50%]"/> :
                             <FaUserCircle />
+
                     }
                 </div>
                 <div className="flex-1 flex flex-col min-w-0">
-                    <span className="w-full truncate text-sec-text text-[14px]/5">Harshit Singh Negi</span>
-                    <span className="w-full truncate text-low-text/70 text-[12px]/3">Owner</span>
+                    <span className="w-full truncate text-sec-text text-[14px]/5">{userInfo?.name}</span>
+                    <span className="w-full truncate text-low-text/70 text-[12px]/3">{role}</span>
                 </div>
                 <button type="button"
                     // onClick={() => setDropdownOpen(prev => !prev)}

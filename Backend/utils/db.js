@@ -12,18 +12,23 @@ const pool = new Pool(
 )
 
 
-pool.connect()
-    .then(client => {
-        console.log("✅ PostgreSQL connected successfully");
-        client.release();
-    })
-    .catch(err => {
-        console.error("❌ PostgreSQL connection error:", err.message);
-    });
+// pool.connect()
+//     .then(client => {
+//         console.log("✅ PostgreSQL connected successfully");
+//         client.release();
+//     })
+//     .catch(err => {
+//         console.error("❌ PostgreSQL connection error:", err.message);
+//     });
 
-// Listen for runtime errors (prevents Node crash)
-pool.on('error', err => {
-    console.error('Unexpected PostgreSQL error:', err);
+// // Listen for runtime errors (prevents Node crash)
+// pool.on('error', err => {
+//     console.error('Unexpected PostgreSQL error:', err);
+// });
+
+pool.query('SELECT NOW()', (err, res) => {
+    if (err) console.error("❌ DB Connection Error", err);
+    else console.log("✅ DB Connected at:", res.rows[0].now);
 });
 
 

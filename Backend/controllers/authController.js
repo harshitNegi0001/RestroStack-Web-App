@@ -6,6 +6,7 @@ import createToken from "../utils/createToken.js";
 import dotenv from 'dotenv';
 import { createOtpMail } from "../utils/otpMail.js";
 import { sendEmail } from "../config/sendMail.js";
+import { getRoles } from "../utils/getRoles.js";
 
 dotenv.config();
 
@@ -191,8 +192,6 @@ class Auth {
         }
         else {
             throw { status: 404, message: 'No user found with this email.', error: 'USER_NOT_FOUND' }
-            // return returnRes(res, 404, { success: false, message: 'No user found with this email.', error: 'USER_NOT_FOUND' });
-
         }
 
     }
@@ -365,9 +364,12 @@ class Auth {
                 const verified_email = user_data.verified_email;
                 const userInfo = await getUserInfo(user_data.id);
                 if (verified_email) {
-                    const roles = await this.getRoles(user_data.id);
-                    const activeRole = (roles.length == 1) ? roles[0].role_name : null;
-                    const token = createToken({ id: userInfo.id, role: activeRole, email: userInfo.email });
+                    const roles = await getRoles(user_data.id);
+                    const activeRole = (roles.length == 0) ? null : (roles.length == 1) ? roles[0].role_name : roles.find(role => role.id == userInfo.last_role_id)?.role_name;
+                    const activeResId = (roles.length == 0) ? null : (roles.length == 1) ? roles[0].res_id : roles.find(role => role.id == userInfo.last_role_id)?.res_id;
+                    const permissions = (roles.length == 0) ? {} : (roles.length == 1) ? roles[0].permissions : roles.find(role => role.id == userInfo.last_role_id)?.permissions;
+
+                    const token = createToken({ id: userInfo.id, role: activeRole, res_id: activeResId, email: userInfo.email });
                     res.cookie('authToken', token, {
                         httpOnly: true,
                         secure: isProduction,
@@ -375,34 +377,32 @@ class Auth {
                         maxAge: 1000 * 60 * 60 * 24 * 7
                     });
                     if (roles.length == 0) {
+                       
                         return returnRes(res, 200, {
                             success: true,
                             error: false,
                             isVerified: true,
                             message: 'Login successful! \nWelcome back!',
                             userInfo: userInfo,
+                            rolesList: roles,
+                            permissions,
+                            role:activeRole,
                             redirectTo: (userInfo.is_onboarded) ? 'setup-user' : 'job-portal'
                         });
                     }
-                    if (roles.length == 1) {
-                        return returnRes(res, 200, {
-                            success: true,
-                            error: false,
-                            isVerified: true,
-                            message: 'Login successful! \nWelcome back!',
-                            userInfo: userInfo,
-                            role:roles[0].role_name,
-                            redirectTo: 'dashboard'
-                        });
-                    }
+
                     return returnRes(res, 200, {
                         success: true,
                         error: false,
                         isVerified: true,
                         message: 'Login successful! \nWelcome back!',
                         userInfo: userInfo,
-                        redirectTo: 'role-options'
+                        role: activeRole,
+                        rolesList: roles,
+                        permissions,
+                        redirectTo: 'dashboard'
                     });
+
                 }
                 else {
                     return returnRes(res, 200, { success: true, error: false, isVerified: false, message: 'Your email address is not verified. \nPlease verify your email to access the dashboard.', userInfo: userInfo });
@@ -421,32 +421,31 @@ class Auth {
         }
     }
 
-    // controller function to get user's roles list --how user connected with restaurants.
-    getRoles = async (userId) => {
-        const roles = await db.query(
-            `SELECT 
-                rl.role_name,
-                json_build_object(
-                    'id',r.id,
-                    'res_name',r.res_name,
-                    'res_logo',r.res_logo,
-                    'full_address',r.full_address,
-                    'res_status',r.res_status
-                ) as res_data
+    // controller function to get intial information for client
+    getMe = async (req, res) => {
 
-                FROM roles AS rl
-                JOIN restaurants AS r
-                ON r.id = rl.res_id
-                WHERE r.is_active = TRUE
-                    AND r.user_id = $1
-                    AND r.res_status = 'active'
-                
-                `,
-            [userId]
-        );
-        const rolesList = roles.rows;
+        const { id, email } = req.user
+        try {
+            const userInfo = await getUserInfo(id);
+            const roles = await getRoles(id);
+            const activeRole = (roles.length == 0) ? null : (roles.length == 1) ? roles[0].role_name : roles.find(role => role.id == userInfo.last_role_id)?.role_name;
+            const permissions = (roles.length == 0) ? {} : (roles.length == 1) ? roles[0].permissions : roles.find(role => role.id == userInfo.last_role_id)?.permissions;
 
-        return rolesList;
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                isVerified: true,
+                message: 'Login successful! \nWelcome back!',
+                userInfo: userInfo,
+                role: activeRole,
+                rolesList: roles,
+                permissions,
+                redirectTo: 'role-options'
+            });
+        } catch (err) {
+            console.log(err)
+            return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+        }
     }
 }
 

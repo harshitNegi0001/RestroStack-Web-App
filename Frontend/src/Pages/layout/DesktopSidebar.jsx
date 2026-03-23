@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import RestaurantSelectComponent from "./RestaurantSelect";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
@@ -7,19 +7,25 @@ import { getSidebarNavs } from "../../navigations/getSidebar";
 import {useSelector} from 'react-redux'
 
 
-export default function DesktopSideabr({ openSidebar }) {
+export default function DesktopSideabr({ openSidebar ,setOpenSidebar}) {
     
     
-    const {role,permissions} =useSelector(state=>state.auth);
+    const {role,permissions,userInfo,isLoading} =useSelector(state=>state.auth);
     const sidebarNavs = useMemo(()=>getSidebarNavs(role,permissions),[role,permissions])
     const {pathname} =useLocation();
     const navigate = useNavigate();
+
+
+    // useEffect(()=>{
+    //     setOpenSidebar(true);
+    // },[])
     return (
         <div
             className={`${openSidebar ? 'w-[280px]' : 'w-[73px]'} h-full hidden lg:flex flex-col bg-card-bg border-r-1 border-divider  z-10 gap-3
             transition-all duration-[500ms] `}>
             <div
                 className="h-[65px] w-full p-3 border-b-1 border-divider mb-2">
+
                 <RestaurantSelectComponent openSidebar={openSidebar} />
             </div>
 
@@ -46,15 +52,16 @@ export default function DesktopSideabr({ openSidebar }) {
                         text-white text-[35px]
                         ">
                     {
-                        false ?
-                            <img src="" alt="" /> :
+                        userInfo?.image ?
+                            <img src={userInfo?.image} alt="" 
+                            className="size-full object-cover rounded-[50%]"/> :
                             <FaUserCircle />
 
                     }
                 </div>
                 {openSidebar&&<div className="flex-1 flex flex-col min-w-0">
-                    <span className="w-full truncate text-sec-text text-[14px]/5">Harshit Singh Negi</span>
-                    <span className="w-full truncate text-low-text/70 text-[12px]/3">Owner</span>
+                    <span className="w-full truncate text-sec-text text-[14px]/5">{userInfo?.name}</span>
+                    <span className="w-full truncate text-low-text/70 text-[12px]/3">{role}</span>
                 </div>}
                 {openSidebar&&<button type="button"
                     // onClick={() => setDropdownOpen(prev => !prev)}

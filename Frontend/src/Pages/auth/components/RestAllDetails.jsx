@@ -8,28 +8,26 @@ import { currencies, cuissineTypes, weekDays } from "../../../utils/clientSideDa
 import { MdNavigateBefore, MdNavigateNext } from "react-icons/md";
 import ResOpenningTime from "./ResOpenningTime.jsx";
 import toast from "react-hot-toast";
+import { submitRestrauntData } from "../../../Apis/restrauntSetupApi.js";
+import { useDispatch } from "react-redux";
+import { setState } from "../../../Store/Auth/authReducer.js";
+import { useNavigate } from "react-router-dom";
 
 
 const gstNoCheck = /^[a-zA-Z0-9-]{5,20}$/;
 const FssaiLiNoCheck = /^[a-zA-Z0-9\s/-]{5,30}$/;
 const nonNegativeRegex = /^\d*\.?\d+$/;
-export default function RestAllDetails({ state, setState, setActiveTab }) {
-
+export default function RestAllDetails({ state, setInputState, setActiveTab }) {
+    const [isLoadingBtn, setIsLoadingBtn] = useState(false);
     const [localState, setLocalState] = useState({
         res_type: state.res_type || 'family',
         fssai_no: state.fssai_no || '',
         gstin: state.gstin || '',
         currency: state.currency || 'INR',
         tax_prec: state.tax_prec || '0',
-        opening_timeing: state.opening_timeing || [
-            ...weekDays.map(w => {
-                return {
-                    isClosed: false,
-                    opening: '08:00',
-                    closing: '20:00'
-                }
-            })
-        ]
+        opening_timeing: state.opening_timeing || {
+            ...weekDays
+        }
     });
 
     const [inputError, setInputError] = useState({
@@ -38,8 +36,13 @@ export default function RestAllDetails({ state, setState, setActiveTab }) {
         opening_timeing: '',
         tax_prec: ''
     });
-
+    const navigate =useNavigate()
+    const dispatch = useDispatch();
     const handleNext = async () => {
+        const successFunction = (data) => {
+            dispatch(setState(data));
+            navigate('/');
+        }
         if (!gstNoCheck.test(localState.gstin)) {
             setInputError(prev => ({ ...prev, gstin: 'Please enter a valid Tax ID or VAT number (5-20 characters).' }));
             return;
@@ -52,13 +55,19 @@ export default function RestAllDetails({ state, setState, setActiveTab }) {
             toast.error('Tax percentage cannot be negative or contain invalid characters.');
             return;
         }
-        const openingdays= localState.opening_timeing;
-        const hasOpenDay=openingdays.some(day => !day.isClosed);
-        if(!hasOpenDay){
+        const hasOpenDay = Object.values(localState.opening_timeing).some(day => !day.isClosed);
+        if (!hasOpenDay) {
             toast.error('Select alteast one day to open restaurant.')
             // setInputError(prev => ({ ...prev, opening_timeing: 'Select alteast one day to open restaurant.' }));
             return;
         }
+        const updatedDataForApi = {
+            ...state,
+            ...localState
+        };
+        setInputState(prev => ({ ...prev, ...localState }));
+
+        await submitRestrauntData(updatedDataForApi, setIsLoadingBtn, successFunction)
     }
     const btnDisabled = Boolean(!localState.fssai_no.trim() || !localState.gstin.trim() || !localState.tax_prec.trim());
 
@@ -223,10 +232,17 @@ export default function RestAllDetails({ state, setState, setActiveTab }) {
                 ><MdNavigateBefore /> Back </button>
                 <button
                     onClick={handleNext}
-                    disabled={btnDisabled}
-                    className={` mt-3 w-[75px] md:w-[80px] py-2  rounded-lg bg-linear-0  text-[12px] md:text-[13px] lg:text-[14px] font-[600] flex items-center text-center justify-center
-                                                 ${btnDisabled ? 'bg-divider cursor-not-allowed text-low-text/70' : 'text-white to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}>
-                    Submit <MdNavigateNext />
+                    disabled={btnDisabled || isLoadingBtn}
+                    className={` mt-3 px-3 py-2  rounded-lg bg-linear-0  text-[12px] md:text-[13px] lg:text-[14px] font-[600] flex items-center text-center justify-center
+                     ${btnDisabled || isLoadingBtn ? 'bg-divider cursor-not-allowed text-low-text/70' : 'text-white to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}>
+
+                    {isLoadingBtn ? <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg> : null}
+                    {
+                        isLoadingBtn ? <span className='text-white/80'>Submitting...</span> : 'Submit'
+                    }
                 </button>
             </div>
         </div>

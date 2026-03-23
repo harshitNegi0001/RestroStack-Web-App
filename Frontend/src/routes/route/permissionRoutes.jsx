@@ -1,13 +1,21 @@
+import { lazy } from "react";
 
 
+const Dashboard = lazy(()=>import("../../Pages/view/Dashboard"));
 
 
 
 export const permissionBasedRoutes = [
     {
         id:1,
-        path:'/',
+        path:'/dashboard',
         permission:'',
-        element:<Dasboard />
+        element:<Dashboard />
+    },
+    {
+        id:2,
+        path:'/live-orders',
+        permission:'',
+        element:<Dashboard />
     }
 ]

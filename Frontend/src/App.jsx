@@ -1,17 +1,24 @@
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { publicRoutes } from './routes/route/publicRoutes';
 import Router from './routes/Router';
 import { Toaster } from "react-hot-toast";
+import { getAllRoutes } from './routes/route';
+import { getInitialState } from './Store/Auth/authReducer';
+import { getPrivateRoutes } from './routes/route/privateRoutes';
 
 
 function App() {
-  const [allRoutes, setAllRoutes] = useState([]);
-  const { theme } = useSelector(state => state.auth);
-
+  const allRoutes = [
+    ...publicRoutes,
+    getAllRoutes(),
+    ...getPrivateRoutes()
+  ];
+  const { theme, userInfo } = useSelector(state => state.auth);
+  const dispatch = useDispatch();
   useEffect(() => {
-    setAllRoutes(prev => ([...prev, ...publicRoutes]));
-  }, [])
+    dispatch(getInitialState());
+  }, []);
 
   useEffect(() => {
     if (theme == 'dark') {
@@ -30,21 +37,21 @@ function App() {
         toastOptions={{
           duration: 4000,
           style: {
-            background:'var(--color-toast-bg)',
+            background: 'var(--color-toast-bg)',
             color: 'var(--color-low-text)',
-            padding:'6px',
-            fontSize:'var(--font-main-toast)'
+            padding: '6px',
+            fontSize: 'var(--font-main-toast)'
           },
           success: {
             style: {
               background: 'var(--color-success-bg)',
-              color:'var(--color-sec-text)',
+              color: 'var(--color-sec-text)',
             }
           },
           error: {
             style: {
               background: 'var(--color-error-bg)',
-              color:'var(--color-sec-text)'
+              color: 'var(--color-sec-text)'
             }
           }
         }}

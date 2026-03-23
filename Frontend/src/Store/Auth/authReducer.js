@@ -1,4 +1,4 @@
-import { asyncThunkCreator, createSlice } from "@reduxjs/toolkit";
+import {  createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from 'axios';
 
 
@@ -9,26 +9,29 @@ const initialState = {
     theme:theme,
     userInfo: null,
     role:null,
+    rolesList:[],
     permissions:{},
-    isLoading: false
+    isLoading: true
 }
 
-// export const getInitialState = asyncThunkCreator(
-//     'auth/getInitialState',
-//     async (_, thunkAPI) => {
-//         try {
-//             const result = await axios.get(
-//                 `${backend_url}/auth/get-my-info`,
-//                 {
-//                     withCredentials:true
-//                 }
-//             )
-//         } catch (err) {
-//             console.log(err);
-//             return thunkAPI.rejectWithValue(err.message);
-//         }
-//     }
-// )
+export const getInitialState = createAsyncThunk(
+    'auth/getInitialState',
+    async (_, thunkAPI) => {
+        try {
+            const result = await axios.get(
+                `${backend_url}/auth/get-my-info`,
+                {
+                    withCredentials:true
+                }
+            );
+
+            return result.data;
+        } catch (err) {
+            console.log(err);
+            return thunkAPI.rejectWithValue(err.message);
+        }
+    }
+)
 
 const authReducer = createSlice({
     name: 'auth',
@@ -45,7 +48,6 @@ const authReducer = createSlice({
             }
             if (action.payload.isLoading) {
                 state.isLoading = action.payload.isLoading
-
             }
             if (action.payload.userInfo) {
                 state.userInfo = action.payload.userInfo
@@ -56,8 +58,26 @@ const authReducer = createSlice({
             if (action.payload.permissions) {
                 state.permissions = action.payload.permissions
             }
+            if (action.payload.rolesList) {
+                state.rolesList = action.payload.rolesList
+            }
         }
 
+    },
+    extraReducers:(builder)=>{
+        builder.addCase(getInitialState.pending,(state)=>{
+            state.isLoading=true
+        })
+        .addCase(getInitialState.rejected,(state)=>{
+            state.isLoading=false
+        })
+        .addCase(getInitialState.fulfilled,(state,action)=>{
+            state.isLoading=false;
+            state.userInfo=action.payload.userInfo,
+            state.role=action.payload.role,
+            state.permissions=action.payload.permissions,
+            state.rolesList=action.payload.rolesList
+        })
     }
 })
 

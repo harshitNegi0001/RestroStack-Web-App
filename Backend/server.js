@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import http from 'http';
 import authRoute from './routes/authRoute.js';
+import restaurantRoute from './routes/restaurantRoutes.js';
 import { setupTable } from './config/setupTables.js';
 
 
@@ -22,6 +23,8 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use('/auth', authRoute);
+app.use('/res', restaurantRoute);
+
 
 app.get('/', (req, res) => {
     res.sendFile('public/index.html', { root: import.meta.dirname });
