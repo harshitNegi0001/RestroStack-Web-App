@@ -2,6 +2,9 @@ import { lazy } from "react";
 
 
 const Dashboard = lazy(()=>import("../../Pages/view/Dashboard"));
+const StaffPage = lazy(()=>import("../../Pages/view/StaffPage"));
+const JobPosts = lazy(()=>import("../../Pages/view/JobPosts"));
+
 
 
 
@@ -14,8 +17,14 @@ export const permissionBasedRoutes = [
     },
     {
         id:2,
-        path:'/live-orders',
+        path:'/staff',
         permission:'',
-        element:<Dashboard />
+        element:<StaffPage />
+    },
+    {
+        id:3,
+        path:'/jobs',
+        permission:'',
+        element:<JobPosts />
     }
 ]

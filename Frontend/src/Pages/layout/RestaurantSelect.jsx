@@ -40,14 +40,14 @@ export default function RestaurantSelectComponent({ openSidebar }) {
                 className="flex-1  truncate text-[16px] font-[600] text-main-text">
                 {activeRes?.res_data?.res_name}
             </span>
-                <button type="button"
+                {rolesList.length>1&&<button type="button"
                     ref={clickBtnRef}
                     onClick={() => setDropdownOpen(prev => !prev)}
                     className={` flex justify-center items-center text-center p-3 rounded-[50%] text-sec-text/80 
                             hover:bg-divider/30 active:bg-divider/50 hover:text-sec-text active:text-main-text
                             ${dropdownOpen ? 'rotate-180' : 'rotate-0'} transition-all duration-[200ms] `}>
                     <FaChevronDown />
-                </button></>}
+                </button>}</>}
 
             <div ref={dropdownRef}
                 className={`
