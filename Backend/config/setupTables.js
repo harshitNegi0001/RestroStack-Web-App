@@ -1,3 +1,4 @@
+import { createTokenTable } from "../schema/inviteTokenTable.js";
 import { createOTPTable } from "../schema/otpTable.js";
 import { createRateLimitTable } from "../schema/rateLimitTable.js";
 import { createRestaurantTable } from "../schema/restaurantTable.js";
@@ -12,7 +13,7 @@ export const setupTable = async()=>{
         await createOTPTable(pool);
         await createRestaurantTable(pool);
         await createRolesTable(pool);
-        
+        await createTokenTable(pool);
     } catch (err) {
         console.log(err);
         throw err;

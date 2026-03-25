@@ -1,24 +1,34 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 
+const checkEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const backend_url = import.meta.env.VITE_BACKEND_URL
+export const generateInviteToken = async (state, setInputError) => {
 
-const backend_url = import.meta.env.VTIE_BACKEND_URL;
-export const generateInviteToken = async(state)=>{
+    const role_name = state.role;
+    const res_id = state.res_id;
+    const email = state.email?.trim();
+    if(!email){
+        setInputError("An email address is needed to send the invitation link.");
+        return;
+    }
+    if(!checkEmail.test(email)){
+        setInputError('Please enter a valid email address.');
+        return;
+    }
     try {
-        const role_name= state.role;
-        const res_id = state.res_id;
         const result = await axios.post(
             `${backend_url}/staff/generate-invite-token`,
             {
                 role_name,
-                res_id
+                res_id,
+                email
             },
             {
-                withCredentials:true
+                withCredentials: true
             }
         )
-
-        toast.success('Token generated.\nPlease check invite tokens tab.');
+        toast.success('Invitation sent successfully to the candidate.');
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.error || 'Something Went Wrong!');
