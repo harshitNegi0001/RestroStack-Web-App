@@ -1,4 +1,5 @@
 import { lazy } from "react";
+import StaffPage from "../../Pages/view/StaffPage";
 
 // const   = lazy(()=>import(''));
 const Login = lazy(() => import('../../Pages/auth/Login'));
@@ -42,6 +43,11 @@ export const publicRoutes = [
         element: <PageNotFound />
 
     },
+    {
+          id: 6,
+        path: '/offline-staff',
+        element: <StaffPage />
+    }
     // {
     //     id: 6,
     //     path: '/setup-user',

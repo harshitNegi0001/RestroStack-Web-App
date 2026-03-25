@@ -37,15 +37,15 @@ export const tokenOpener = async (req, res, next) => {
                 });
             }
             const user = userResult.rows[0];
-            if (user.acc_status!='active') {
+            if (user.acc_status != 'active') {
                 return returnRes(res, 403, {
-                success: true,
-                message: `Your account is ${user.acc_status}. Please contact support.`,
-                error: 'ACCOUNT_RESTRICTED'
-            });
+                    success: true,
+                    message: `Your account is ${user.acc_status}. Please contact support.`,
+                    error: 'ACCOUNT_RESTRICTED'
+                });
             }
 
-            req.user={
+            req.user = {
                 id,
                 role,
                 res_id,
@@ -54,9 +54,9 @@ export const tokenOpener = async (req, res, next) => {
             next();
         } catch (error) {
 
-            const message = error.name === 'TokenExpiredError' 
-            ? 'Your session has expired. Please log in again.' 
-            : 'Invalid session. Please log in again.';
+            const message = error.name === 'TokenExpiredError'
+                ? 'Your session has expired. Please log in again.'
+                : 'Invalid session. Please log in again.';
             return returnRes(res, 401, {
                 success: false,
                 message: message,

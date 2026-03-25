@@ -24,7 +24,7 @@ export const defaultPermisson = {
         "manage_settings": false
     },
     'chef': {
-        "view_dashboard": false,
+        "view_dashboard": true,
         "view_live_orders": true,
         "manage_restaurant_setup": false,
         "can_manage_table": false,
@@ -36,7 +36,7 @@ export const defaultPermisson = {
         "manage_settings": false
     },
     'waiter': {
-        "view_dashboard": false,
+        "view_dashboard": true,
         "view_live_orders": true,
         "manage_restaurant_setup": false,
         "can_manage_table": true,
