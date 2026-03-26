@@ -18,7 +18,7 @@ const StaffOption = [
     {
         id: 1,
         icon: <HiOutlineUsers />,
-        title: 'Staff Directory',
+        title: 'Employees',
         page: 'staff-list'
     },
     {
@@ -27,28 +27,14 @@ const StaffOption = [
         title: 'Attendance',
         page: 'attendance'
     },
-    // {
-    //     id: 3,
-    //     icon: <BsGraphUpArrow />,
-    //     title: 'Performance',
-    //     page: 'performance'
-    // }
-]
-const addStaffOption = [
     {
-        id: 1,
-        icon: <LuUserPlus />,
-        title: 'Invite tokens',
-        page: 'token-list'
-    },
-    {
-        id: 2,
+        id: 3,
         icon: <LuInbox />,
         title: 'Request box',
         page: 'staff-req'
     },
-    
 ]
+
 const subStatsCard = [
     {
         id: 1,
@@ -84,10 +70,9 @@ const subStatsCard = [
 export default function StaffPage() {
     const [showGenerateToken, setShowGenerateToken] = useState(false);
     const [activeStaffOption, setActiveStaffOption] = useState(StaffOption[0]);
-    const [addingOption, setAddingOption] = useState(addStaffOption[0]);
     return (
 
-        <div className="w-full h-full p-2 md:p-4 flex flex-col gap-2 md:gap-4 items-center">
+        <div className="w-full h-full p-2 md:p-4 flex flex-col gap-2 md:gap-4 items-center overflow-y-auto show-custom-scrollbar">
 
             <MainPagesHeader
                 pageHeading={'Staff Management'}
@@ -115,8 +100,7 @@ export default function StaffPage() {
             {
                 activeStaffOption.page == 'attendance' && <StaffDirectory />
             }
-            <SegmentOptions options={addStaffOption} activeOption={addingOption} setActiveOption={setAddingOption} />
-
+            
         </div>
     )
 }
