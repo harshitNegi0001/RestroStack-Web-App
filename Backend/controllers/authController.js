@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import { createOtpMail } from "../utils/otpMail.js";
 import { sendEmail } from "../config/sendMail.js";
 import { getRoles } from "../utils/getRoles.js";
+import { getUserFullDetail } from "../utils/getUserFullDetail.js";
 
 dotenv.config();
 
@@ -424,26 +425,12 @@ class Auth {
     // controller function to get intial information for client
     getMe = async (req, res) => {
 
-        const { id, email } = req.user
+        const { id } = req.user;
         try {
-            const userInfo = await getUserInfo(id);
-            const roles = await getRoles(id);
-            const activeRole = (roles.length == 0) ? null : (roles.length == 1) ? roles[0].role_name : roles.find(role => role.id == userInfo.last_role_id)?.role_name;
-            const permissions = (roles.length == 0) ? {} : (roles.length == 1) ? roles[0].permissions : roles.find(role => role.id == userInfo.last_role_id)?.permissions;
-
-            return returnRes(res, 200, {
-                success: true,
-                error: false,
-                isVerified: true,
-                message: 'Login successful! \nWelcome back!',
-                userInfo: userInfo,
-                role: activeRole,
-                rolesList: roles,
-                permissions,
-                redirectTo: 'role-options'
-            });
+            const response =await getUserFullDetail(id);
+            return returnRes(res,200,response);
         } catch (err) {
-            console.log(err)
+            console.log(err);
             return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }

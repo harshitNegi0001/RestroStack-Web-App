@@ -7,5 +7,6 @@ import { permissionInjector } from '../middleware/permissionInjector.js';
 const router = express.Router();
 
 router.post('/generate-invite-token',tokenOpener,Staff.generateInviteToken);
+router.post('/verify-invite-token',tokenOpener,Staff.inviteTokenCheck);
 
 export default router;

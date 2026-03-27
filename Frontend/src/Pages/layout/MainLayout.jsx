@@ -37,7 +37,7 @@ export default function MainLayout() {
             </div>
                 </div> :
                 <div
-                    className="w-full h-[100dvh] max-w-[100vw]  relative flex flex-row">
+                    className="w-full h-[100dvh] max-w-[100vw] min-w-0 relative flex flex-row">
                     <DesktopSideabr openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
                     <div
                         className="flex flex-col flex-1 min-w-0 h-full ">
