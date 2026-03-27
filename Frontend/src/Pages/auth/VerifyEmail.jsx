@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom"
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { useEffect, useState } from "react";
 import { askForOtp, verifyOtp } from "../../Apis/authApi";
 import { setState } from "../../Store/Auth/authReducer";
@@ -23,6 +23,8 @@ export default function VerifyEmail() {
     const [otpCountdown, setOtpCountdown] = useState(0);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const [searchParams] = useSearchParams();
+    const redirectTo = searchParams.get('redirectTo');
     const email = state?.email;
     const prev = state?.prev;
     const otp_type = state?.otp_type;
@@ -91,7 +93,10 @@ export default function VerifyEmail() {
         const structuredOtp = `${otp?.[1]}${otp?.[2]}${otp?.[3]}${otp?.[4]}${otp?.[5]}${otp?.[6]}`;
         const successFunction = (userInfo) => {
             dispatch(setState({ userInfo: userInfo }));
-            if (otp_type == 'verification') {
+            if(redirectTo){
+                navigate(redirectTo);
+            }
+            else if (otp_type == 'verification') {
                 navigate('/setup-user');
             }
             else if(otp_type=='reset_pass'){

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { HiOutlineMail } from 'react-icons/hi';
 import { HiOutlineLockClosed } from 'react-icons/hi';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { loginUser } from '../../Apis/authApi';
@@ -16,17 +16,24 @@ export default function Login() {
     });
     const [visible, setVisible] = useState(false);
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
-
+    const [searchParam] = useSearchParams();
+    const redirectTo = searchParam.get('redirectTo');
+    const redirectUrl = redirectTo??'/dashboard';
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const handleLogin = async (e) => {
         const successFunction = (data, navigateTo) => {
             dispatch(setState(data));
             if (!data?.userInfo?.verified_email) {
-                navigate('/verify-email', { state: { email: state.email, prev: '/login', otp_type: 'verification' } });
+                navigate(`/verify-email?redirectTo=${encodeURIComponent(redirectUrl)}`,{ state: { email: state.email, prev: '/login', otp_type: 'verification' } });
             }
             else {
-                navigate(`/${navigateTo}`);
+                if(redirectTo){
+                    navigate(`${redirectTo}`);
+                }
+                else{
+                    navigate(`/${navigateTo}`);
+                }
             }
         }
         loginUser(e, state, setIsLoadingBtn, successFunction);

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { HiOutlineMail } from 'react-icons/hi';
 import { HiOutlineLockClosed } from 'react-icons/hi';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { MdOutlineVpnKey } from 'react-icons/md';
 import { FaRegUser } from 'react-icons/fa';
@@ -29,7 +29,9 @@ export default function Register() {
         pass: false,
         confirmPass: false
     });
-
+    const [searchParams] = useSearchParams();;
+    const redirectTo =searchParams.get('redirectTo');
+    const redirectUrl = redirectTo??'/dashboard';
 
     const dispatch=useDispatch();
     const navigate = useNavigate();
@@ -37,7 +39,7 @@ export default function Register() {
     const handleRegister = async (e) => {
         const successFunction =(userInfo)=>{
             dispatch(setState({userInfo:userInfo}));
-            navigate('/verify-email', { state: { email: state.email,prev:'/register',otp_type:'verification' } });
+            navigate(`/verify-email?redirectTo=${encodeURIComponent(redirectUrl)}`, { state: { email: state.email,prev:'/register',otp_type:'verification' } });
         }
         await registerUser(e, state, setIsLoadingBtn, setInputError,successFunction);
     }

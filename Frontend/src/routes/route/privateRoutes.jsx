@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import ProtectedRoute from "./protectedRoutes";
+import InviteTokenOpener from "../../Pages/auth/InviteTokenOpener";
 
 const SubscriptionWindow = lazy(()=>import('../../components/SubscriptionWindow'));
 const NewUserSetup = lazy(()=>import('../../Pages/auth/NewUserSetup'));
@@ -17,6 +18,12 @@ const NewUserSetup = lazy(()=>import('../../Pages/auth/NewUserSetup'));
         element: <SubscriptionWindow />,
         needAuth:true
     },
+    {
+        id:7,
+        path:'/invite',
+        element:<InviteTokenOpener/>,
+        needAuth:true
+    }
 ]
 
 export const getPrivateRoutes=()=>{
