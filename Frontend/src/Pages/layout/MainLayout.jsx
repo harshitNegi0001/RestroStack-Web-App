@@ -37,10 +37,10 @@ export default function MainLayout() {
             </div>
                 </div> :
                 <div
-                    className="w-[100dvw] h-[100dvh]  relative flex flex-row">
+                    className="w-full h-[100dvh] max-w-[100vw]  relative flex flex-row">
                     <DesktopSideabr openSidebar={openSidebar} setOpenSidebar={setOpenSidebar} />
                     <div
-                        className="flex flex-col flex-1 h-full ">
+                        className="flex flex-col flex-1 min-w-0 h-full ">
                         <Appbar setOpenSidebar={setOpenSidebar} />
 
                         <Outlet />

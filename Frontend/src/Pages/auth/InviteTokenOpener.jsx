@@ -18,7 +18,7 @@ export default function InviteTokenOpener() {
                 <div className="flex items-center">
 
                 </div> :
-                <div>
+                <div className="flex ">
 
                 </div>
             }
