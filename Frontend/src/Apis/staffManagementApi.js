@@ -114,6 +114,7 @@ export const verifyInviteToken = async (token, req_type, successFunction, restri
                 isButton: false
             }
         }
+        console.log('faileedASFather')
         restrictionFunction(restrictionData);
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }

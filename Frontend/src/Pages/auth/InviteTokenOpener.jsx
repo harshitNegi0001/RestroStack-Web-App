@@ -22,21 +22,22 @@ export default function InviteTokenOpener() {
     useEffect(() => {
         viewInviteToken();
     }, []);
+    const restrictionFunction = (arg) => {
+        setRestriction({
+            isRestricted: true,
+            title: arg?.title,
+            subtitle: arg?.subtitle,
+            image: arg?.image,
+            buttonData: arg?.buttonData
+        })
+    }
     const viewInviteToken = async () => {
         const successFunction = (arg) => {
             const { data } = arg;
             setResData({ res_name: data?.res_name, role_name: data?.role_name });
         }
-        const restrictionFunction = (arg)=>{
-            setRestriction({
-                isRestricted:true,
-                title:arg?.title,
-                subtitle:arg?.subtitle,
-                image:arg?.image,
-                buttonData:arg?.buttonData
-            })
-        }
-        await verifyInviteToken(token, 'view', successFunction,restrictionFunction);
+
+        await verifyInviteToken(token, 'view', successFunction, restrictionFunction);
         setIsTokenLoading(false);
     }
 
@@ -46,10 +47,10 @@ export default function InviteTokenOpener() {
         <div className="min-w-[100dvw] min-h-[100dvh] flex justify-center items-center">
             {
                 restriction.isRestricted ?
-                    <RestrictionPage  title={restriction?.title} subtitle={restriction?.subtitle} image={restriction?.image} /> :
+                    <RestrictionPage title={restriction?.title} subtitle={restriction?.subtitle} image={restriction?.image} /> :
                     isTokenLoading ?
                         <LoadingInviteCard /> :
-                        <InviteCard res_name={resData?.res_name} role_name={resData?.role_name} token={token} />
+                        <InviteCard res_name={resData?.res_name} role_name={resData?.role_name} token={token} restrictionFunction={restrictionFunction}/>
             }
         </div>
     )

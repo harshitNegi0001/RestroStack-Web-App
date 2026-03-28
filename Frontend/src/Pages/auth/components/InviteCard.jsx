@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 
 
 
-export default function InviteCard({ res_name, role_name, token }) {
+export default function InviteCard({ res_name, role_name, token ,restrictionFunction}) {
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -20,7 +20,7 @@ export default function InviteCard({ res_name, role_name, token }) {
             dispatch(setState(data));
             navigate('/dashboard');
         }
-        await verifyInviteToken(token, 'join', successFunction);
+        await verifyInviteToken(token, 'join', successFunction,restrictionFunction);
         setIsLoadingBtn(false);
 
     }
