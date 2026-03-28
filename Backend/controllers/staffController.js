@@ -147,6 +147,23 @@ class Staff {
                 }
 
                 if (req_type == 'join') {
+                    const existingRoleCheck = await client.query(
+                        `SELECT 
+                            role_name
+                        FROM roles
+                        WHERE user_id=$1
+                            AND res_id=$2`,
+                        [id, tokenData.res_id]
+                    );
+
+                    if (existingRoleCheck.rows.length > 0 && existingRoleCheck.rows[0].role_name == 'owner') {
+                        await client.query('ROLLBACK'); 
+                        return returnRes(res, 400, {
+                            success: false,
+                            error: 'ALREADY_OWNER',
+                            message: 'You are the owner of this restaurant. You cannot join your own restaurant as staff.'
+                        });
+                    }
                     const permissions = defaultPermisson[tokenData.role_name];
                     const roleInsertResult = await client.query(
                         `INSERT INTO roles
