@@ -1,6 +1,5 @@
 import { lazy } from "react";
 import StaffPage from "../../Pages/view/StaffPage";
-import InviteTokenOpener from "../../Pages/auth/InviteTokenOpener";
 
 // const   = lazy(()=>import(''));
 const Login = lazy(() => import('../../Pages/auth/Login'));
@@ -47,7 +46,7 @@ export const publicRoutes = [
     {
           id: 6,
         path: '/offline-page',
-        element: <InviteTokenOpener />
+        element: <StaffPage />
     }
     // {
     //     id: 6,

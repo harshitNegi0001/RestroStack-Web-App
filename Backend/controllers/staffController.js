@@ -117,18 +117,14 @@ class Staff {
                 const tokenData = tokenResult.rows[0];
                 const currentTime = new Date();
                 if (tokenData.status != 'pending') {
-                    await client.query(
-                        `DELETE FROM tokens 
-                        WHERE token =$1`,
-                        [token]
-                    );
                     await client.query('COMMIT');
                     return returnRes(res, 410, {
                         success: false,
-                        error: tokenData.status == 'expired' ? 'TOKEN_EXPIRED' : 'TOKEN_USED',
+                        error: tokenData.status == 'expired' ? 'TOKEN_EXPIRED' : (tokenData.status == 'used') ? 'TOKEN_USED' : 'TOKEN_DECLINED',
                         message: tokenData.status == 'expired' ?
                             'This invitation has expired. \nPlease ask the owner for a new link.'
-                            : 'This invitation has been used. \nPlease ask the owner for a new link.'
+                            : (tokenData.status == 'used') ? 'This invitation has been used. \nPlease ask the owner for a new link.' :
+                                "You've been declined to join. No further action is needed."
                     });
                 }
                 if (new Date(tokenData.expires_at) < currentTime) {
@@ -157,7 +153,7 @@ class Staff {
                     );
 
                     if (existingRoleCheck.rows.length > 0 && existingRoleCheck.rows[0].role_name == 'owner') {
-                        await client.query('ROLLBACK'); 
+                        await client.query('ROLLBACK');
                         return returnRes(res, 400, {
                             success: false,
                             error: 'ALREADY_OWNER',
@@ -203,6 +199,15 @@ class Staff {
                     const response = await getUserFullDetail(id);
                     return returnRes(res, 200, response);
                 }
+                else if (req_type == 'decline') {
+                    await client.query(
+                        `UPDATE tokens
+                            SET status = 'declined'
+                        WHERE token=$1`,
+                        [token]
+                    );
+                    await client.query('COMMIT');
+                }
                 else {
                     await client.query('COMMIT');
                     return returnRes(res, 200, {
@@ -235,6 +240,61 @@ class Staff {
         }
     }
 
+    // Controller function to get stafflist of restaraunts
+    getStaffList = async (req, res) => {
+        const { id, role, res_id } = req.user;
+        const permissions = req.permissions;
+        try {
+            if (permissions.can_manage_staff || role == 'owner') {
+
+                const result = await db.query(
+                    `SELECT 
+                        rl.id,
+                        rl.role_name,
+                        rl.res_id,
+                        rl.user_id,
+                        json_build_object(
+                            'id',u.id,
+                            'name',u.name,
+                            'image',u.image,
+                            'email',u.email
+                        ) AS user_data,
+                        rl.permissions,
+                        rl.created_at
+
+                    FROM roles AS rl
+                    JOIN users AS u
+                    ON rl.user_id = u.id
+
+                    WHERE rl.res_id = $1
+                        AND rl.user_id != $2
+                        AND rl.role_name !='owner'
+                        AND rl.is_active=TRUE
+                    `,
+                    [res_id,id]
+                );
+                const staff_list = result.rows;
+                return returnRes(res, 200, {
+                    success: true,
+                    staff_list: staff_list,
+                    message: staff_list.length === 0 ? 'No staff members found.' : 'Staff list fetched successfully.'
+                });
+            }
+            return returnRes(res, 403, {
+                success: false,
+                error: 'ACCESS_DENIED',
+                message: 'You do not have permission to view or manage the staff list.'
+            });
+
+        } catch (err) {
+            console.error('Staff list error:', err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
+            });
+        }
+    }
 
 }
 

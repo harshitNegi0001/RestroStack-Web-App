@@ -13,6 +13,7 @@ import { TbWaveSawTool } from "react-icons/tb";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { MdOutlineCheckCircle } from "react-icons/md";
 import { BsGraphUpArrow } from "react-icons/bs";
+import StaffAttendance from "../../components/StaffAttendanceRegister";
 
 const StaffOption = [
     {
@@ -98,7 +99,7 @@ export default function StaffPage() {
                 activeStaffOption.page == 'staff-list' && <StaffDirectory />
             }
             {
-                activeStaffOption.page == 'attendance' && <StaffDirectory />
+                activeStaffOption.page == 'attendance' && <StaffAttendance />
             }
             
         </div>

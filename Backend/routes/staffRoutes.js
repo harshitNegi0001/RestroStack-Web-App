@@ -9,4 +9,6 @@ const router = express.Router();
 router.post('/generate-invite-token',tokenOpener,Staff.generateInviteToken);
 router.post('/verify-invite-token',tokenOpener,Staff.inviteTokenCheck);
 
+router.get('/get-staff-list',tokenOpener,permissionInjector,Staff.getStaffList);
+
 export default router;

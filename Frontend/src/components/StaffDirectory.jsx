@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LuHandPlatter } from "react-icons/lu";
 import { PiChefHatBold } from "react-icons/pi";
 import { HiOutlineBanknotes } from "react-icons/hi2";
 import { GrUserManager } from "react-icons/gr";
 import EmployeeFilter from "./EmployeeFilterContainer";
 import EmployeeCard from "./EmployeeCard";
+import { getStaffList } from "../Apis/staffManagementApi";
+import LoadingEmployeeCard from "./LoadingEmployeeCard";
 
 const roles = [
     {
@@ -42,14 +44,31 @@ const roles = [
 export default function StaffDirectory() {
     const [searchValue, setSearchValue] = useState('');
     const [role, setRole] = useState('all');
+    const [staffList, setStaffList] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        // getData();
+    }, []);
+
+    const getData = async () => {
+        setIsLoading(true);
+        await getStaffList(setStaffList);
+        setIsLoading(false);
+    }
+
     return (
         <div className="w-full flex flex-col gap-3">
             <EmployeeFilter role={role} setRole={setRole} roles={roles} searchValue={searchValue} setSearchValue={setSearchValue} />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {
-                [1,2,3,4,5,6,7,8,9,10,11,12].map(i=>
-                    <EmployeeCard data={{}} key={i}/>
-                )
+                    isLoading?
+                    [1,2,3,4,5,6].map(i=>
+                        <LoadingEmployeeCard key={i}/>
+                    ):
+                    staffList.map(s =>
+                        <EmployeeCard data={s} key={s.id} />
+                    )
                 }
             </div>
         </div>

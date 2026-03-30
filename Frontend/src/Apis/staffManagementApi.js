@@ -114,9 +114,26 @@ export const verifyInviteToken = async (token, req_type, successFunction, restri
                 isButton: false
             }
         }
-        console.log('faileedASFather')
         restrictionFunction(restrictionData);
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
+
+export const getStaffList = async (setStaffList) => {
+
+    try {
+        const result = await axios.get(
+            `${backend_url}/staff/get-staff-list`,
+            {
+                withCredentials:true
+            }
+        );
+
+        setStaffList(result?.data?.staff_list);
+        console.log('result',result?.data?.staff_list)
+    } catch (err) {
+        console.error(err);
+        toast.error(err?.response?.data?.error || 'Something Went Wrong!');
     }
 }
 

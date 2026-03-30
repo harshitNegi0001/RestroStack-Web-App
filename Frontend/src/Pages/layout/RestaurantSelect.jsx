@@ -3,8 +3,9 @@ import { LuBuilding2 } from "react-icons/lu";
 import { FaChevronDown } from "react-icons/fa6";
 import { useRef, useState } from "react";
 import { useOutsideClick } from "../../utils/coustomHook/useOutsideClick";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from "react";
+import { changeActiveRole } from "../../Store/Auth/authReducer";
 
 export default function RestaurantSelectComponent({ openSidebar }) {
     const { rolesList, userInfo } = useSelector(state => state.auth)
@@ -12,6 +13,7 @@ export default function RestaurantSelectComponent({ openSidebar }) {
     const [activeRes, setActiveRes] = useState();
     const dropdownRef = useRef();
     const clickBtnRef = useRef();
+    const dispatch = useDispatch();
     useOutsideClick(dropdownRef, () => setDropdownOpen(false), clickBtnRef)
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -21,13 +23,21 @@ export default function RestaurantSelectComponent({ openSidebar }) {
         }
         setActiveRes(rolesList.find(rl => rl.id == userInfo?.last_role_id));
     }, [rolesList])
+
+    useEffect(() => {
+        if (!activeRes || !userInfo) return;
+
+        if (activeRes.id !== userInfo.last_role_id) {
+            dispatch(changeActiveRole(activeRes.id));
+        }
+    }, [activeRes, dispatch, userInfo?.last_role_id]);
     return (
         <div
             className="flex w-[250px] items-center gap-1 min-w-0 relative">
             <div className="size-[43px] flex justify-center rounded-lg items-center bg-active-border/20
                                 text-active-border text-[22px]
                             ">
-                                
+
                 {
                     activeRes?.res_data?.res_logo ?
                         <img src={activeRes?.res_data?.res_logo} alt=""
@@ -40,7 +50,7 @@ export default function RestaurantSelectComponent({ openSidebar }) {
                 className="flex-1  truncate text-[16px] font-[600] text-main-text">
                 {activeRes?.res_data?.res_name}
             </span>
-                {rolesList.length>1&&<button type="button"
+                {rolesList.length > 1 && <button type="button"
                     ref={clickBtnRef}
                     onClick={() => setDropdownOpen(prev => !prev)}
                     className={` flex justify-center items-center text-center p-3 rounded-[50%] text-sec-text/80 

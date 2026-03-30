@@ -4,24 +4,24 @@ import { PiChefHatBold } from "react-icons/pi";
 import { HiOutlineBanknotes } from "react-icons/hi2";
 import { FiLogIn,FiLogOut } from "react-icons/fi";
 
-const data = {
-    id: 1,
-    name: 'Harshit Singh Negi',
-    role: 'manager',
-    active_status: 'on break',
-    image: 'https://camo.githubusercontent.com/5e45bc648dba68520ce949a53690af6bcef2880f84a1d46cbb1636649afd6d84/68747470733a2f2f796176757a63656c696b65722e6769746875622e696f2f73616d706c652d696d616765732f696d6167652d313032312e6a7067',
-    shift_start: '10:00 am',
-    shift_end: '08:00 pm',
-    user_data: {
-        name: 'Harshit',
-        email: 'negiharshit123@example.com',
-        image: '',
-        joining_data: '01-dec-2025',
-    },
-    performance_data: {
+// const data = {
+//     id: 1,
+//     name: 'Harshit Singh Negi',
+//     role: 'manager',
+//     active_status: 'on break',
+//     image: 'https://camo.githubusercontent.com/5e45bc648dba68520ce949a53690af6bcef2880f84a1d46cbb1636649afd6d84/68747470733a2f2f796176757a63656c696b65722e6769746875622e696f2f73616d706c652d696d616765732f696d6167652d313032312e6a7067',
+//     shift_start: '10:00 am',
+//     shift_end: '08:00 pm',
+//     user_data: {
+//         name: 'Harshit',
+//         email: 'negiharshit123@example.com',
+//         image: '',
+//         joining_data: '01-dec-2025',
+//     },
+//     performance_data: {
 
-    }
-}
+//     }
+// }
 const roles_icon = {
     'manager': <GrUserManager />,
     'waiter': <LuHandPlatter />,
@@ -57,28 +57,28 @@ const roles_color = {
     'cashier': 'text-green-600 bg-green-600/20 border-green-600/60'
 }
 
-export default function EmployeeCard({ }) {
+export default function EmployeeCard({ data}) {
     return (
         <div className="rounded-2xl shadow-black/30 shadow-md p-2 bg-card-bg hover:bg-toast-bg/40 hover:scale-102 flex flex-col gap-3">
             <div className="flex flex-row justify-between gap-1">
                 <div className="flex gap-1 items-center">
-                    <div className={`${roles_color[data.role]} size-[30px] text-[18px] rounded-[50%] flex justify-center items-center text-center`}>
+                    <div className={`${roles_color[data.role_name]} size-[30px] text-[18px] rounded-[50%] flex justify-center items-center text-center`}>
                         {
-                            data.image ?
-                                <img src={data.image} className="size-[30px] rounded-[50%] object-cover" alt="" /> :
-                                roles_icon[data.role]
+                            data.user_data?.image ?
+                                <img src={data.user_data?.image} className="size-[30px] rounded-[50%] object-cover" alt="" /> :
+                                roles_icon[data.role_name]
                         }
                     </div>
                     <div className="flex flex-col w-[100px] ">
                         <span className="w-full min-w-0 truncate text-[12px] text-main-text">
-                            {data.name}
+                            {data?.user_data?.name}
                         </span>
-                        <span className={`${roles_color[data.role]} w-fit px-2 font-[Rubik] rounded-2xl text-[9px] font-[500] capitalize`}>{data.role}</span>
+                        <span className={`${roles_color[data.role_name]} w-fit px-2 font-[Rubik] rounded-2xl text-[9px] font-[500] capitalize`}>{data.role_name}</span>
                     </div>
                 </div>
                 <div className="flex gap-1 items-center">
-                    <span className={`p-1.25 ${active_color[data.active_status].dot} rounded-2xl`}></span>
-                    <span className={`${active_color[data.active_status].chip} w-fit px-2 font-[Rubik] rounded-2xl text-[9px] font-[500] capitalize border-1`}>{data.active_status}</span>
+                    <span className={`p-1.25 ${active_color[data.active_status]?.dot} rounded-2xl`}></span>
+                    <span className={`${active_color[data.active_status]?.chip} w-fit px-2 font-[Rubik] rounded-2xl text-[9px] font-[500] capitalize border-1`}>{data.active_status}</span>
                 </div>
             </div>
             <div className="w-full p-1  grid grid-cols-3 gap-2 ">

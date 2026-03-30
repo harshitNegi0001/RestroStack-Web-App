@@ -11,5 +11,7 @@ router.post('/login',Auth.loginUser);
 
 router.get('/get-my-info',tokenOpener,Auth.getMe);
 
+router.post('/change-active-role',tokenOpener,Auth.changeActiveRole);
+
 
 export default router;

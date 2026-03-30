@@ -10,7 +10,7 @@ export const searchLocation = async (query) => {
         const data = result.data.features;
         return data;
     } catch (err) {
-        console.log(err);
+        console.log('Search Location Error:',err);
         // toast.error('Something Went Wrong!');
         return [];
     }

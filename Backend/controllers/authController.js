@@ -378,7 +378,7 @@ class Auth {
                         maxAge: 1000 * 60 * 60 * 24 * 7
                     });
                     if (roles.length == 0) {
-                       
+
                         return returnRes(res, 200, {
                             success: true,
                             error: false,
@@ -387,7 +387,7 @@ class Auth {
                             userInfo: userInfo,
                             rolesList: roles,
                             permissions,
-                            role:activeRole,
+                            role: activeRole,
                             redirectTo: (userInfo.is_onboarded) ? 'setup-user' : 'job-portal'
                         });
                     }
@@ -427,10 +427,74 @@ class Auth {
 
         const { id } = req.user;
         try {
-            const response =await getUserFullDetail(id);
-            return returnRes(res,200,response);
+            const response = await getUserFullDetail(id);
+            return returnRes(res, 200, response);
         } catch (err) {
             console.log(err);
+            return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+        }
+    }
+
+    changeActiveRole = async (req, res) => {
+        const { id } = req.user;
+        const { newRoleId } = req.body;
+
+        try {
+            const roleCheck = await db.query(
+                `SELECT 
+                    user_id,
+                    is_active
+                FROM roles
+                WHERE id=$1
+                `,
+                [newRoleId]
+            );
+
+            if (roleCheck.rows.length == 0) {
+                return returnRes(res, 404, {
+                    success: false,
+                    error: 'ROLE_NOT_FOUND',
+                    message: 'The selected role does not exist.'
+                });
+            }
+
+            const userId = roleCheck.rows[0].user_id;
+            const isActive = roleCheck.rows[0].is_active;
+            if (userId != id) {
+                return returnRes(res, 403, {
+                    success: false,
+                    error: 'UNAUTHORIZED_ROLE',
+                    message: 'You do not have permission to access this restaurant or role.'
+                });
+            }
+
+            if (!isActive) {
+                return returnRes(res, 403, {
+                    success: false,
+                    error: 'INACTIVE_ROLE',
+                    message: 'Your access to this role has been suspended or deactivated.'
+                });
+            }
+
+            await db.query(
+                `UPDATE users
+                SET last_role_id =$1
+                WHERE  id= $2`,
+                [newRoleId, id]
+            );
+
+            const response = await getUserFullDetail(id);
+
+            const token = createToken({ id: response?.userInfo?.id, role: response.role, res_id: response.activeResId, email: response?.userInfo?.email });
+            res.cookie('authToken', token, {
+                httpOnly: true,
+                secure: isProduction,
+                sameSite: isProduction ? 'none' : 'lax',
+                maxAge: 1000 * 60 * 60 * 24 * 7
+            });
+            return returnRes(res, 200, response);
+        } catch (err) {
+            console.error("CHANGE_ROLE_ERROR:", err);
             return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }

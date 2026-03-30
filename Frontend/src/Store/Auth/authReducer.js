@@ -1,16 +1,17 @@
-import {  createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from 'axios';
+import toast from "react-hot-toast";
 
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 const theme = localStorage.getItem('app-theme') || systemTheme;
 const initialState = {
-    theme:theme,
+    theme: theme,
     userInfo: null,
-    role:null,
-    rolesList:[],
-    permissions:{},
+    role: null,
+    rolesList: [],
+    permissions: {},
     isLoading: true
 }
 
@@ -21,7 +22,7 @@ export const getInitialState = createAsyncThunk(
             const result = await axios.get(
                 `${backend_url}/auth/get-my-info`,
                 {
-                    withCredentials:true
+                    withCredentials: true
                 }
             );
 
@@ -29,6 +30,29 @@ export const getInitialState = createAsyncThunk(
         } catch (err) {
             console.log(err);
             return thunkAPI.rejectWithValue(err.message);
+        }
+    }
+);
+
+export const changeActiveRole = createAsyncThunk(
+    'auth/changeActiveRole',
+    async (newRoleId, thunkAPI) => {
+        try {
+            const result = await axios.post(
+                `${backend_url}/auth/change-active-role`,
+                {
+                    newRoleId
+                },
+                {
+                    withCredentials: true
+                }
+            )
+            return result.data;
+        } catch (err) {
+            console.log(err);
+            const errorMessage = err?.response?.data?.message || 'Something Went Wrong!';
+            toast.error(errorMessage);
+            return thunkAPI.rejectWithValue(errorMessage);
         }
     }
 )
@@ -64,22 +88,39 @@ const authReducer = createSlice({
         }
 
     },
-    extraReducers:(builder)=>{
-        builder.addCase(getInitialState.pending,(state)=>{
-            state.isLoading=true
-        })
-        .addCase(getInitialState.rejected,(state)=>{
-            state.isLoading=false
-        })
-        .addCase(getInitialState.fulfilled,(state,action)=>{
-            state.isLoading=false;
-            state.userInfo=action.payload.userInfo,
-            state.role=action.payload.role,
-            state.permissions=action.payload.permissions,
-            state.rolesList=action.payload.rolesList
-        })
+    extraReducers: (builder) => {
+        builder
+            .addCase(getInitialState.pending, (state) => {
+                state.isLoading = true
+            })
+            .addCase(getInitialState.rejected, (state) => {
+                state.isLoading = false
+            })
+            .addCase(getInitialState.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.userInfo = action.payload.userInfo,
+                    state.role = action.payload.role,
+                    state.permissions = action.payload.permissions,
+                    state.rolesList = action.payload.rolesList
+            })
+
+            .addCase(changeActiveRole.pending, (state) => {
+                state.isLoading = true;
+
+            })
+            .addCase(changeActiveRole.rejected, (state) => {
+                state.isLoading = false
+            })
+            .addCase(changeActiveRole.fulfilled, (state, action) => {
+                state.isLoading = false
+                if (action.payload?.userInfo) {
+                    state.userInfo = action.payload.userInfo;
+                    state.role = action.payload.role;
+                    state.permissions = action.payload.permissions;
+                }
+            })
     }
 })
 
-export const { setTheme,setState } = authReducer.actions;
+export const { setTheme, setState } = authReducer.actions;
 export default authReducer.reducer;
