@@ -48,7 +48,7 @@ export default function StaffDirectory() {
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        // getData();
+        getData();
     }, []);
 
     const getData = async () => {

@@ -14,6 +14,7 @@ import { RiErrorWarningLine } from "react-icons/ri";
 import { MdOutlineCheckCircle } from "react-icons/md";
 import { BsGraphUpArrow } from "react-icons/bs";
 import StaffAttendance from "../../components/StaffAttendanceRegister";
+import StaffReqBox from "../../components/StaffReqBox";
 
 const StaffOption = [
     {
@@ -70,7 +71,7 @@ const subStatsCard = [
 
 export default function StaffPage() {
     const [showGenerateToken, setShowGenerateToken] = useState(false);
-    const [activeStaffOption, setActiveStaffOption] = useState(StaffOption[0]);
+    const [activeStaffOption, setActiveStaffOption] = useState(StaffOption[2]);
     return (
 
         <div className="w-full h-full p-2 md:p-4 flex flex-col gap-2 md:gap-4 items-center overflow-y-auto show-custom-scrollbar">
@@ -101,7 +102,9 @@ export default function StaffPage() {
             {
                 activeStaffOption.page == 'attendance' && <StaffAttendance />
             }
-            
+            {
+                activeStaffOption.page=='staff-req' && <StaffReqBox />
+            }
         </div>
     )
 }
