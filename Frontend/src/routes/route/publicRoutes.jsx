@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import StaffPage from "../../Pages/view/StaffPage";
+import RestaurantManagementPage from "../../Pages/view/RestaurantManagementPage";
 
 // const   = lazy(()=>import(''));
 const Login = lazy(() => import('../../Pages/auth/Login'));
@@ -46,7 +47,7 @@ export const publicRoutes = [
     {
           id: 6,
         path: '/offline-page',
-        element: <StaffPage />
+        element: <RestaurantManagementPage />
     }
     // {
     //     id: 6,

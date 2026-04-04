@@ -9,7 +9,7 @@ const staffRequests = [
         user_data:{
             name:'Harshit Singh Negi',
             email:'negiharshitsingh919@gmail.com',
-            image:''
+            image:'image.png'
         },
         status:'pending',
         created_at:''
@@ -55,6 +55,7 @@ const filterTypes = [
 
 export default function StaffReqBox(){
 
+    const [perPage,setPerPage] = useState(10);
     const [activeType,setActiveType] =useState('all');
     return(
         <div className="w-full rounded-2xl bg-card-bg flex flex-col shadow-md shadow-black/30 overflow-hidden">
@@ -77,6 +78,21 @@ export default function StaffReqBox(){
                         <StaffRequestRow key={r.id} data={r} />
                     )
                 }
+            </div>
+            <div className="flex w-full border-t-1 border-divider p-2 md:p-3 items-center justify-between">
+                <div className="w-[55px] ">
+                    <select  id="" value={perPage} onChange={(e)=>setPerPage(e.target.value)}
+                        className="outline-1 text-sec-text w-full outline-divider p-1 rounded-lg focus:outline-2 focus:outline-active-border">
+                        {
+                            [1,2,3,4,5].map(i=>
+                                <option value={5*i} className="bg-main-bg ">{5*i}</option>
+                            )
+                        }
+                    </select>
+                </div>
+                <div className="flex items-center gap-1">
+                    
+                </div>
             </div>
         </div>
     )

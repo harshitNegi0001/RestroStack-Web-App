@@ -56,7 +56,7 @@ export default function GenerateInviteToken({ onClose }) {
     const handleGenerate = async () => {
 
         setIsLoadingBtn(true);
-        await generateInviteToken({ role: role, res_id: activeRes?.res_data?.id, email },setInputError);
+        await generateInviteToken({ role: role, res_id: activeRes?.res_data?.id, email }, setInputError);
         setIsLoadingBtn(false);
     }
     return (
@@ -176,7 +176,7 @@ export default function GenerateInviteToken({ onClose }) {
                 </div>
             </div>
             <div className="w-full p-4 flex justify-end">
-                
+
                 <button
                     disabled={isLoadingBtn}
                     onClick={handleGenerate}

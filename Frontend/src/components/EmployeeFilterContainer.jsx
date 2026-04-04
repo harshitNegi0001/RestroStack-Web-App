@@ -27,7 +27,7 @@ export default function EmployeeFilter({ searchValue, setSearchValue, roles, rol
                     className='w-[200px] flex flex-col gap-1 relative'>
 
                     <label htmlFor='role-input'
-                        className='absolute bottom-1 left-1 text-gray-500 flex justify-center items-center rounded-lg
+                        className='absolute bottom-0.5 left-1 text-gray-500 flex justify-center items-center rounded-lg
                                                 size-[30px] text-[20px]'>
                         {roles.find(c => c.value == role).icon}
                     </label>
@@ -36,10 +36,11 @@ export default function EmployeeFilter({ searchValue, setSearchValue, roles, rol
                         className='border-divider bg-toast-bg/60
                                                 border-1 focus:outline-1 pl-9 focus:outline-active-border focus:border-active-border outline-0 
                                                 rounded-lg p-1.5 text-main-text text-[16px] '>
-                        {roles.map(r => <option key={r.id} value={r.value}
-                            className="bg-main-bg ">
-                            {r.label}
-                        </option>
+                        {roles.map(r =>
+                            <option key={r.id} value={r.value}
+                                className="bg-main-bg ">
+                                {r.label}
+                            </option>
                         )}
                     </select>
 
