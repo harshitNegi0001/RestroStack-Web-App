@@ -55,7 +55,7 @@ export const submitRestrauntData = async (state, setIsLoadingBtn, successFunctio
         const rolesList = result?.data?.rolesList;
         const permissions = result?.data?.permissions;
 
-        successFunction({userInfo,role,permissions,rolesList});
+        successFunction({ userInfo, role, permissions, rolesList });
 
     } catch (err) {
         console.log(err);
@@ -63,5 +63,21 @@ export const submitRestrauntData = async (state, setIsLoadingBtn, successFunctio
     }
     finally {
         setIsLoadingBtn(false);
+    }
+}
+
+export const getCurrentRestaurant = async (successFunction) => {
+    try {
+        const result = await axios.get(
+            `${backend_url}/res/get-curr-restaurant`,
+            {
+                withCredentials:true
+            }
+        );
+        const resData = result?.data?.resData;
+        successFunction({ resData });
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }

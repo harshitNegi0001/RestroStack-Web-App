@@ -10,7 +10,6 @@ export const permissionInjector = async (req, res, next) => {
             message: 'You do not have permission to access this resource.'
         });
     }
-
     try {
         const result = await db.query(
             `SELECT
@@ -23,7 +22,6 @@ export const permissionInjector = async (req, res, next) => {
         );
         if (result.rows.length > 0) {
             const permissions = result.rows[0].permissions;
-
             req.permissions = permissions;
             next();
         }

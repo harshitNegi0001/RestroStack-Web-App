@@ -89,6 +89,53 @@ class Restaurant {
         }
     }
     
+    getCurrRestaurant= async(req,res)=>{
+        const {id,role,res_id} = req.user;
+        const permissions = req.permissions;
+        // const {} = req.query;
+
+        try {
+            if(permissions?.['manage_restaurant_setup'] || role=='owner'){
+                const result =await db.query(
+                    `SELECT 
+                        res_name,
+                        res_logo,
+                        email,
+                        contact_no,
+                        full_address,
+                        json_build_object(
+                            'city',city,
+                            'state',state,
+                            'country',country,
+                            'latitude',latitude,
+                            'longitude',longitude
+                        ) AS address,
+                        verified_email
+                    FROM restaurants 
+                    WHERE id=$1
+                    `,
+                    [res_id]
+                );
+
+                const resData=result.rows[0];
+
+                return returnRes(res, 200, {
+                    success: true,
+                    error: false,
+                    message: 'Restaurant data fetched successfully!',
+                    resData
+                });
+            }
+            return returnRes(res, 403, {
+                success: false,
+                error: 'ACCESS_DENIED',
+                message: 'You do not have permission to view or manage the staff list.'
+            });
+        } catch (err) {
+            console.log(err);
+            return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+        }
+    }
 }
 
 export default new Restaurant();

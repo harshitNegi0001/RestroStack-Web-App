@@ -116,7 +116,7 @@ export default function RestBasicInfo({ state, setState, setActiveTab }) {
                     <input id='restaurantName-input' type="text"
                         autoComplete="restaurantName-input"
                         value={localState.res_name} onChange={(e) => setLocalState(prev => ({ ...prev, res_name: e.target.value }))}
-                        placeholder='Enter your Restraunt Name' required
+                        placeholder='Enter your Restaurant Name' required
                         onFocus={() => setInputError(prev => ({ ...prev, res_name: '' }))}
                         className={`${inputError.res_name ? 'border-red-600' : 'border-divider '}
                             border-1 focus:outline-1 pl-9 md:pl-11 focus:outline-active-border focus:border-active-border outline-0 

@@ -245,7 +245,7 @@ class Staff {
         const { id, role, res_id } = req.user;
         const permissions = req.permissions;
         try {
-            if (permissions.can_manage_staff || role == 'owner') {
+            if (permissions?.can_manage_staff || role == 'owner') {
 
                 const result = await db.query(
                     `SELECT 
