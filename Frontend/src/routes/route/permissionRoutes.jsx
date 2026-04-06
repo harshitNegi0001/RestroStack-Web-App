@@ -32,7 +32,7 @@ export const permissionBasedRoutes = [
     {
         id:4,
         path:'/restaurant-management',
-        permission:'',
+        permission:'manage_restaurant_setup',
         element:<RestaurantManagementPage/>
     }
 ]

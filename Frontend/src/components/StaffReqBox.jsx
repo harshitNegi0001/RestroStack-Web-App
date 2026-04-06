@@ -9,7 +9,7 @@ const staffRequests = [
         user_data:{
             name:'Harshit Singh Negi',
             email:'negiharshitsingh919@gmail.com',
-            image:'image.png'
+            image:'https://res.cloudinary.com/dns5lxuvy/image/upload/q_auto/f_auto/v1774678509/dlavfvrj493hxruq90qy.png'
         },
         status:'pending',
         created_at:''
@@ -58,7 +58,7 @@ export default function StaffReqBox(){
     const [perPage,setPerPage] = useState(10);
     const [activeType,setActiveType] =useState('all');
     return(
-        <div className="w-full rounded-2xl bg-card-bg flex flex-col shadow-md shadow-black/30 overflow-hidden">
+        <div className="w-full rounded-2xl bg-card-bg flex flex-col shadow-md shadow-black/30 ">
             <div className="p-2 flex flex-col gap-2 md:flex-row md:justify-between w-full ">
                 <div className="flex gap-2 items-center text-[14px] md:text-[16px] text-active-border ">
                     <LuInbox />

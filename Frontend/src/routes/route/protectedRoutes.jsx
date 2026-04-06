@@ -43,7 +43,7 @@ function ProtectedRoute({ route, children }) {
         return <Suspense fallback={null}>{children}</Suspense>
     }
     else {
-        return <Navigate to={'/page-not-found'} replace />
+        return <Navigate to={'/access-denied'} replace />
     }
 
 }

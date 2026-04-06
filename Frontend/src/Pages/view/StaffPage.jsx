@@ -71,7 +71,7 @@ const subStatsCard = [
 
 export default function StaffPage() {
     const [showGenerateToken, setShowGenerateToken] = useState(false);
-    const [activeStaffOption, setActiveStaffOption] = useState(StaffOption[2]);
+    const [activeStaffOption, setActiveStaffOption] = useState(StaffOption[0]);
     return (
 
         <div className="w-full h-full p-2 md:p-4 flex flex-col gap-2 md:gap-4 items-center overflow-y-auto show-custom-scrollbar">

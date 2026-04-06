@@ -81,3 +81,20 @@ export const getCurrentRestaurant = async (successFunction) => {
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }
+
+export const uploadLogo = async(image,successFunction)=>{
+    try {
+        const result =await axios.post(
+            `${backend_url}/res/upload-logo`,
+            {
+
+            },
+            {
+                withCredentials:true
+            }
+        )
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
