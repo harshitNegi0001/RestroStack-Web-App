@@ -8,13 +8,6 @@ import { MdVerified } from "react-icons/md";
 import { FaExternalLinkAlt } from "react-icons/fa";
 
 
-const resData = {
-    res_name: 'Kumaun Restaurant',
-    email: 'negidigitalstudio@restrostack.com',
-    phone_no: '+918877887788',
-    logo: 'https://res.cloudinary.com/dns5lxuvy/image/upload/q_auto/f_auto/v1773224748/bpqjla7vww3zo0adcmom.png',
-    full_location: 'Jamrani Colony, Haldwani, Uttarakhand, India',
-}
 
 export default function ResIdentityCard({ isLoading = true,resData={},setResData }) {
     const [openEdit, setOpenEdit] = useState(false);
@@ -74,7 +67,12 @@ export default function ResIdentityCard({ isLoading = true,resData={},setResData
     };
 
     const handleLogoChange =(file)=>{
-        // resData.logo=file
+        setResData(prev=>(
+            {
+                ...prev,
+                res_logo:URL.createObjectURL(file)
+            }
+        ))
     }
     return (
         <div className="w-full flex flex-col gap-2 md:gap-3 ">
@@ -106,7 +104,7 @@ export default function ResIdentityCard({ isLoading = true,resData={},setResData
                         <>
                             {
                                 resData?.res_logo ?
-                                    <img src={resData.res_logo} alt="" className="size-[40px] md:size-[50px] object-contain" /> :
+                                    <img src={resData.res_logo} alt="" className="size-[40px] md:size-[50px] rounded-2xl object-center object-contain" /> :
                                     (openEdit) ?
                                         <TbCameraPlus /> :
                                         <LuBuilding2 />

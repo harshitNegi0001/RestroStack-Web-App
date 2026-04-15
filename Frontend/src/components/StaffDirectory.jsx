@@ -62,13 +62,17 @@ export default function StaffDirectory() {
             <EmployeeFilter role={role} setRole={setRole} roles={roles} searchValue={searchValue} setSearchValue={setSearchValue} />
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {
-                    isLoading?
-                    [1,2,3,4,5,6].map(i=>
-                        <LoadingEmployeeCard key={i}/>
-                    ):
-                    staffList.map(s =>
-                        <EmployeeCard data={s} key={s.id} />
-                    )
+                    isLoading ?
+                        [1, 2, 3, 4, 5, 6].map(i =>
+                            <LoadingEmployeeCard key={i} />
+                        ) :
+                        staffList.length == 0 ?
+                            <div className="">
+
+                            </div> :
+                            staffList.map(s =>
+                                <EmployeeCard data={s} key={s.id} />
+                            )
                 }
             </div>
         </div>

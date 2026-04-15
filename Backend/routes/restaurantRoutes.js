@@ -7,6 +7,6 @@ const router = e.Router();
 
 router.post('/create-new-restaurant',tokenOpener,Restaurant.createNewRes);
 router.get('/get-curr-restaurant',tokenOpener,permissionInjector,Restaurant.getCurrRestaurant);
-
+router.post('/edit-res',tokenOpener,permissionInjector,Restaurant.editRestaurantDetails);
 
 export default router;

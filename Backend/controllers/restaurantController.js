@@ -88,15 +88,15 @@ class Restaurant {
             client.release();
         }
     }
-    
-    getCurrRestaurant= async(req,res)=>{
-        const {id,role,res_id} = req.user;
+
+    getCurrRestaurant = async (req, res) => {
+        const { id, role, res_id } = req.user;
         const permissions = req.permissions;
         // const {} = req.query;
 
         try {
-            if(permissions?.['manage_restaurant_setup'] || role=='owner'){
-                const result =await db.query(
+            if (permissions?.['manage_restaurant_setup'] || role == 'owner') {
+                const result = await db.query(
                     `SELECT 
                         res_name,
                         res_logo,
@@ -117,7 +117,7 @@ class Restaurant {
                     [res_id]
                 );
 
-                const resData=result.rows[0];
+                const resData = result.rows[0];
 
                 return returnRes(res, 200, {
                     success: true,
@@ -125,6 +125,47 @@ class Restaurant {
                     message: 'Restaurant data fetched successfully!',
                     resData
                 });
+            }
+            return returnRes(res, 403, {
+                success: false,
+                error: 'ACCESS_DENIED',
+                message: 'You do not have permission to view or manage the staff list.'
+            });
+        } catch (err) {
+            console.log(err);
+            return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+        }
+    }
+
+    editRestaurantDetails = async (req, res) => {
+        const { id, role, res_id } = req.user;
+        const permissions = req.permissions;
+        const { type, data } = req.query;
+
+        try {
+            if (permissions?.['manage_restaurant_setup'] || role == 'owner') {
+                if (type == 'identity') {
+                    const { res_name, email, contact_no, address, full_location, logo } = data;
+                    const { city, state, country, latitude, longitude } = address;
+                    const res_logo = logo||null;
+                    await db.query(
+                        `UPDATE restaurants
+                        SET 
+                            res_name = $1,
+                            email = $2,
+                            res_logo = $3,
+                            contact_no =$4,
+                            full_address =$5,
+                            city = $6,
+                            state=$7,
+                            country=$8,
+                            latitude=$9,
+                            longitude=$10
+                        WHERE id=$11
+                            `,
+                        [res_name, email, logo, contact_no, full_location, city, state, country, latitude, longitude, res_id]
+                    );
+                }
             }
             return returnRes(res, 403, {
                 success: false,
