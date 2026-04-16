@@ -3,6 +3,7 @@ import db from '../utils/db.js';
 import { defaultPermisson } from "../utils/defaultPermission.js";
 import { getUserInfo } from "../utils/getUserInfo.js";
 import { getRoles } from "../utils/getRoles.js";
+import { uploadImage } from "../utils/uploadImage.js";
 class Restaurant {
     createNewRes = async (req, res) => {
         const { id } = req.user;
@@ -140,15 +141,32 @@ class Restaurant {
     editRestaurantDetails = async (req, res) => {
         const { id, role, res_id } = req.user;
         const permissions = req.permissions;
-        const { type, data } = req.query;
+        const { type, res_name, email, contact_no, full_location } = req.body;
 
         try {
             if (permissions?.['manage_restaurant_setup'] || role == 'owner') {
                 if (type == 'identity') {
-                    const { res_name, email, contact_no, address, full_location, logo } = data;
-                    const { city, state, country, latitude, longitude } = address;
-                    const res_logo = logo||null;
-                    await db.query(
+                    let imageUrl = req.body.logo || null;
+                    if (req.file) {
+                        try {
+                            imageUrl = await uploadImage(req);
+                        } catch (uploadErr) {
+                            console.log('Image upload error:', uploadErr);
+                            return returnRes(res, 500, {
+                                success: false,
+                                error: 'UPLOAD_FAILED',
+                                message: 'Failed to upload image to the server.'
+                            });
+                        }
+                    }
+
+                    let parsedAddress = {};
+                    if (req.body.address) {
+                        parsedAddress = typeof req.body.address === 'string' ? JSON.parse(req.body.address) : req.body.address;
+                    }
+                    const { city, state, country, latitude, longitude } = parsedAddress;
+                    
+                    const updatedData = await db.query(
                         `UPDATE restaurants
                         SET 
                             res_name = $1,
@@ -162,10 +180,35 @@ class Restaurant {
                             latitude=$9,
                             longitude=$10
                         WHERE id=$11
+                        RETURNING
+                            res_name,
+                            res_logo,
+                            email,
+                            contact_no,
+                            full_address,
+                            json_build_object(
+                                'city',city,
+                                'state',state,
+                                'country',country,
+                                'latitude',latitude,
+                                'longitude',longitude
+                            ) AS address,
+                            verified_email
                             `,
-                        [res_name, email, logo, contact_no, full_location, city, state, country, latitude, longitude, res_id]
+                        [res_name, email, imageUrl, contact_no, full_location, city, state, country, latitude, longitude, res_id]
                     );
+
+                    return returnRes(res, 200, {
+                        success: true,
+                        message: 'Restaurant details updated successfully!',
+                        resData:updatedData.rows[0]
+                    });
                 }
+
+                return returnRes(res, 400, {
+                    success: false,
+                    message: 'Invalid update type provided.'
+                });
             }
             return returnRes(res, 403, {
                 success: false,

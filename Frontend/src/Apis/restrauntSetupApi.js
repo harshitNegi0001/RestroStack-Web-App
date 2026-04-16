@@ -82,9 +82,19 @@ export const getCurrentRestaurant = async (successFunction) => {
     }
 }
 
-export const editRestaurantDetails= async()=>{
+export const editRestaurantDetails= async(formData,successFunction)=>{
     try {
         
+        const result =await axios.post(
+            `${backend_url}/res/edit-res`,
+            formData,
+            {
+                withCredentials:true
+            }
+        );
+        if(result?.data?.resData){
+            successFunction(result.data.resData);
+        }
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');

@@ -6,10 +6,12 @@ import { IoRestaurantOutline } from "react-icons/io5";
 import { searchLocation } from "../Apis/searchApi";
 import { MdVerified } from "react-icons/md";
 import { FaExternalLinkAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { editRestaurantDetails } from "../Apis/restrauntSetupApi";
 
 
 
-export default function ResIdentityCard({ isLoading = true,resData={},setResData }) {
+export default function ResIdentityCard({ isLoading = true, resData = {}, setResData }) {
     const [openEdit, setOpenEdit] = useState(false);
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
@@ -21,7 +23,10 @@ export default function ResIdentityCard({ isLoading = true,resData={},setResData
         email: '',
         phone_no: ''
     });
+    const [logoFile, setLogoFile] = useState(null);
     const logoInputRef = useRef(null);
+
+    const navigate = useNavigate();
     useEffect(() => {
         if (state?.full_address?.length < 3 || !showSuggestions) {
             setSuggestions([]);
@@ -37,12 +42,13 @@ export default function ResIdentityCard({ isLoading = true,resData={},setResData
             clearTimeout(delayDebounceFn);
         }
     }, [state?.full_address]);
-    useEffect(()=>{
-        if(!resData){
+    useEffect(() => {
+        if (!resData) {
             return;
         }
-        setInputState({...resData})
-    },[resData])
+        setInputState({ ...resData });
+        setLogoFile(null);
+    }, [resData])
     const handleSelect = (item) => {
         const { name, city, state: prov, country, district } = item.properties;
         const [lng, lat] = item.geometry.coordinates;
@@ -66,13 +72,47 @@ export default function ResIdentityCard({ isLoading = true,resData={},setResData
         setSuggestions([]);
     };
 
-    const handleLogoChange =(file)=>{
-        setResData(prev=>(
-            {
+    const handleLogoChange = (file) => {
+        if (file) {
+            setLogoFile(file);
+            setInputState(prev => ({
                 ...prev,
-                res_logo:URL.createObjectURL(file)
-            }
-        ))
+                res_logo: URL.createObjectURL(file)
+            }));
+        }
+    }
+
+    const editResIdentity = async () => {
+        setIsLoadingBtn(true);
+
+        const successFunction = (data) => {
+            setOpenEdit(false); 
+            setLogoFile(null);  
+            
+            setResData(prev => ({
+                ...prev,
+                ...state,
+                res_logo: data.res_logo || state.res_logo
+            }));
+        }
+        const formData = new FormData();
+        formData.append('type', 'identity');
+        formData.append('res_name', state?.res_name);
+        formData.append('email', state?.email);
+        formData.append('full_location', state?.full_location);
+        formData.append('contact_no', state?.contact_no);
+
+        if (state?.address) {
+            formData.append('address', JSON.stringify(state.address));
+        }
+        if (logoFile instanceof File) {
+            formData.append('res_logo', logoFile);
+        } else if (resData?.res_logo) {
+            formData.append('logo', resData.res_logo);
+        }
+
+        await editRestaurantDetails(formData, successFunction);
+        setIsLoadingBtn(false);
     }
     return (
         <div className="w-full flex flex-col gap-2 md:gap-3 ">
@@ -85,19 +125,19 @@ export default function ResIdentityCard({ isLoading = true,resData={},setResData
                     </div>}
             </div>
             <input type="file" ref={logoInputRef} id="logo-input" accept="image/*"
-            onChange={(e)=>handleLogoChange(e.target.files[0])}
-             className="hidden"/>
+                onChange={(e) => handleLogoChange(e.target.files[0])}
+                className="hidden" />
             <div className="flex flex-row w-full items-start gap-4">
                 <div
-                onClick={()=>{
-                    if(openEdit && logoInputRef){
-                        logoInputRef.current.click();
-                    }
-                }}
-                 className={`flex justify-center items-center size-[45px] md:size-[55px]  rounded-2xl 
+                    onClick={() => {
+                        if (openEdit && logoInputRef) {
+                            logoInputRef.current.click();
+                        }
+                    }}
+                    className={`flex justify-center items-center size-[45px] md:size-[55px]  rounded-2xl 
                     ${openEdit ? 'bg-active-border/10 border-2 border-active-border/50 hover:border-active-border/70 active:border-active-border border-dashed text-[15px] md:text-[17px] text-active-border/50 hover:text-active-border/70 active:text-active-border' :
-                        (isLoading) ? 'animate-wave' :
-                            'bg-active-border/10 text-[28px] md:text-[30px] text-active-border'}`}>
+                            (isLoading) ? 'animate-wave' :
+                                'bg-active-border/10 text-[28px] md:text-[30px] text-active-border'}`}>
                     {
                         !isLoading
                         &&
@@ -165,7 +205,7 @@ export default function ResIdentityCard({ isLoading = true,resData={},setResData
                                                     setInputError(prev => ({ ...prev, full_address: '' }));
                                                     setShowSuggestions(true);
                                                 }}
-                                                
+
                                                 value={state?.full_address}
                                                 onChange={(e) => {
                                                     setInputState(prev => ({ ...prev, full_address: e.target.value }));
@@ -251,25 +291,25 @@ export default function ResIdentityCard({ isLoading = true,resData={},setResData
                                     </div>
                                 </> :
                                 <>
-                                <div className="flex flex-1 min-w-0 flex-col items-start ">
-                                    <span className="text-[10px] md:text-[12px] text-low-text/70">Restaurant Name :</span>
-                                    <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.res_name}</span>
-                                </div>
-                                <div className="flex flex-1 min-w-0 flex-col items-start ">
-                                    <span className="text-[10px] md:text-[12px] text-low-text/70">Full Address :</span>
-                                    <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.full_address}</span>
-                                </div>
-                                <div className="flex flex-1 min-w-0 flex-col items-start ">
-                                    <span className="flex items-center gap-2 text-[10px] md:text-[12px] text-low-text/70"><span>Email :</span> 
-                                        {resData?.verified_email?<span className="rounded-2xl bg-toast-bg flex gap-1 items-center px-2 text-sec-text text-[9px]/4 md:text-[11px]/4 font-[Rubik]">Verified <MdVerified className="text-active-border"/></span>:
-                                        <span className="rounded-2xl bg-indigo-600/10 flex gap-1 items-center px-2 text-indigo-600 cursor-pointer text-[9px]/4 md:text-[11px]/4 font-[Rubik]">Verify <FaExternalLinkAlt  /></span>}
-                                    </span>
-                                    <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.email}</span>
-                                </div>
-                                <div className="flex flex-1 min-w-0 flex-col items-start ">
-                                    <span className="text-[10px] md:text-[12px] text-low-text/70">Contact No. :</span>
-                                    <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.contact_no}</span>
-                                </div>
+                                    <div className="flex flex-1 min-w-0 flex-col items-start ">
+                                        <span className="text-[10px] md:text-[12px] text-low-text/70">Restaurant Name :</span>
+                                        <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.res_name}</span>
+                                    </div>
+                                    <div className="flex flex-1 min-w-0 flex-col items-start ">
+                                        <span className="text-[10px] md:text-[12px] text-low-text/70">Full Address :</span>
+                                        <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.full_address}</span>
+                                    </div>
+                                    <div className="flex flex-1 min-w-0 flex-col items-start ">
+                                        <span className="flex items-center gap-2 text-[10px] md:text-[12px] text-low-text/70"><span>Email :</span>
+                                            {resData?.verified_email ? <span className="rounded-2xl bg-toast-bg flex gap-1 items-center px-2 text-sec-text text-[9px]/4 md:text-[11px]/4 font-[Rubik]">Verified <MdVerified className="text-active-border" /></span> :
+                                                <span onClick={() => navigate('/verify-email', { state: { email: resData?.email } })} className="rounded-2xl bg-indigo-600/10 flex gap-1 items-center px-2 text-indigo-600 cursor-pointer text-[9px]/4 md:text-[11px]/4 font-[Rubik]">Verify <FaExternalLinkAlt /></span>}
+                                        </span>
+                                        <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.email}</span>
+                                    </div>
+                                    <div className="flex flex-1 min-w-0 flex-col items-start ">
+                                        <span className="text-[10px] md:text-[12px] text-low-text/70">Contact No. :</span>
+                                        <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.contact_no}</span>
+                                    </div>
                                 </>
                     }
                 </div>
@@ -277,9 +317,7 @@ export default function ResIdentityCard({ isLoading = true,resData={},setResData
             {!isLoading && openEdit &&
                 <div className="w-full flex justify-end p-3 ">
                     <button
-                        onClick={() => {
-                            setOpenEdit(false)
-                        }}
+                        onClick={editResIdentity}
                         disabled={isLoadingBtn}
                         className={`w-fit mt-3 py-2 px-3  rounded-lg bg-linear-0 text-white text-[13px] md:text-[14px] lg:text-[15px] font-[600] flex items-center justify-center
                          
