@@ -99,6 +99,7 @@ class Restaurant {
             if (permissions?.['manage_restaurant_setup'] || role == 'owner') {
                 const result = await db.query(
                     `SELECT 
+                        id,
                         res_name,
                         res_logo,
                         email,
@@ -165,7 +166,7 @@ class Restaurant {
                         parsedAddress = typeof req.body.address === 'string' ? JSON.parse(req.body.address) : req.body.address;
                     }
                     const { city, state, country, latitude, longitude } = parsedAddress;
-                    
+
                     const updatedData = await db.query(
                         `UPDATE restaurants
                         SET 
@@ -201,7 +202,7 @@ class Restaurant {
                     return returnRes(res, 200, {
                         success: true,
                         message: 'Restaurant details updated successfully!',
-                        resData:updatedData.rows[0]
+                        resData: updatedData.rows[0]
                     });
                 }
 

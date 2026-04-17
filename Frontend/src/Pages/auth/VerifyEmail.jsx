@@ -1,7 +1,7 @@
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom"
 import { useEffect, useState } from "react";
 import { askForOtp, verifyOtp } from "../../Apis/authApi";
-import { setState } from "../../Store/Auth/authReducer";
+import { getInitialState, setState } from "../../Store/Auth/authReducer";
 import { useDispatch } from 'react-redux';
 
 
@@ -28,6 +28,7 @@ export default function VerifyEmail() {
     const email = state?.email;
     const prev = state?.prev;
     const otp_type = state?.otp_type;
+    const res_id = state?.res_id;
     const valid = (otp?.[1] && otp?.[2] && otp?.[3] && otp?.[4] && otp?.[5] && otp?.[6]);
 
 
@@ -36,7 +37,7 @@ export default function VerifyEmail() {
         if (!email) {
             navigate('/login');
         }
-        if (prev == '/login'||prev=='/restaurant-management') {
+        if (prev == '/login' || prev == '/restaurant-management') {
             setAskOtpGenerate(true);
             return;
         }
@@ -58,7 +59,7 @@ export default function VerifyEmail() {
     }, [otpCountdown]);
 
     const resendOtp = async () => {
-        if (otpCountdown > 0) {
+        if (otpCountdown > 0 && !askOtpGenerate) {
             return;
         }
         const successFunction = () => {
@@ -91,20 +92,23 @@ export default function VerifyEmail() {
             return;
         }
         const structuredOtp = `${otp?.[1]}${otp?.[2]}${otp?.[3]}${otp?.[4]}${otp?.[5]}${otp?.[6]}`;
-        const successFunction = (userInfo) => {
-            dispatch(setState({ userInfo: userInfo }));
-            if(redirectTo){
+        const successFunction = () => {
+
+            if (redirectTo) {
                 navigate(redirectTo);
             }
             else if (otp_type == 'verification') {
                 navigate('/setup-user');
             }
-            else if(otp_type=='reset_pass'){
+            else if (otp_type == 'reset_pass') {
                 navigate('/reset-password');
             }
-
+            else if (otp_type == 'res_email_verification'){
+                navigate('/restaurant-management');
+            }
+            dispatch(getInitialState());
         }
-        verifyOtp(e, email, structuredOtp, setIsLoadingBtn, successFunction);
+        verifyOtp(e, email, structuredOtp, res_id, otp_type, setIsLoadingBtn, successFunction);
 
     }
     return (

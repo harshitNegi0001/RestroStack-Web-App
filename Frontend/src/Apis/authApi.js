@@ -126,7 +126,7 @@ export const loginUser = async (e, state, setIsLoadingBtn, successFunction) => {
     }
 }
 
-export const verifyOtp = async (e, email, otp, setIsLoadingBtn, successFunction) => {
+export const verifyOtp = async (e, email, otp,res_id,otp_type, setIsLoadingBtn, successFunction) => {
     e.preventDefault();
 
     try {
@@ -135,7 +135,9 @@ export const verifyOtp = async (e, email, otp, setIsLoadingBtn, successFunction)
             `${backend_url}/auth/verify-otp`,
             {
                 email,
-                otp
+                otp,
+                res_id,
+                otp_type
             },
             {
                 withCredentials: true
@@ -143,7 +145,7 @@ export const verifyOtp = async (e, email, otp, setIsLoadingBtn, successFunction)
         );
         setIsLoadingBtn(false);
         toast.success(result?.data?.message);
-        successFunction(result?.data?.userInfo);
+        successFunction();
 
     } catch (err) {
         setIsLoadingBtn(false);

@@ -94,7 +94,13 @@ class Auth {
                 WHERE email = $1`,
             [email]
         );
-        const isExistEmail = emailCheck.rows.length > 0;
+        const res_email_check = await db.query(
+            `SELECT id
+                FROM restaurants
+                WHERE email =$1
+                `, [email]
+        );
+        const isExistEmail = emailCheck.rows.length > 0 || res_email_check.rows.length > 0;
 
         if (isExistEmail) {
             const otp_rate_check = await db.query(
@@ -165,7 +171,7 @@ class Auth {
                             last_sent_at = now()`,
                 [email]
             );
-            const otp_type = (subject == 'Verify Email') ? 'verification' : 'reset_pass'
+            const otp_type = (subject == 'Verify Email') ? 'verification' : (subject == 'Verify Restaurant Email') ? 'res_email_verification' : 'reset_pass'
             await db.query(
                 `INSERT INTO 
                     otp_table(
@@ -199,7 +205,7 @@ class Auth {
 
     // controller function to verify otp
     verifyOtp = async (req, res) => {
-        let { email, otp, otp_type = 'verification' } = req.body;
+        let { email, otp, otp_type = 'verification', res_id } = req.body;
         email = email.trim();
         otp = otp.trim();
         otp_type = otp_type.trim();
@@ -219,10 +225,15 @@ class Auth {
                 WHERE email=$1
                 `, [email]
             );
-            const isExistEmail = user_check.rows.length > 0;
+            const res_email_check = await db.query(
+                `SELECT id
+                FROM restaurants
+                WHERE email =$1
+                `, [email]
+            );
+            const isExistEmail = user_check.rows.length > 0 || res_email_check.rows.length > 0;
             if (!isExistEmail) {
                 return returnRes(res, 404, { success: false, message: 'No user found with this email.', error: 'USER_NOT_FOUND' });
-
             }
             const otp_data = otp_check.rows?.[0];
 
@@ -265,28 +276,34 @@ class Auth {
                     WHERE id=$1`,
                         [userId]
                     );
+
+                    const userInfo = await getUserInfo(userId);
+                    console.log(userInfo);
+                    const roles = await getRoles(userId);
+                    const activeRole = (roles.length == 0) ? null : (roles.length == 1) ? roles[0].role_name : roles.find(role => role.id == userInfo.last_role_id)?.role_name;
+                    const activeResId = (roles.length == 0) ? null : (roles.length == 1) ? roles[0].res_id : roles.find(role => role.id == userInfo.last_role_id)?.res_id;
+                    const permissions = (roles.length == 0) ? {} : (roles.length == 1) ? roles[0].permissions : roles.find(role => role.id == userInfo.last_role_id)?.permissions;
+
+                    const token = createToken({ id: userInfo.id, role: activeRole, res_id: activeResId, email: userInfo.email });
+
+                    res.cookie('authToken', token, {
+                        httpOnly: true,
+                        secure: isProduction,
+                        sameSite: isProduction ? 'none' : 'lax',
+                        maxAge: 1000 * 60 * 60 * 24 * 7
+                    });
                 }
-                else if(otp_type=='res_email_verification'){
+                else if (otp_type == 'res_email_verification') {
                     await db.query(
                         `UPDATE restaurants
-                    SET 
-                        verified_email=TRUE
-                    WHERE  email = $1`,
-                        [email]
+                        SET 
+                            verified_email = TRUE
+                            WHERE  email = $1 AND id=$2`,
+                        [email, res_id]
                     );
                 }
 
-
-                const userInfo = await getUserInfo(userId);
-                const token = createToken({ id: userInfo.id, email: userInfo.email });
-
-                res.cookie('authToken', token, {
-                    httpOnly: true,
-                    secure: isProduction,
-                    sameSite: isProduction ? 'none' : 'lax',
-                    maxAge: 1000 * 60 * 60 * 24 * 7
-                });
-                return returnRes(res, 200, { success: true, error: false, isVerified: true, message: 'Email verification successful. Your account is now active.', userInfo: userInfo });
+                return returnRes(res, 200, { success: true, error: false, isVerified: true, message: 'Email verification successful. Your account is now active.' });
 
             }
             else {
@@ -327,8 +344,8 @@ class Auth {
 
 
         try {
-            const subject = otp_type == 'verification' ? 'Verify Email' : 'Reset your password'
-            const cstm_msg = otp_type == 'verification' ? 'Please use the following code to verify your email address.' : 'Please use the following code to verify your email address and reset password'
+            const subject = otp_type == 'verification' ? 'Verify Email' : (otp_type == 'res_email_verification') ? 'Verify Restaurant Email' : 'Reset your password'
+            const cstm_msg = otp_type == 'verification' || otp_type == 'res_email_verification' ? 'Please use the following code to verify your email address.' : 'Please use the following code to verify your email address and reset password'
             await this.generateOtp(email, subject, cstm_msg);
             return returnRes(res, 200, { success: true, error: false, message: 'Verification otp sent.' });
 
