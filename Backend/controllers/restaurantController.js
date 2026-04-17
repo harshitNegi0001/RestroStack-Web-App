@@ -141,7 +141,7 @@ class Restaurant {
     editRestaurantDetails = async (req, res) => {
         const { id, role, res_id } = req.user;
         const permissions = req.permissions;
-        const { type, res_name, email, contact_no, full_location } = req.body;
+        const { type, res_name, email, contact_no, full_address } = req.body;
 
         try {
             if (permissions?.['manage_restaurant_setup'] || role == 'owner') {
@@ -195,7 +195,7 @@ class Restaurant {
                             ) AS address,
                             verified_email
                             `,
-                        [res_name, email, imageUrl, contact_no, full_location, city, state, country, latitude, longitude, res_id]
+                        [res_name, email, imageUrl, contact_no, full_address, city, state, country, latitude, longitude, res_id]
                     );
 
                     return returnRes(res, 200, {

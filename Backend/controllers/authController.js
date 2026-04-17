@@ -266,6 +266,15 @@ class Auth {
                         [userId]
                     );
                 }
+                else if(otp_type=='res_email_verification'){
+                    await db.query(
+                        `UPDATE restaurants
+                    SET 
+                        verified_email=TRUE
+                    WHERE  email = $1`,
+                        [email]
+                    );
+                }
 
 
                 const userInfo = await getUserInfo(userId);

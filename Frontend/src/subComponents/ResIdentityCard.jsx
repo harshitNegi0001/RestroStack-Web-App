@@ -8,6 +8,8 @@ import { MdVerified } from "react-icons/md";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { editRestaurantDetails } from "../Apis/restrauntSetupApi";
+import { useDispatch } from "react-redux";
+import { getInitialState } from "../Store/Auth/authReducer";
 
 
 
@@ -25,6 +27,7 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
     });
     const [logoFile, setLogoFile] = useState(null);
     const logoInputRef = useRef(null);
+    const dispatch = useDispatch();
 
     const navigate = useNavigate();
     useEffect(() => {
@@ -47,7 +50,7 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
             return;
         }
         setInputState({ ...resData });
-        setLogoFile(null);
+        // setLogoFile(null);
     }, [resData])
     const handleSelect = (item) => {
         const { name, city, state: prov, country, district } = item.properties;
@@ -64,7 +67,7 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
         }
         setInputState(prev => ({
             ...prev,
-            full_location: fullAddr,
+            full_address: fullAddr,
             address: addr
         }));
 
@@ -75,7 +78,7 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
     const handleLogoChange = (file) => {
         if (file) {
             setLogoFile(file);
-            setInputState(prev => ({
+            setResData(prev => ({
                 ...prev,
                 res_logo: URL.createObjectURL(file)
             }));
@@ -94,12 +97,13 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
                 ...state,
                 res_logo: data.res_logo || state.res_logo
             }));
+            dispatch(getInitialState());
         }
         const formData = new FormData();
         formData.append('type', 'identity');
         formData.append('res_name', state?.res_name);
         formData.append('email', state?.email);
-        formData.append('full_location', state?.full_location);
+        formData.append('full_address', state?.full_address);
         formData.append('contact_no', state?.contact_no);
 
         if (state?.address) {
@@ -302,7 +306,7 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
                                     <div className="flex flex-1 min-w-0 flex-col items-start ">
                                         <span className="flex items-center gap-2 text-[10px] md:text-[12px] text-low-text/70"><span>Email :</span>
                                             {resData?.verified_email ? <span className="rounded-2xl bg-toast-bg flex gap-1 items-center px-2 text-sec-text text-[9px]/4 md:text-[11px]/4 font-[Rubik]">Verified <MdVerified className="text-active-border" /></span> :
-                                                <span onClick={() => navigate('/verify-email', { state: { email: resData?.email } })} className="rounded-2xl bg-indigo-600/10 flex gap-1 items-center px-2 text-indigo-600 cursor-pointer text-[9px]/4 md:text-[11px]/4 font-[Rubik]">Verify <FaExternalLinkAlt /></span>}
+                                                <span onClick={() => navigate('/verify-email?redirectTo=/restaurant-management',{state:{email:resData.email,prev:'/restaurant-management',otp_type:'res_email_verification'}})} className="rounded-2xl bg-indigo-600/10 flex gap-1 items-center px-2 text-indigo-600 cursor-pointer text-[9px]/4 md:text-[11px]/4 font-[Rubik]">Verify <FaExternalLinkAlt /></span>}
                                         </span>
                                         <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.email}</span>
                                     </div>

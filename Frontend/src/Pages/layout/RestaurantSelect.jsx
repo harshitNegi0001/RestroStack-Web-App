@@ -41,7 +41,7 @@ export default function RestaurantSelectComponent({ openSidebar }) {
                 {
                     activeRes?.res_data?.res_logo ?
                         <img src={activeRes?.res_data?.res_logo} alt=""
-                            className="size-[80%] object-contain" />
+                            className="size-[90%] object-contain rounded-lg" />
                         :
                         <LuBuilding2 />
                 }

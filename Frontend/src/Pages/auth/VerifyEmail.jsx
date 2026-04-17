@@ -36,7 +36,7 @@ export default function VerifyEmail() {
         if (!email) {
             navigate('/login');
         }
-        if (prev == '/login') {
+        if (prev == '/login'||prev=='/restaurant-management') {
             setAskOtpGenerate(true);
             return;
         }
