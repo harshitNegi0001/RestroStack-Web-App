@@ -28,6 +28,13 @@ export const tokenOpener = async (req, res, next) => {
                     id=$1`,
                 [id]
             );
+            const checkRes = await db.query(
+                `SELECT
+                    res_status
+                FROM restaurants
+                WHERE id=$1
+                `,[res_id]
+            );
 
             if (userResult.rows.length == 0) {
                 return returnRes(res, 404, {
@@ -36,6 +43,14 @@ export const tokenOpener = async (req, res, next) => {
                     error: 'USER_NOT_FOUND'
                 });
             }
+            if(checkRes.rows.length>0 && checkRes.rows[0].res_status!='active'){
+                return returnRes(res,400,{
+                    success:false,
+                    message:'Current restaurant has been closed!\n Please re-login',
+                    error:'CLOSED_RESTAURANT'
+                });
+            }
+            
             const user = userResult.rows[0];
             if (user.acc_status != 'active') {
                 return returnRes(res, 403, {

@@ -4,12 +4,11 @@ import { getUserInfo } from "./getUserInfo.js";
 
 
 
-export const getUserFullDetail = async (userId) => {
-
+export const getUserFullDetail = async (userId,res_id) => {
     const userInfo = await getUserInfo(userId);
-    const roles = await getRoles(userId);
+    const roles = await getRoles(userId,res_id);
     const activeRoleData = roles.length > 0
-        ? (roles.find(role => role.id == userInfo.last_role_id) || roles[0])
+        ? (roles.find(role => role.res_id ==res_id) || roles[0])
         : null;
 
     const activeRole = activeRoleData ? activeRoleData.role_name : null;

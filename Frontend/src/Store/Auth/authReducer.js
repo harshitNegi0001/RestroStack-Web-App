@@ -11,6 +11,7 @@ const initialState = {
     userInfo: null,
     role: null,
     rolesList: [],
+    activeResId: null,
     permissions: {},
     isLoading: true
 }
@@ -76,6 +77,9 @@ const authReducer = createSlice({
             if (action.payload.userInfo) {
                 state.userInfo = action.payload.userInfo
             }
+            if (action.payload.activeResId) {
+                state.activeResId = action.payload.activeResId
+            }
             if (action.payload.role) {
                 state.role = action.payload.role
             }
@@ -97,11 +101,12 @@ const authReducer = createSlice({
                 state.isLoading = false
             })
             .addCase(getInitialState.fulfilled, (state, action) => {
-                state.isLoading = false;
-                state.userInfo = action.payload.userInfo,
+                state.isLoading = false,
+                    state.userInfo = action.payload.userInfo,
                     state.role = action.payload.role,
                     state.permissions = action.payload.permissions,
-                    state.rolesList = action.payload.rolesList
+                    state.rolesList = action.payload.rolesList,
+                    state.activeResId = action.payload.activeResId
             })
 
             .addCase(changeActiveRole.pending, (state) => {
@@ -117,6 +122,7 @@ const authReducer = createSlice({
                     state.userInfo = action.payload.userInfo;
                     state.role = action.payload.role;
                     state.permissions = action.payload.permissions;
+                    state.activeResId = action.payload.activeResId;
                 }
             })
     }

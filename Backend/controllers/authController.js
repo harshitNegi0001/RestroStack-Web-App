@@ -267,7 +267,7 @@ class Auth {
                         AND otp_type=$2 `,
                     [email, otp_type]
                 );
-                const userId = user_check.rows[0].id;
+                const userId = user_check?.rows[0]?.id;
                 if (otp_type == 'verification') {
                     await db.query(
                         `UPDATE users
@@ -379,7 +379,6 @@ class Auth {
             if (user.rows.length == 0) {
                 return returnRes(res, 401, {
                     success: false,
-
                     message: 'Invalid email or password. Please check your credentials and try again.',
                     error: 'UNAUTHORIZED_ACCESS'
                 });
@@ -412,6 +411,7 @@ class Auth {
                             message: 'Login successful! \nWelcome back!',
                             userInfo: userInfo,
                             rolesList: roles,
+                            activeResId,
                             permissions,
                             role: activeRole,
                             redirectTo: (userInfo.is_onboarded) ? 'setup-user' : 'job-portal'
@@ -451,12 +451,12 @@ class Auth {
     // controller function to get intial information for client
     getMe = async (req, res) => {
 
-        const { id } = req.user;
+        const { id,res_id } = req.user;
         try {
-            const response = await getUserFullDetail(id);
+            const response = await getUserFullDetail(id,res_id);
             return returnRes(res, 200, response);
         } catch (err) {
-            console.log(err);
+            console.log('get me error:',err);
             return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }
@@ -469,7 +469,8 @@ class Auth {
             const roleCheck = await db.query(
                 `SELECT 
                     user_id,
-                    is_active
+                    is_active,
+                    res_id
                 FROM roles
                 WHERE id=$1
                 `,
@@ -486,6 +487,7 @@ class Auth {
 
             const userId = roleCheck.rows[0].user_id;
             const isActive = roleCheck.rows[0].is_active;
+            const res_id = roleCheck.rows[0].res_id;
             if (userId != id) {
                 return returnRes(res, 403, {
                     success: false,
@@ -509,7 +511,7 @@ class Auth {
                 [newRoleId, id]
             );
 
-            const response = await getUserFullDetail(id);
+            const response = await getUserFullDetail(id,res_id);
 
             const token = createToken({ id: response?.userInfo?.id, role: response.role, res_id: response.activeResId, email: response?.userInfo?.email });
             res.cookie('authToken', token, {

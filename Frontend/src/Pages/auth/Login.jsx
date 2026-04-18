@@ -18,20 +18,20 @@ export default function Login() {
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
     const [searchParam] = useSearchParams();
     const redirectTo = searchParam.get('redirectTo');
-    const redirectUrl = redirectTo??'/dashboard';
+    const redirectUrl = redirectTo ?? '/dashboard';
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const handleLogin = async (e) => {
         const successFunction = (data, navigateTo) => {
             dispatch(setState(data));
             if (!data?.userInfo?.verified_email) {
-                navigate(`/verify-email?redirectTo=${encodeURIComponent(redirectUrl)}`,{ state: { email: state.email, prev: '/login', otp_type: 'verification' } });
+                navigate(`/verify-email?redirectTo=${encodeURIComponent(redirectUrl)}`, { state: { email: state.email, prev: '/login', otp_type: 'verification' } });
             }
             else {
-                if(redirectTo){
+                if (redirectTo) {
                     navigate(`${redirectTo}`);
                 }
-                else{
+                else {
                     navigate(`/${navigateTo}`);
                 }
             }
@@ -108,6 +108,9 @@ export default function Login() {
                                 className='border-divider 
                             border-1 focus:outline-1 px-9 md:px-11 focus:outline-active-border focus:border-active-border outline-0 
                                             rounded-lg p-1.5 md:py-2 text-main-text text-[16px] md:text-[18px]' />
+                        </div>
+                        <div className='flex w-full justify-start text-sec-text/70 hover:text-active-border/80 active:text-active-border text-[10px] md:text-[12px]'>
+                            <span onClick={()=>navigate(`/forgot-password${redirectTo?`?redirectTo=${encodeURIComponent(redirectUrl)}`:''}`)} className='cursor-pointer'>Forgot Password ?</span>
                         </div>
                         <button
                             type='submit'

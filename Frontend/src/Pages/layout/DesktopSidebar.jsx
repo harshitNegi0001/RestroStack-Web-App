@@ -35,7 +35,7 @@ export default function DesktopSideabr({ openSidebar ,setOpenSidebar}) {
                     {openSidebar && <span className={`${openSidebar ? 'opacity-100' : 'opacity-0'} w-full text-[14px] font-[500] font-[Rubik] flex-1 min-w-0 truncate  text-sec-text uppercase `}>
                         {nav.title}
                     </span>}
-                    {nav.options.map((o) => <div key={`option-${nav.id}-${o.id}`}
+                    {nav.options.map((o) => <div title={o.title} key={`option-${nav.id}-${o.id}`}
                         onClick={() => navigate(o.path)}
                         className={`p-3 h-[45px] cursor-pointer rounded-2xl min-w-0 w-full 
                     ${o.path==pathname?'bg-divider/30 text-active-border':'hover:bg-sec-text/5 active:bg-sec-text/20 text-low-text/70 hover:text-low-text active:text-sec-text'} 

@@ -1,9 +1,15 @@
 import { returnRes } from "../utils/returnRes.js";
 import db from '../utils/db.js';
 import { defaultPermisson } from "../utils/defaultPermission.js";
-import { getUserInfo } from "../utils/getUserInfo.js";
-import { getRoles } from "../utils/getRoles.js";
 import { uploadImage } from "../utils/uploadImage.js";
+import { getUserFullDetail } from "../utils/getUserFullDetail.js";
+import dotenv from 'dotenv';
+import createToken from "../utils/createToken.js";
+
+dotenv.config();
+
+const isProduction = process.env.NODE_ENV == 'production';
+
 class Restaurant {
     createNewRes = async (req, res) => {
         const { id } = req.user;
@@ -38,6 +44,7 @@ class Restaurant {
                 RETURNING id`,
                 [id, email, res_name, res_type, phone_no, full_location, city, state, country, latitude, longitude, gstin, fssai_no, tax_prec, currency, opening_timeing]
             );
+
             const userPermissions = defaultPermisson['owner'];
             const resId = result.rows[0]?.id;
             const roleResult = await client.query(
@@ -65,19 +72,17 @@ class Restaurant {
             )
             await client.query('COMMIT');
 
-            const userInfo = await getUserInfo(id);
-            const roles = await getRoles(id);
-            const activeRole = (roles.length == 0) ? null : (roles.length == 1) ? roles[0].role_name : roles.find(role => role.id == userInfo.last_role_id)?.role_name;
-            const permissions = (roles.length == 0) ? {} : (roles.length == 1) ? roles[0].permissions : roles.find(role => role.id == userInfo.last_role_id)?.permissions;
-
+            const response = await getUserFullDetail(id, resId);
+            const token = createToken({ id: response?.userInfo?.id, role: response.role, res_id: response.activeResId, email: response?.userInfo?.email });
+            res.cookie('authToken', token, {
+                httpOnly: true,
+                secure: isProduction,
+                sameSite: isProduction ? 'none' : 'lax',
+                maxAge: 1000 * 60 * 60 * 24 * 7
+            });
             return returnRes(res, 201, {
-                success: true,
-                error: false,
+                ...response,
                 message: 'Restaurant created successfully!',
-                userInfo: userInfo,
-                role: activeRole,
-                rolesList: roles,
-                permissions,
             });
 
         } catch (err) {
@@ -160,7 +165,16 @@ class Restaurant {
                             });
                         }
                     }
-
+                    const checkRestaurant = await db.query(
+                        `SELECT
+                            email,
+                            verified_email
+                        FROM restaurants
+                        WHERE id =$1`,
+                        [res_id]
+                    );
+                    const old_res_email = checkRestaurant?.rows[0]?.email;
+                    const isVerified = checkRestaurant?.rows[0]?.verified_email;
                     let parsedAddress = {};
                     if (req.body.address) {
                         parsedAddress = typeof req.body.address === 'string' ? JSON.parse(req.body.address) : req.body.address;
@@ -179,7 +193,12 @@ class Restaurant {
                             state=$7,
                             country=$8,
                             latitude=$9,
-                            longitude=$10
+                            longitude=$10,
+                            verified_email =
+                                CASE 
+                                    WHEN $12 THEN TRUE
+                                    ELSE FALSE
+                                END
                         WHERE id=$11
                         RETURNING
                             res_name,
@@ -196,7 +215,7 @@ class Restaurant {
                             ) AS address,
                             verified_email
                             `,
-                        [res_name, email, imageUrl, contact_no, full_address, city, state, country, latitude, longitude, res_id]
+                        [res_name, email, imageUrl, contact_no, full_address, city, state, country, latitude, longitude, res_id,(old_res_email == email && isVerified)]
                     );
 
                     return returnRes(res, 200, {

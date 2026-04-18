@@ -8,7 +8,7 @@ import { useEffect } from "react";
 import { changeActiveRole } from "../../Store/Auth/authReducer";
 
 export default function RestaurantSelectComponent({ openSidebar }) {
-    const { rolesList, userInfo } = useSelector(state => state.auth)
+    const { rolesList, userInfo,activeResId } = useSelector(state => state.auth);
 
     const [activeRes, setActiveRes] = useState();
     const dropdownRef = useRef();
@@ -21,7 +21,7 @@ export default function RestaurantSelectComponent({ openSidebar }) {
         if (!rolesList || rolesList.length == 0) {
             return;
         }
-        setActiveRes(rolesList.find(rl => rl.id == userInfo?.last_role_id));
+        setActiveRes(rolesList.find(rl => rl.res_id ==activeResId)|| rolesList[0]);
     }, [rolesList])
 
     useEffect(() => {
