@@ -61,7 +61,7 @@ export default function GenerateInviteToken({ onClose }) {
     }
     return (
         <div
-            className="w-full h-[100dvh] sm:w-[450px] sm:h-fit  bg-card-bg sm:rounded-2xl
+            className="w-[100dvw] h-[100dvh] sm:w-[450px] sm:h-fit  bg-card-bg sm:rounded-2xl
         flex flex-col gap-2">
             <div className="flex flex-row justify-start gap-2 sm:justify-between items-start sm:items-center p-3 border-b-1 border-divider">
 

@@ -11,7 +11,7 @@ import RestaurantSetup from "../Pages/auth/RestaurantSetup";
 export default function CreateNewRes({ onClose }) {
     return (
         <div
-            className="w-full h-[100dvh] sm:w-[500px] sm:h-fit max-h-[100dvh]  bg-card-bg sm:rounded-2xl
+            className="w-[100dvw] h-[100dvh] sm:w-[500px] sm:h-fit max-h-[100dvh]  bg-card-bg sm:rounded-2xl
         flex flex-col ">
             <div className="flex flex-row justify-start gap-2 sm:justify-between items-start sm:items-center p-3 border-b-1 border-divider">
 
