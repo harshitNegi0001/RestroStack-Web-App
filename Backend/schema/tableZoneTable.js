@@ -13,7 +13,7 @@ export const createTableZone = async (pool) => {
                 created_at TIMESTAMPTZ DEFAULT now(),
                 is_active BOOLEAN DEFAULT TRUE,
 
-                CONSTRAINT fk_res_id
+                CONSTRAINT fk_zone_res_id
                 FOREIGN KEY(res_id) 
                 REFERENCES restaurants(id)
             )`

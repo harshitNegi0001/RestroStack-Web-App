@@ -16,10 +16,10 @@ export const createRolesTable = async (pool) => {
                 updated_at TIMESTAMPTZ DEFAULT now(),
                 created_at TIMESTAMPTZ DEFAULT now(),
 
-                CONSTRAINT fk_user_id
+                CONSTRAINT fk_role_user_id
                     FOREIGN KEY (user_id)
                     REFERENCES users(id),
-                CONSTRAINT fk_res_id
+                CONSTRAINT fk_role_res_id
                     FOREIGN KEY (res_id)
                     REFERENCES restaurants(id),
 

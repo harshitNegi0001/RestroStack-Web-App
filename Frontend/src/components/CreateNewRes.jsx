@@ -21,10 +21,10 @@ export default function CreateNewRes({ onClose }) {
                     <IoArrowBack />
                 </button><div className="flex-1 flex flex-col ">
                     <h6 className="text-main-text text-[16px]/5 md:text-[18px]/5 font-[500] capitalize">
-                        Create new restaurant
+                        Add New Restaurant
                     </h6>
                     <span className="text-low-text/70 text-[10px] md:text-[11px] ">
-                        Generate one-time tokens for staff to join your restaurant.
+                        Enter the details for your new restaurant location to begin setup.
                     </span>
 
                 </div>
@@ -35,7 +35,7 @@ export default function CreateNewRes({ onClose }) {
                     <IoClose />
                 </button>
             </div>
-            <div className="h-flex min-h-0 overflow-y-auto">
+            <div className="min-h-0 flex-1 overflow-y-auto">
                 <RestaurantSetup />
             </div>
 

@@ -14,10 +14,10 @@ export default function CreateNewjob({onClose}) {
                     <IoArrowBack/>
                 </button><div className="flex-1 flex flex-col ">
                     <h6 className="text-main-text text-[16px]/5 md:text-[18px]/5 font-[500] capitalize">
-                    Create New Job Post
+                    Post a Job Opening
                     </h6>
                     <span className="text-low-text/70 text-[10px] md:text-[11px] ">
-                        Create a new job posting for your restaurant.
+                       Publish a new job opening to hire talent for your restaurant.
                     </span>
                 </div>
                 

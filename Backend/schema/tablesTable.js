@@ -16,13 +16,14 @@ export const createTablesTable = async (pool) => {
                 is_active BOOLEAN DEFAULT TRUE,
 
 
-                CONSTRAINT fk_res_id
+                CONSTRAINT fk_tables_res_id
                 FOREIGN KEY(res_id) 
                 REFERENCES restaurants(id),
 
-                CONSTRAINT fk_zone_id
+                CONSTRAINT fk_tables_zone_id
                 FOREIGN KEY(zone_id) 
-                REFERENCES table_zone(id),
+                REFERENCES table_zone(id)
+                ON DELETE CASCADE,
                 
                 CONSTRAINT unique_table_name_per_zone
                 UNIQUE(zone_id, table_name)

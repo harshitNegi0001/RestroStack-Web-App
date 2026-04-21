@@ -12,7 +12,7 @@ export const createTokenTable = async(pool)=>{
                 expires_at TIMESTAMPTZ NOT NULL,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-                CONSTRAINT fk_res_id 
+                CONSTRAINT fk_tokens_res_id 
                     FOREIGN KEY (res_id)
                     REFERENCES restaurants(id)
             )`
