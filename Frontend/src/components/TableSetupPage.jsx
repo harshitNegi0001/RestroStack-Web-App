@@ -48,7 +48,7 @@ export default function TableSetupPage() {
 
     const getZones = async () => {
         function successFunction(data) {
-            setTableZones
+            setTableZones(data);
         }
         setIsLoading(true);
         await getTableZones(successFunction);
@@ -82,7 +82,7 @@ export default function TableSetupPage() {
                                 </span>
                                 <div className="flex items-center gap-1 text-[11px] md:text-[12px] text-low-text/70 w-full truncate">
                                     <span>
-                                        {t.tables} tables
+                                        {t.table_count} tables
                                     </span>.
                                     {t.hourly_charge && <span>
                                         ${t.hourly_charge}/hr

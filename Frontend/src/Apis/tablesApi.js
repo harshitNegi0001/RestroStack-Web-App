@@ -33,7 +33,6 @@ export const getTableZones = async(successFunction)=>{
                 withCredentials:true
             }
         );
-
         successFunction(result?.data?.table_zones||[]);
     } catch (err) {
         console.log(err);

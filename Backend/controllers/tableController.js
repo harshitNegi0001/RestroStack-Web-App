@@ -40,6 +40,7 @@ class Table {
                         await this.createTable(t,zone_id);
                     });
                 }
+
                 return returnRes(res,200,{
                     success:true,
                     message:'Table zone created successfully.',
@@ -72,15 +73,18 @@ class Table {
                     z.id,
                     z.zone_name,
                     z.hourly_charge,
-                    COUNT(t.id) AS tables
+                    (
+                        SELECT COUNT(t.id)
+                        FROM tables AS t
+                        WHERE t.zone_id = z.id
+
+                    ) AS table_count
                 FROM table_zone AS z
-                JOIN tables AS t
-                    ON t.zone_id=z.id
                 WHERE z.res_id = $1
                     AND z.is_active = TRUE
+                GROUP BY z.id
                 `,[res_id]
             );
-
             return returnRes(res,200,{
                 success:true,
                 error:false,
