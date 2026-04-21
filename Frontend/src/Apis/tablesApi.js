@@ -10,7 +10,7 @@ export const createTableZone = async (data,successFunction)=>{
             `${backend_url}/table/create-table-zone`,
             {
                 zone_name:data?.zone_name,
-                hourly_prize:data?.hourly_prize,
+                hourly_charge:data?.hourly_charge,
                 tablesArray:data?.tablesArray
             },
             {

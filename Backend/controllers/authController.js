@@ -451,12 +451,12 @@ class Auth {
     // controller function to get intial information for client
     getMe = async (req, res) => {
 
-        const { id,res_id } = req.user;
+        const { id, res_id } = req.user;
         try {
-            const response = await getUserFullDetail(id,res_id);
+            const response = await getUserFullDetail(id, res_id);
             return returnRes(res, 200, response);
         } catch (err) {
-            console.log('get me error:',err);
+            console.log('get me error:', err);
             return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }
@@ -511,7 +511,7 @@ class Auth {
                 [newRoleId, id]
             );
 
-            const response = await getUserFullDetail(id,res_id);
+            const response = await getUserFullDetail(id, res_id);
 
             const token = createToken({ id: response?.userInfo?.id, role: response.role, res_id: response.activeResId, email: response?.userInfo?.email });
             res.cookie('authToken', token, {

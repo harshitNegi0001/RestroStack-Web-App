@@ -4,9 +4,9 @@ import db from '..//utils/db.js';
 class Table {
 
     createTableZone = async (req, res) => {
-        const { id, res_id, role } = req.user;
+        const { res_id, role } = req.user;
         const permissions = req.permissions;
-        const { zone_name, hourly_prize = 0, tablesArray } = req.body;
+        const { zone_name, hourly_charge = 0, tablesArray } = req.body;
 
         try {
             // other input verification here----
@@ -20,13 +20,14 @@ class Table {
                         hourly_charge
                     )
                     VALUES (
-                        $1,$2,43
+                        $1,$2,$3
                     )
-                    RETURNING id`, [res_id, zone_name, hourly_prize]
+                    RETURNING id`, [res_id, zone_name, hourly_charge]
                 );
 
                 const zone_id = result.rows[0]?.id;
                 if (tablesArray?.length > 0) {
+
                     if (!zone_id) {
                         return returnRes(res, 500, {
                             success: false,
@@ -35,7 +36,9 @@ class Table {
                         });
                     }
 
-                    
+                    tablesArray.map(async(t)=>{
+                        await this.createTable(t,zone_id);
+                    });
                 }
                 return returnRes(res,200,{
                     success:true,
@@ -53,7 +56,46 @@ class Table {
             return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }
+    getTableZones =async(req,res)=>{
+        const {res_id} = req.user;
 
+        try {
+            if(!res_id){
+                return returnRes(res,404,{
+                    success:false,
+                    error:'RESTAURANT_NOT_FOUND',
+                    message:'Restaurant id not found,\nPlease join a restaurant.'
+                });
+            }
+            const result =await db.query(
+                `SELECT 
+                    z.id,
+                    z.zone_name,
+                    z.hourly_charge,
+                    COUNT(t.id) AS tables
+                FROM table_zone AS z
+                JOIN tables AS t
+                    ON t.zone_id=z.id
+                WHERE z.res_id = $1
+                    AND z.is_active = TRUE
+                `,[res_id]
+            );
+
+            return returnRes(res,200,{
+                success:true,
+                error:false,
+                table_zones : result.rows
+            });
+
+        } catch (err) {
+            console.log('Get_table_zone_err: ',err);
+            return returnRes(res,500,{
+                success:false,
+                error:'INTERNAL_SERVER_ERROR',
+                message:'Internal Server Error!'
+            });
+        }
+    }
     // helper function for create or add tables under zone.
     createTable = async(data)=>{
         

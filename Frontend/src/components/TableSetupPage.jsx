@@ -10,7 +10,7 @@ const tables = [
     {
         id: 1,
         zone_name: 'Indoor',
-        hourly_prize: 0,
+        hourly_charge: 0,
         tables:50
 
     },
@@ -18,14 +18,14 @@ const tables = [
         id: 2,
         zone_name: 'Outdoor',
         tables: 30,
-        hourly_prize: '0',
+        hourly_charge: '0',
 
     },
     {
         id: 3,
         zone_name: 'Rooftop',
         tables: 90,
-        hourly_prize: '100',
+        hourly_charge: '100',
 
     },
     
@@ -66,8 +66,8 @@ export default function TableSetupPage() {
                                     <span>
                                         {t.tables} tables
                                     </span>.
-                                    {t.hourly_prize&&<span>
-                                        ${t.hourly_prize}/hr 
+                                    {t.hourly_charge&&<span>
+                                        ${t.hourly_charge}/hr 
                                     </span>}
                                 </div>
                             </div>

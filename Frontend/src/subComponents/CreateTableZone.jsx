@@ -15,7 +15,7 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
     const [state, setState] = useState({
         zone_name: '',
-        hourly_prize: '',
+        hourly_charge: '',
         tables: []
     });
     const [tablesArray,setTablesArray] = useState([{
@@ -25,7 +25,7 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
         }]);
     const [inputError,setInputError] = useState({
         zone_name:'',
-        hourly_prize:''
+        hourly_charge:''
     });
 
     useEffect(() => {
@@ -36,7 +36,7 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
     }, [editData]);
     const handleCreate = async () => {
         setIsLoadingBtn(true);
-        await createTableZone({zone_name:state.zone_name,hourly_prize:state.hourly_prize,tablesArray})
+        await createTableZone({zone_name:state.zone_name,hourly_charge:state.hourly_charge,tablesArray})
         setIsLoadingBtn(false);
     }
 
@@ -114,14 +114,14 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
                             <HiOutlineBanknotes />
                         </label>
                         <input id='price-input' type="text"
-                            value={state.hourly_prize} onChange={(e) => setState(prev => ({ ...prev, hourly_prize: e.target.value }))}
+                            value={state.hourly_charge} onChange={(e) => setState(prev => ({ ...prev, hourly_charge: e.target.value }))}
                             placeholder='Enter hourly charge' required
-                            onFocus={() => setInputError(prev => ({ ...prev, hourly_prize: '' }))}
-                            className={`${inputError.hourly_prize ? 'outline-red-600' : 'outline-divider '}
+                            onFocus={() => setInputError(prev => ({ ...prev, hourly_charge: '' }))}
+                            className={`${inputError.hourly_charge ? 'outline-red-600' : 'outline-divider '}
                                 outline-1 focus:outline-2 pl-9 focus:outline-active-border focus:border-active-border outline-0 
                                 rounded-lg p-1 md:py-1 text-main-text text-[14px] md:text-[15px]`} />
                     </div>
-                    <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.hourly_prize}</span>
+                    <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.hourly_charge}</span>
                 </div>
                 {type=='create'&&<div className="border-dashed border-1 border-divider rounded-2xl p-2 flex flex-col items-center gap-2">
                     {tablesArray?.map(t=><TableAndCapacity key={t.id} id={t.id} setTablesArray={setTablesArray}/>)}
