@@ -6,6 +6,7 @@ import http from 'http';
 import authRoute from './routes/authRoute.js';
 import restaurantRoute from './routes/restaurantRoutes.js';
 import staffRoute from './routes/staffRoutes.js';
+import tableRoute from './routes/tableRoutes.js';
 import { setupTable } from './config/setupTables.js';
 
 
@@ -26,6 +27,7 @@ app.use(cookieParser());
 app.use('/auth', authRoute);
 app.use('/res', restaurantRoute);
 app.use('/staff', staffRoute);
+app.use('/table', tableRoute);
 
 app.get('/', (req, res) => {
     res.sendFile('public/index.html', { root: import.meta.dirname });

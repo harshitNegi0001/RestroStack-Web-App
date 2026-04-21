@@ -9,23 +9,23 @@ import CreateTableZone from "../subComponents/CreateTableZone";
 const tables = [
     {
         id: 1,
-        title: 'Indoor',
-        tables: 0,
-        price: '40',
+        zone_name: 'Indoor',
+        hourly_prize: 0,
+        tables:50
 
     },
     {
         id: 2,
-        title: 'Outdoor',
+        zone_name: 'Outdoor',
         tables: 30,
-        price: '0',
+        hourly_prize: '0',
 
     },
     {
         id: 3,
-        title: 'Rooftop',
+        zone_name: 'Rooftop',
         tables: 90,
-        price: '100',
+        hourly_prize: '100',
 
     },
     
@@ -36,14 +36,15 @@ export default function TableSetupPage() {
     const [openEditZone,setOpenEditZone] = useState({
         isOpen:false,
         editData:{}
-    })
+    });
+
     return (
         <div className="bg-card-bg rounded-2xl p-2 md:p-3 w-full mt-4 flex flex-col gap-3 shadow-md">
             <BackdropPage isOpen={openCreateTable} onClose={()=>setOpenCreateTable(false)} >
                 <CreateTableZone  onClose={()=>setOpenCreateTable(false)} type="create"/>
             </BackdropPage>
-            <BackdropPage isOpen={openEditZone?.isOpen} onClose={()=>setOpenEditZone({isOpen:false,editdata:{}})} >
-                <CreateTableZone  onClose={()=>setOpenEditZone({isOpen:false,editdata:{}})} type="edit"/>
+            <BackdropPage isOpen={openEditZone?.isOpen} onClose={()=>setOpenEditZone({isOpen:false,editData:{}})} >
+                <CreateTableZone  onClose={()=>setOpenEditZone({isOpen:false,editData:{}})} type="edit" editData={openEditZone?.editData}/>
             </BackdropPage>
             <div className=" p-2 md:p-3  flex flex-col w-full gap-2">
                 <div className="text-[14px] md:text-[16px] text-sec-text">
@@ -59,19 +60,19 @@ export default function TableSetupPage() {
                             <div 
                             className="flex flex-1 min-w-0 flex-col ">
                                 <span className="text-main-text text-[14px] capitalize w-full truncate">
-                                    {t.title}
+                                    {t.zone_name}
                                 </span>
                                 <div className="flex items-center gap-1 text-[11px] md:text-[12px] text-low-text/70 w-full truncate">
                                     <span>
                                         {t.tables} tables
                                     </span>.
-                                    {t.price&&<span>
-                                        ${t.price}/hr 
+                                    {t.hourly_prize&&<span>
+                                        ${t.hourly_prize}/hr 
                                     </span>}
                                 </div>
                             </div>
                             <div className="flex items-center gap-1 ">
-                                <div onClick={()=>setOpenEditZone({isOpen:true,editdata:t})}
+                                <div onClick={()=>setOpenEditZone({isOpen:true,editData:t})}
                                  className="text-[14px] text-sec-text/70 hover:text-sec-text active:text-sec-text hover:bg-divider/40 p-1.5 rounded-2xl">
                                     <LuPencil />
                                 </div>

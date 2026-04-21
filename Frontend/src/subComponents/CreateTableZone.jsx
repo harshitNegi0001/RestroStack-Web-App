@@ -4,16 +4,18 @@ import { IoClose } from "react-icons/io5";
 import { RiArmchairLine } from "react-icons/ri";
 import TableAndCapacity from "./TablesAndCapacity";
 import { HiOutlineBanknotes } from "react-icons/hi2";
+import { createTableZone } from "../Apis/tablesApi";
 
 
 
 
 export default function CreateTableZone({ type = "create", onClose, editData = null }) {
 
+    
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
     const [state, setState] = useState({
         zone_name: '',
-        hourly_prize: 0,
+        hourly_prize: '',
         tables: []
     });
     const [tablesArray,setTablesArray] = useState([{
@@ -30,11 +32,11 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
         if (!editData) {
             return;
         }
-        setState({ ...editData });
+        setState(editData);
     }, [editData]);
     const handleCreate = async () => {
         setIsLoadingBtn(true);
-
+        await createTableZone({zone_name:state.zone_name,hourly_prize:state.hourly_prize,tablesArray})
         setIsLoadingBtn(false);
     }
 
@@ -122,7 +124,7 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
                     <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.hourly_prize}</span>
                 </div>
                 {type=='create'&&<div className="border-dashed border-1 border-divider rounded-2xl p-2 flex flex-col items-center gap-2">
-                    {tablesArray?.map(t=><TableAndCapacity key={t.id} id={t.id}/>)}
+                    {tablesArray?.map(t=><TableAndCapacity key={t.id} id={t.id} setTablesArray={setTablesArray}/>)}
                     <button onClick={addRow}
                         className="capitalize text-[11px] sm:text-[12px] font-[600] text-white w-fit py-2 px-3 rounded-lg
                             bg-linear-0 to-green-500 from-green-600  hover:from-green-700 active:scale-98 active:to-green-600 active:from-green-800

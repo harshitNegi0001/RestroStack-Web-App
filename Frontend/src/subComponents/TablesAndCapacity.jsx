@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
+import { MdOutlineDeleteForever } from "react-icons/md";
+import { PiChairBold } from "react-icons/pi";
+import { MdOutlineTableBar } from "react-icons/md";
 
 
 
 
-
-export default function TableAndCapacity({ id }) {
+export default function TableAndCapacity({ id,setTablesArray }) {
     const [capacity, setCapacity] = useState('');
     const [quantity, setQuantity] = useState('');
     const [inputError, setInputError] = useState({
@@ -16,10 +18,14 @@ export default function TableAndCapacity({ id }) {
         if(capacity){
 
         }
-    },[quantity])
+    },[quantity]);
+
+    const removeRow=()=>{
+        setTablesArray(prev=>([...prev.filter(t=>t.id!==id)]));
+    }
     return (
-        <div className="w-full flex flex-row gap-2">
-            <div className="w-[47%]  flex flex-col gap-0 relative pb-2">
+        <div className="w-full flex flex-row items-center justify-center gap-2">
+            <div className="w-[44%]  flex flex-col gap-0 relative pb-2">
                 <div
                     className='w-[100%] flex flex-col gap-1 relative'>
                     <label htmlFor={`capacity-${id}-input`}
@@ -28,7 +34,7 @@ export default function TableAndCapacity({ id }) {
                     <label htmlFor={`capacity-${id}-input`}
                         className='absolute bottom-0 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
                             size-[30px] text-[20px] '>
-                        {/* <RiArmchairLine /> */}
+                        <PiChairBold />
                     </label>
                     <input id={`capacity-${id}-input`} type="text"
                         value={capacity} onChange={(e) => setCapacity(e.target.value)}
@@ -40,7 +46,7 @@ export default function TableAndCapacity({ id }) {
                 </div>
                 <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.cap}</span>
             </div>
-            <div className="w-[47%]  flex flex-col gap-0 relative pb-2">
+            <div className="w-[44%]  flex flex-col gap-0 relative pb-2">
                 <div
                     className='w-[100%] flex flex-col gap-1 relative'>
                     <label htmlFor={`quantity-${id}-input`}
@@ -49,7 +55,7 @@ export default function TableAndCapacity({ id }) {
                     <label htmlFor={`quantity-${id}-input`}
                         className='absolute bottom-0 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
                             size-[30px] text-[20px] '>
-                        {/* <RiArmchairLine /> */}
+                        <MdOutlineTableBar />
                     </label>
                     <input id={`capacity-${id}-input`} type="text"
                         value={quantity} onChange={(e) => setQuantity(e.target.value)}
@@ -60,6 +66,9 @@ export default function TableAndCapacity({ id }) {
                             rounded-lg p-1 md:py-1 text-main-text text-[14px] md:text-[15px]`} />
                 </div>
                 <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.quan}</span>
+            </div>
+            <div onClick={removeRow} className="text-red-600 text-[14px] sm:text-[16px] p-2 h-fit w-fit rounded-2xl hover:bg-divider/50">
+                <MdOutlineDeleteForever />
             </div>
         </div>
     )
