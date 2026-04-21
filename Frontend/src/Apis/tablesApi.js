@@ -24,3 +24,19 @@ export const createTableZone = async (data,successFunction)=>{
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }
+
+export const getTableZones = async(successFunction)=>{
+    try {
+        const result =await axios.get(
+            `${backend_url}/table/get-table-zones`,
+            {
+                withCredentials:true
+            }
+        );
+
+        successFunction(result?.data?.table_zones||[]);
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
