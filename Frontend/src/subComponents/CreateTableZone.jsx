@@ -9,7 +9,7 @@ import { createTableZone } from "../Apis/tablesApi";
 
 
 
-export default function CreateTableZone({ type = "create", onClose, editData = null }) {
+export default function CreateTableZone({ type = "create", onClose, editData = null ,setTableZones}) {
 
     
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
@@ -35,8 +35,19 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
         setState(editData);
     }, [editData]);
     const handleCreate = async () => {
+        function successFunction(id){
+            const newZone = {
+                id,
+                zone_name:state.zone_name,
+                hourly_charge:state.hourly_charge,
+                table_count: tablesArray.reduce((sum,curr)=>sum+Number(curr.quantity),0)
+            }
+
+            setTableZones(prev=>([newZone,...prev]));
+            onClose();
+        }
         setIsLoadingBtn(true);
-        await createTableZone({zone_name:state.zone_name,hourly_charge:state.hourly_charge,tablesArray})
+        await createTableZone({zone_name:state.zone_name,hourly_charge:state.hourly_charge,tablesArray},successFunction)
         setIsLoadingBtn(false);
     }
 
@@ -48,6 +59,12 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
         }]
 
         setTablesArray(newRow);
+    }
+
+    const handleBtn = ()=>{
+        if(type=='create'){
+            handleCreate();
+        }
     }
 
     return (
@@ -133,7 +150,7 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
             </div>
             <div className="w-full p-3 border-t-1 border-divider flex justify-end">
                 <button disabled={isLoadingBtn}
-                    onClick={handleCreate}
+                    onClick={handleBtn}
                     className={`w-fit px-3 py-2 h-fit gap-1 rounded-lg bg-linear-0 text-white text-[12px] md:text-[13px] lg:text-[14px] font-[500] flex items-center justify-center                         
                                         ${isLoadingBtn ? 'bg-disabled-btn/60 cursor-not-allowed' : 'to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}>
                     {isLoadingBtn ? <svg className="animate-spin -ml-1  h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -141,7 +158,7 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg> : null}
                     {
-                        isLoadingBtn ? <span className='text-white/80'>Creating...</span> : 'Create Zone'
+                        isLoadingBtn ? <span className='text-white/80'>{type=='create'?'Creating...':'Updating...'}</span> : (type=='create')?'Create Zone':'Update Changes'
                     }
                 </button>
             </div>

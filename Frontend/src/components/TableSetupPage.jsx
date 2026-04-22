@@ -57,49 +57,77 @@ export default function TableSetupPage() {
     return (
         <div className="bg-card-bg rounded-2xl p-2 md:p-3 w-full mt-4 flex flex-col gap-3 shadow-md">
             <BackdropPage isOpen={openCreateTable} onClose={() => setOpenCreateTable(false)} >
-                <CreateTableZone onClose={() => setOpenCreateTable(false)} type="create" />
+                <CreateTableZone onClose={() => setOpenCreateTable(false)} type="create" setTableZones={setTableZones}/>
             </BackdropPage>
             <BackdropPage isOpen={openEditZone?.isOpen} onClose={() => setOpenEditZone({ isOpen: false, editData: {} })} >
-                <CreateTableZone onClose={() => setOpenEditZone({ isOpen: false, editData: {} })} type="edit" editData={openEditZone?.editData} />
+                <CreateTableZone onClose={() => setOpenEditZone({ isOpen: false, editData: {} })} type="edit" editData={openEditZone?.editData} setTableZones={setTableZones} />
             </BackdropPage>
-            <div className=" p-2 md:p-3  flex flex-col w-full gap-2">
+            <div className={`p-2 md:p-3  flex flex-col w-full gap-2 `}>
                 <div className="text-[14px] md:text-[16px] text-sec-text">
                     Seating Zones
                 </div>
                 {isLoading ?
-                    <div></div>
-                    : tableZones.map(t =>
-                        <div key={t.id}
-                            className="w-full flex p-2 items-center gap-2 rounded-2xl bg-toast-bg/70 hover:bg-toast-bg active:bg-toast-bg">
-                            <div
-                                className="flex justify-center items-center bg-active-border/30 p-2 text-[20px] rounded-lg text-active-border">
-                                <RiArmchairLine />
+                    <div className="w-full flex mask-bottom-fade flex-col gap-2 sm:gap-3">
+                        {[1, 2, 3, 4].map(i =>
+                            <div key={i} className="w-full flex p-2 items-center gap-2 rounded-2xl bg-toast-bg animate-pulse">
+                                <div className="bg-active-border/30 size-[40px] rounded-lg ">
+                                </div>
+                                <div
+                                    className="flex flex-1 min-w-0 flex-col gap-1.5">
+                                    <span className="h-[14px] rounded-lg w-[150px] animate-wave">
+                                    </span>
+                                    <div className="flex items-center gap-1 text-[11px] md:text-[12px] text-low-text/70 w-full truncate">
+                                        <span className="h-[11px] md:h-[12px] w-[60px] rounded-lg animate-wave">
+                                        </span>
+                                        <span className="h-[11px] md:h-[12px] w-[60px] rounded-lg animate-wave">
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>)}
+                    </div> :
+                    tableZones.length === 0 ?
+                        <div className="w-full flex flex-col items-center py-[20px]">
+                            <img src="https://res.cloudinary.com/dns5lxuvy/image/upload/v1776824800/uppdvvhqrps5hgxpnpwf.png" alt=""
+                                className="w-full max-w-[320px] sm:max-w-[400px] object-contain" />
+                            <div className="pt-2 text-center text-main-text text-[16px] sm:text-[18px] font-[600]">
+                                No Seating Zones Yet
                             </div>
-                            <div
-                                className="flex flex-1 min-w-0 flex-col ">
-                                <span className="text-main-text text-[14px] capitalize w-full truncate">
-                                    {t.zone_name}
-                                </span>
-                                <div className="flex items-center gap-1 text-[11px] md:text-[12px] text-low-text/70 w-full truncate">
-                                    <span>
-                                        {t.table_count} tables
-                                    </span>.
-                                    {t.hourly_charge && <span>
-                                        ${t.hourly_charge}/hr
-                                    </span>}
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-1 ">
-                                <div onClick={() => setOpenEditZone({ isOpen: true, editData: t })}
-                                    className="text-[14px] text-sec-text/70 hover:text-sec-text active:text-sec-text hover:bg-divider/40 p-1.5 rounded-2xl">
-                                    <LuPencil />
-                                </div>
-                                <div className="text-[14px] text-red-600/70 hover:text-red-600 active:text-red-600 hover:bg-divider/40 p-1.5 rounded-2xl">
-                                    <RiDeleteBin5Line />
-                                </div>
+                            <div className="text-center text-low-text/70 text-[11px] sm:text-[13px] ">
+                                It looks like you haven't added any table zones to this restaurant. Click the button below to get started.
                             </div>
                         </div>
-                    )}
+                        : tableZones.map(t =>
+                            <div key={t.id}
+                                className="w-full flex p-2 items-center gap-2 rounded-2xl bg-toast-bg/70 hover:bg-toast-bg active:bg-toast-bg">
+                                <div
+                                    className="flex justify-center items-center bg-active-border/30 p-2 text-[20px] rounded-lg text-active-border">
+                                    <RiArmchairLine />
+                                </div>
+                                <div
+                                    className="flex flex-1 min-w-0 flex-col ">
+                                    <span className="text-main-text text-[14px] capitalize w-full truncate">
+                                        {t.zone_name}
+                                    </span>
+                                    <div className="flex items-center gap-1 text-[11px] md:text-[12px] text-low-text/70 w-full truncate">
+                                        <span>
+                                            {t.table_count} tables
+                                        </span>.
+                                        {t.hourly_charge && <span>
+                                            ${t.hourly_charge}/hr
+                                        </span>}
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-1 ">
+                                    <div onClick={() => setOpenEditZone({ isOpen: true, editData: t })}
+                                        className="text-[14px] text-sec-text/70 hover:text-sec-text active:text-sec-text hover:bg-divider/40 p-1.5 rounded-2xl">
+                                        <LuPencil />
+                                    </div>
+                                    <div className="text-[14px] text-red-600/70 hover:text-red-600 active:text-red-600 hover:bg-divider/40 p-1.5 rounded-2xl">
+                                        <RiDeleteBin5Line />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                 <div className="w-full flex justify-center ">
                     <button onClick={() => setOpenCreateTable(prev => !prev)}

@@ -97,7 +97,7 @@ export default function EmpSearchRes() {
     const btnDisabled = Boolean(!searchValue.trim());
     const [display, setdispaly] = useState(false);
     const [selected, setSelected] = useState(null);
-    const [loadingRes, setLoadingRes] = useState(true);
+    const [loadingRes, setLoadingRes] = useState(false);
 
     const connectBtnDisabled = Boolean(!selected);
     const handleSearch = async () => {

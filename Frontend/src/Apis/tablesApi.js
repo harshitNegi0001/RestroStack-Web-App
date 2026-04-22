@@ -17,7 +17,7 @@ export const createTableZone = async (data,successFunction)=>{
                 withCredentials:true
             }
         );
-
+        successFunction(result?.data?.zone_id);
 
     } catch (err) {
         console.log(err);
