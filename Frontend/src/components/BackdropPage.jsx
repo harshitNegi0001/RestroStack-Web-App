@@ -11,7 +11,7 @@ export default function BackdropPage ({isOpen,onClose,children}){
          className="w-[100dvw] h-[100dvh] fixed inset-0 z-[1000] bg-low-text/5 backdrop-blur-[2px]
         flex justify-center items-center">
             <div onClick={(e)=>e.stopPropagation()}
-                className="w-fit h-fit">
+                className="w-fit h-fit flex justify-center">
                     {children}
             </div>
         </div>

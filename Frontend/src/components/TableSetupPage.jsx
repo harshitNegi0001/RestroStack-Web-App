@@ -6,10 +6,11 @@ import { RiDeleteBin5Line } from "react-icons/ri";
 import BackdropPage from "./BackdropPage";
 import CreateTableZone from "../subComponents/CreateTableZone";
 import { useEffect } from "react";
-import { getTableZones } from "../Apis/tablesApi";
+import { deleteZones, getTableZones } from "../Apis/tablesApi";
+import ConfirmBox from "../subComponents/ConfirmBox";
 
 
-
+const res_currency ='₹'
 export default function TableSetupPage() {
     const [openCreateTable, setOpenCreateTable] = useState(false);
     const [openEditZone, setOpenEditZone] = useState({
@@ -18,7 +19,11 @@ export default function TableSetupPage() {
     });
     const [isLoading, setIsLoading] = useState(false);
     const [tableZones, setTableZones] = useState([]);
-
+    const [delLoading, setDelLoading] = useState(false);
+    const [openConfirm, setOpenConfirm] = useState({
+        isOpen: false,
+        data: {}
+    });
     useEffect(() => {
         getZones();
     }, [])
@@ -31,13 +36,28 @@ export default function TableSetupPage() {
         await getTableZones(successFunction);
         setIsLoading(false);
     }
+    const handleDelete = async (data) => {
+        const zoneId = data?.zoneId;
+        if (!zoneId) return;
+        function successFunction() {
+            setTableZones(prev => ([...prev.filter(t => t.id != zoneId)]));
+            setOpenConfirm({ isOpen: false, data: {} });
+        }
+
+        setDelLoading(true);
+        await deleteZones(zoneId, successFunction);
+        setDelLoading(false);
+    }
     return (
         <div className="bg-card-bg rounded-2xl p-2 md:p-3 w-full mt-4 flex flex-col gap-3 shadow-md">
             <BackdropPage isOpen={openCreateTable} onClose={() => setOpenCreateTable(false)} >
-                <CreateTableZone onClose={() => setOpenCreateTable(false)} type="create" setTableZones={setTableZones}/>
+                <CreateTableZone onClose={() => setOpenCreateTable(false)} type="create" setTableZones={setTableZones} />
             </BackdropPage>
             <BackdropPage isOpen={openEditZone?.isOpen} onClose={() => setOpenEditZone({ isOpen: false, editData: {} })} >
                 <CreateTableZone onClose={() => setOpenEditZone({ isOpen: false, editData: {} })} type="edit" editData={openEditZone?.editData} setTableZones={setTableZones} />
+            </BackdropPage>
+            <BackdropPage isOpen={openConfirm?.isOpen} onClose={() => setOpenConfirm({ isOpen: false, data: {} })} >
+                <ConfirmBox title={'Are your sure to delete'} confirmFunction={handleDelete} type={'error'} data={openConfirm?.data} onCancel={()=>setOpenConfirm({ isOpen: false, data: {} })} loadingBtn={delLoading} desc={'Tables in this zone will also removed.'} />
             </BackdropPage>
             <div className={`p-2 md:p-3  flex flex-col w-full gap-2 `}>
                 <div className="text-[14px] md:text-[16px] text-sec-text">
@@ -88,9 +108,9 @@ export default function TableSetupPage() {
                                     <div className="flex items-center gap-1 text-[11px] md:text-[12px] text-low-text/70 w-full truncate">
                                         <span>
                                             {t.table_count} tables
-                                        </span>.
+                                        </span>•
                                         {t.hourly_charge && <span>
-                                            ${t.hourly_charge}/hr
+                                            {res_currency}{t.hourly_charge}/hr
                                         </span>}
                                     </div>
                                 </div>
@@ -99,7 +119,8 @@ export default function TableSetupPage() {
                                         className="text-[14px] text-sec-text/70 hover:text-sec-text active:text-sec-text hover:bg-divider/40 p-1.5 rounded-2xl">
                                         <LuPencil />
                                     </div>
-                                    <div className="text-[14px] text-red-600/70 hover:text-red-600 active:text-red-600 hover:bg-divider/40 p-1.5 rounded-2xl">
+                                    <div onClick={() => setOpenConfirm({ isOpen: true, data: { zoneId: t.id } })}
+                                        className="text-[14px] text-red-600/70 hover:text-red-600 active:text-red-600 hover:bg-divider/40 p-1.5 rounded-2xl">
                                         <RiDeleteBin5Line />
                                     </div>
                                 </div>

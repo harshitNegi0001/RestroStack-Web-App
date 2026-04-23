@@ -19,6 +19,7 @@ export const createTableZone = async (data,type,successFunction)=>{
                 withCredentials:true
             }
         );
+        toast.success(result?.data?.message||`Zone has been ${type=='create'?'created':'updated'}.`);
         successFunction(result?.data?.zone_data);
 
     } catch (err) {
@@ -37,6 +38,25 @@ export const getTableZones = async(successFunction)=>{
             }
         );
         successFunction(result?.data?.table_zones||[]);
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
+
+export const deleteZones = async(id,successFunction)=>{
+    try {
+        const result = await axios.post(
+            `${backend_url}/table/remove-zone`,
+            {
+                zone_id:id
+            },
+            {
+                withCredentials:true
+            }
+        );
+        toast.success(result?.data?.message||'Zone has been removed.');
+        successFunction();
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');

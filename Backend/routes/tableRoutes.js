@@ -8,5 +8,5 @@ const router = e.Router();
 
 router.post('/create-table-zone',tokenOpener,permissionInjector,Table.createTableZone);
 router.get('/get-table-zones',tokenOpener,Table.getTableZones);
-
+router.post('/remove-zone',tokenOpener,permissionInjector,Table.removeZone);
 export default router;
