@@ -6,14 +6,17 @@ class Table {
     createTableZone = async (req, res) => {
         const { res_id, role } = req.user;
         const permissions = req.permissions;
-        const { zone_name, hourly_charge = 0, tablesArray } = req.body;
+        const { type } = req.body;
 
         try {
-            // other input verification here----
+            // other input validation And varifications here----
 
             if (permissions?.['manage_restaurant_setup'] || role == 'owner') {
-                const result = await db.query(
-                    `INSERT INTO 
+                if (type == 'create') {
+                    const { zone_name, hourly_charge = 0, tablesArray } = req.body;
+
+                    const result = await db.query(
+                        `INSERT INTO 
                     table_zone(
                         res_id,
                         zone_name,
@@ -23,29 +26,64 @@ class Table {
                         $1,$2,$3
                     )
                     RETURNING id`, [res_id, zone_name, hourly_charge]
-                );
+                    );
 
-                const zone_id = result.rows[0]?.id;
-                if (tablesArray?.length > 0) {
+                    const zone_id = result.rows[0]?.id;
+                    if (tablesArray?.length > 0) {
 
-                    if (!zone_id) {
-                        return returnRes(res, 500, {
-                            success: false,
-                            message: 'Failed to create table zone!',
-                            error: 'FAILED_TO_CREATE_TABLE_ZONE'
+                        if (!zone_id) {
+                            return returnRes(res, 500, {
+                                success: false,
+                                message: 'Failed to create table zone!',
+                                error: 'FAILED_TO_CREATE_TABLE_ZONE'
+                            });
+                        }
+
+                        tablesArray.map(async (t) => {
+                            await this.createTable(t, zone_id);
                         });
                     }
 
-                    tablesArray.map(async(t)=>{
-                        await this.createTable(t,zone_id);
+                    return returnRes(res, 200, {
+                        success: true,
+                        error:false,
+                        message: 'Table zone created successfully.',
+                        zone_data: {
+                            id:zone_id
+                        }
+                    });
+                }
+                else if (type == 'edit') {
+                    const { zone_name, hourly_charge = 0, zone_id } = req.body;
+
+                    await db.query(
+                        `UPDATE table_zone
+                        SET 
+                            zone_name=$1,
+                            hourly_charge = $2
+                        WHERE id = $3`,
+                        [zone_name, hourly_charge, zone_id]
+                    );
+                    
+                    return returnRes(res,200,{
+                        success:true,
+                        error:false,
+                        message:'Zone updated.',
+                        zone_data:{
+                            id:zone_id,
+                            zone_name:zone_name,
+                            hourly_charge:hourly_charge
+                        }
+                    })
+                }
+                else {
+                    return returnRes(res, 404, {
+                        success: false,
+                        error: 'OPERATION_TYPE_NOT_FOUND',
+                        message: 'Operation type not specified or not availible to perform.'
                     });
                 }
 
-                return returnRes(res,200,{
-                    success:true,
-                    message:'Table zone created successfully.',
-                    zone_id:zone_id
-                });
             }
             return returnRes(res, 403, {
                 success: false,
@@ -57,18 +95,18 @@ class Table {
             return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }
-    getTableZones =async(req,res)=>{
-        const {res_id} = req.user;
+    getTableZones = async (req, res) => {
+        const { res_id } = req.user;
 
         try {
-            if(!res_id){
-                return returnRes(res,404,{
-                    success:false,
-                    error:'RESTAURANT_NOT_FOUND',
-                    message:'Restaurant id not found,\nPlease join a restaurant.'
+            if (!res_id) {
+                return returnRes(res, 404, {
+                    success: false,
+                    error: 'RESTAURANT_NOT_FOUND',
+                    message: 'Restaurant id not found,\nPlease join a restaurant.'
                 });
             }
-            const result =await db.query(
+            const result = await db.query(
                 `SELECT 
                     z.id,
                     z.zone_name,
@@ -83,26 +121,27 @@ class Table {
                 WHERE z.res_id = $1
                     AND z.is_active = TRUE
                 GROUP BY z.id
-                `,[res_id]
+                ORDER BY z.id DESC
+                `, [res_id]
             );
-            return returnRes(res,200,{
-                success:true,
-                error:false,
-                table_zones : result.rows
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                table_zones: result.rows
             });
 
         } catch (err) {
-            console.log('Get_table_zone_err: ',err);
-            return returnRes(res,500,{
-                success:false,
-                error:'INTERNAL_SERVER_ERROR',
-                message:'Internal Server Error!'
+            console.log('Get_table_zone_err: ', err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
             });
         }
     }
     // helper function for create or add tables under zone.
-    createTable = async(data)=>{
-        
+    createTable = async (data) => {
+
     }
 }
 

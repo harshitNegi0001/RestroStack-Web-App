@@ -8,30 +8,7 @@ import CreateTableZone from "../subComponents/CreateTableZone";
 import { useEffect } from "react";
 import { getTableZones } from "../Apis/tablesApi";
 
-const tables = [
-    {
-        id: 1,
-        zone_name: 'Indoor',
-        hourly_charge: 0,
-        tables: 50
 
-    },
-    {
-        id: 2,
-        zone_name: 'Outdoor',
-        tables: 30,
-        hourly_charge: '0',
-
-    },
-    {
-        id: 3,
-        zone_name: 'Rooftop',
-        tables: 90,
-        hourly_charge: '100',
-
-    },
-
-]
 
 export default function TableSetupPage() {
     const [openCreateTable, setOpenCreateTable] = useState(false);

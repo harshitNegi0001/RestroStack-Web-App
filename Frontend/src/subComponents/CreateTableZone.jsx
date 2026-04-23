@@ -9,23 +9,23 @@ import { createTableZone } from "../Apis/tablesApi";
 
 
 
-export default function CreateTableZone({ type = "create", onClose, editData = null ,setTableZones}) {
+export default function CreateTableZone({ type = "create", onClose, editData = null, setTableZones }) {
 
-    
+
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
     const [state, setState] = useState({
         zone_name: '',
         hourly_charge: '',
         tables: []
     });
-    const [tablesArray,setTablesArray] = useState([{
-            id:1,
-            capacity:'',
-            quantity:''
-        }]);
-    const [inputError,setInputError] = useState({
-        zone_name:'',
-        hourly_charge:''
+    const [tablesArray, setTablesArray] = useState([{
+        id: 1,
+        capacity: '',
+        quantity: ''
+    }]);
+    const [inputError, setInputError] = useState({
+        zone_name: '',
+        hourly_charge: ''
     });
 
     useEffect(() => {
@@ -35,36 +35,29 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
         setState(editData);
     }, [editData]);
     const handleCreate = async () => {
-        function successFunction(id){
+        function successFunction(data) {
             const newZone = {
-                id,
-                zone_name:state.zone_name,
-                hourly_charge:state.hourly_charge,
-                table_count: tablesArray.reduce((sum,curr)=>sum+Number(curr.quantity),0)
+                id: data?.id,
+                zone_name: data?.zone_name ?? state.zone_name,
+                hourly_charge: data?.hourly_charge ?? state.hourly_charge,
+                table_count: data?.table_count ?? tablesArray.reduce((sum, curr) => sum + Number(curr.quantity), 0)
             }
 
-            setTableZones(prev=>([newZone,...prev]));
+            setTableZones(prev => ([newZone, ...prev]));
             onClose();
         }
         setIsLoadingBtn(true);
-        await createTableZone({zone_name:state.zone_name,hourly_charge:state.hourly_charge,tablesArray},successFunction)
+        await createTableZone({ zone_name: state?.zone_name,id:state?.id, hourly_charge: state?.hourly_charge, tablesArray }, type, successFunction)
         setIsLoadingBtn(false);
     }
 
-    const addRow = ()=>{
-        const newRow = [...tablesArray,{
-            id:tablesArray[tablesArray.length-1]?.id+1||1,
-            capacity:'',
-            quantity:''
+    const addRow = () => {
+        const newRow = [...tablesArray, {
+            id: tablesArray[tablesArray.length - 1]?.id + 1 || 1,
+            capacity: '',
+            quantity: ''
         }]
-
         setTablesArray(newRow);
-    }
-
-    const handleBtn = ()=>{
-        if(type=='create'){
-            handleCreate();
-        }
     }
 
     return (
@@ -75,16 +68,16 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
 
                 <button onClick={onClose}
                     className=" p-1.5 sm:hidden flex  rounded-[50%] text-low-text/70 text-[20px] hover:text-sec-text active:text-main-text
-                                        hover:bg-main-text/5 active:bg-main-text/10">
+                        hover:bg-main-text/5 active:bg-main-text/10">
                     <IoArrowBack />
                 </button><div className="flex-1 flex flex-col ">
                     <h6 className="text-main-text text-[16px]/5 md:text-[18px]/5 font-[500] capitalize">
                         Setup Dining Zones
                     </h6>
                     <span className="text-low-text/70 text-[10px] md:text-[11px] ">
-                        {type=='create'?
-                        `Add new dining areas, set hourly charges and automatically generate tables.`:
-                        `Edit dining areas, edit hourly charges and zone name.`}
+                        {type == 'create' ?
+                            `Add new dining areas, set hourly charges and automatically generate tables.` :
+                            `Edit dining areas, edit hourly charges and zone name.`}
                     </span>
 
                 </div>
@@ -105,7 +98,7 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
 
                         <label htmlFor='zone-name-input'
                             className='absolute bottom-0 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
-                                                                    size-[30px] text-[20px] '>
+                                size-[30px] text-[20px] '>
                             <RiArmchairLine />
                         </label>
                         <input id='zone-name-input' type="text"
@@ -140,8 +133,8 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
                     </div>
                     <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.hourly_charge}</span>
                 </div>
-                {type=='create'&&<div className="border-dashed border-1 border-divider rounded-2xl p-2 flex flex-col items-center gap-2">
-                    {tablesArray?.map(t=><TableAndCapacity key={t.id} id={t.id} setTablesArray={setTablesArray}/>)}
+                {type == 'create' && <div className="border-dashed border-1 border-divider rounded-2xl p-2 flex flex-col items-center gap-2">
+                    {tablesArray?.map(t => <TableAndCapacity key={t.id} id={t.id} setTablesArray={setTablesArray} />)}
                     <button onClick={addRow}
                         className="capitalize text-[11px] sm:text-[12px] font-[600] text-white w-fit py-2 px-3 rounded-lg
                             bg-linear-0 to-green-500 from-green-600  hover:from-green-700 active:scale-98 active:to-green-600 active:from-green-800
@@ -150,7 +143,7 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
             </div>
             <div className="w-full p-3 border-t-1 border-divider flex justify-end">
                 <button disabled={isLoadingBtn}
-                    onClick={handleBtn}
+                    onClick={handleCreate}
                     className={`w-fit px-3 py-2 h-fit gap-1 rounded-lg bg-linear-0 text-white text-[12px] md:text-[13px] lg:text-[14px] font-[500] flex items-center justify-center                         
                                         ${isLoadingBtn ? 'bg-disabled-btn/60 cursor-not-allowed' : 'to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}>
                     {isLoadingBtn ? <svg className="animate-spin -ml-1  h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -158,7 +151,7 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg> : null}
                     {
-                        isLoadingBtn ? <span className='text-white/80'>{type=='create'?'Creating...':'Updating...'}</span> : (type=='create')?'Create Zone':'Update Changes'
+                        isLoadingBtn ? <span className='text-white/80'>{type == 'create' ? 'Creating...' : 'Updating...'}</span> : (type == 'create') ? 'Create Zone' : 'Update Changes'
                     }
                 </button>
             </div>
