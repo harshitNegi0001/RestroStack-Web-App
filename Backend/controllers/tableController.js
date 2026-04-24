@@ -46,7 +46,7 @@ class Table {
                     VALUES (
                         $1,$2,$3
                     )
-                    RETURNING id`, [res_id, zone_name, hourly_charge]
+                    RETURNING id`, [res_id, zone_name, hourly_charge||0]
                     );
 
                     const zone_id = result.rows[0]?.id;
@@ -105,7 +105,7 @@ class Table {
                             zone_name=$1,
                             hourly_charge = $2
                         WHERE id = $3`,
-                        [zone_name, hourly_charge, zone_id]
+                        [zone_name, hourly_charge||0, zone_id]
                     );
                     await client.query('COMMIT');
                     return returnRes(res, 200, {
