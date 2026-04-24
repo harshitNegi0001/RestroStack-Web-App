@@ -15,10 +15,28 @@ export default function TableAndCapacity({ id,setTablesArray }) {
     });
 
     useEffect(()=>{
-        if(capacity){
-
+        if(!capacity&&!quantity){
+            return;
         }
-    },[quantity]);
+        if(isNaN(capacity)){
+            setInputError(prev=>({...prev,cap:'Capacity must be a number'}));
+            return;
+        }
+        if(isNaN(quantity)){
+            setInputError(prev=>({...prev,quan:'Quantity must be a number'}));
+            return;
+        }
+        if(Number(capacity)<=0){
+            setInputError(prev=>({...prev,cap:'Capacity must be greater than zero'}));
+            return;
+        }
+        if(Number(quantity)<=0){
+            setInputError(prev=>({...prev,quan:'Quantity must be greater than zero'}));
+            return;
+        }
+        setInputError({cap:'',quan:''});
+        setTablesArray(prev=>([...prev.map(t=>t.id===id?{...t,capacity,quantity}:t)]));
+    },[capacity,quantity])
 
     const removeRow=()=>{
         setTablesArray(prev=>([...prev.filter(t=>t.id!==id)]));
@@ -44,7 +62,7 @@ export default function TableAndCapacity({ id,setTablesArray }) {
                             outline-1 focus:outline-2 pl-9 focus:outline-active-border focus:border-active-border outline-0 
                             rounded-lg p-1 md:py-1 text-main-text text-[14px] md:text-[15px]`} />
                 </div>
-                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.cap}</span>
+                <span className='text-red-500 text-[8px] w-full text-start md:text-[10px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.cap}</span>
             </div>
             <div className="w-[44%]  flex flex-col gap-0 relative pb-2">
                 <div
@@ -65,7 +83,7 @@ export default function TableAndCapacity({ id,setTablesArray }) {
                             outline-1 focus:outline-2 pl-9 focus:outline-active-border focus:border-active-border outline-0 
                             rounded-lg p-1 md:py-1 text-main-text text-[14px] md:text-[15px]`} />
                 </div>
-                <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.quan}</span>
+                <span className='text-red-500 text-[8px] w-full text-start md:text-[10px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.quan}</span>
             </div>
             <div onClick={removeRow} className="text-red-600 text-[14px] sm:text-[16px] p-2 h-fit w-fit rounded-2xl hover:bg-divider/50">
                 <MdOutlineDeleteForever />

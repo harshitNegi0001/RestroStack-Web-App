@@ -2,20 +2,41 @@ import { returnRes } from "../utils/returnRes.js";
 import db from '..//utils/db.js';
 
 class Table {
-
+    // controller function for creating table zone and editing table zone.
     createTableZone = async (req, res) => {
         const { res_id, role } = req.user;
         const permissions = req.permissions;
         const { type } = req.body;
+        const client = await db.connect();
 
         try {
             // other input validation And varifications here----
 
             if (permissions?.['manage_restaurant_setup'] || role == 'owner') {
+                await client.query('BEGIN');
                 if (type == 'create') {
                     const { zone_name, hourly_charge = 0, tablesArray } = req.body;
 
-                    const result = await db.query(
+                    const zoneNameCheck = await client.query(
+                        `SELECT 
+                            1
+                        FROM table_zone
+                        WHERE zone_name = $1
+                            AND res_id = $2
+                            AND is_active = TRUE`,
+                        [zone_name, res_id]
+                    );
+
+                    if (zoneNameCheck.rowCount > 0) {
+                        await client.query('ROLLBACK');
+                        return returnRes(res, 409, {
+                            success: false,
+                            error: 'ZONE_ALREADY_EXISTS',
+                            message: `A zone with the name '${zone_name}' already exists. Please choose a different name.`
+                        });
+                    }
+
+                    const result = await client.query(
                         `INSERT INTO 
                     table_zone(
                         res_id,
@@ -29,34 +50,56 @@ class Table {
                     );
 
                     const zone_id = result.rows[0]?.id;
+                    
                     if (tablesArray?.length > 0) {
 
                         if (!zone_id) {
+                            await client.query('ROLLBACK');
                             return returnRes(res, 500, {
                                 success: false,
                                 message: 'Failed to create table zone!',
                                 error: 'FAILED_TO_CREATE_TABLE_ZONE'
                             });
                         }
-
-                        tablesArray.map(async (t) => {
-                            await this.createTable(t, zone_id);
-                        });
+                        await this.createTable({
+                            res_id,
+                            zone_id,
+                            zone_name,
+                            tablesArray
+                        }, client);
                     }
-
+                    await client.query('COMMIT');
                     return returnRes(res, 200, {
                         success: true,
-                        error:false,
+                        error: false,
                         message: 'Table zone created successfully.',
                         zone_data: {
-                            id:zone_id
+                            id: zone_id,
+                            table_count: tablesArray.reduce((sum, curr) => sum + Number(curr.quantity), 0)
                         }
                     });
                 }
                 else if (type == 'edit') {
                     const { zone_name, hourly_charge = 0, zone_id } = req.body;
+                    const zoneCheck = await client.query(
+                        `SELECT
+                            1
+                        FROM table_zone
+                        WHERE id =$1
+                            AND res_id = $2
+                            AND is_active = TRUE`,
+                        [zone_id, res_id]
+                    );
+                    if (zoneCheck.rowCount == 0) {
+                        await client.query('ROLLBACK');
+                        return returnRes(res, 404, {
+                            success: false,
+                            error: 'ZONE_NOT_FOUND',
+                            message: 'The specified zone was not found or has been removed.'
+                        });
+                    }
 
-                    await db.query(
+                    await client.query(
                         `UPDATE table_zone
                         SET 
                             zone_name=$1,
@@ -64,15 +107,15 @@ class Table {
                         WHERE id = $3`,
                         [zone_name, hourly_charge, zone_id]
                     );
-                    
-                    return returnRes(res,200,{
-                        success:true,
-                        error:false,
-                        message:'Zone updated.',
-                        zone_data:{
-                            id:zone_id,
-                            zone_name:zone_name,
-                            hourly_charge:hourly_charge
+                    await client.query('COMMIT');
+                    return returnRes(res, 200, {
+                        success: true,
+                        error: false,
+                        message: 'Zone updated.',
+                        zone_data: {
+                            id: zone_id,
+                            zone_name: zone_name,
+                            hourly_charge: hourly_charge
                         }
                     })
                 }
@@ -92,9 +135,68 @@ class Table {
             });
         } catch (err) {
             console.log('Creating_Table_Error', err);
+            await client.query('ROLLBACK');
             return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
+        finally {
+            client.release();
+        }
     }
+    // helper function for create or add tables under zone.
+    createTable = async (data, client) => {
+        const { res_id, zone_id, zone_name, tablesArray } = data;
+        try {
+            const existingTables = await client.query(
+                `SELECT
+                    table_name
+                FROM tables
+                WHERE zone_id = $1`,
+                [zone_id]
+            );
+
+            const existingNames = new Set(existingTables.rows.map(t => t.table_name));
+
+            let placeholders = [];
+            let values = [];
+            let paramIndex = 1;
+            let counter = 1;
+            for (const t of tablesArray) {
+                const quantity = parseInt(t.quantity) || 0; 
+                const capacity = parseInt(t.capacity) || 4;
+                for (let i = 0; i < quantity; i++) {
+
+                    let tableName = `T-${counter}(${zone_name})`;
+
+                    while (existingNames.has(tableName)) {
+                        counter++;
+                        tableName = `T-${counter}(${zone_name})`;
+                    }
+                    existingNames.add(tableName);
+                    placeholders.push(`($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3})`);
+                    values.push(res_id, zone_id, tableName, capacity);
+
+                    paramIndex += 4;
+                }
+            }
+
+            if (placeholders.length > 0) {
+                const query = `
+                    INSERT INTO tables (res_id, zone_id, table_name, capacity)
+                    VALUES ${placeholders.join(', ')}
+                    RETURNING id, table_name, capacity
+                `;
+                const result = await client.query(query, values);
+                return result.rows; 
+            }
+            return [];
+        } catch (err) {
+            console.log('create_table_error:', err);
+            // client.query('ROLLBACK');
+            throw err;
+        }
+    }
+
+    // controller function for getting table zones under restaurant.
     getTableZones = async (req, res) => {
         const { res_id } = req.user;
 
@@ -141,15 +243,15 @@ class Table {
     }
 
     // controller function for deleting table zone.
-    removeZone = async(req,res)=>{
-        const {res_id,role} = req.user;
+    removeZone = async (req, res) => {
+        const { res_id, role } = req.user;
         const permissions = req.permissions;
-        const {zone_id} =req.body;
-        const client =await db.connect();
+        const { zone_id } = req.body;
+        const client = await db.connect();
         try {
             if (permissions?.['manage_restaurant_setup'] || role == 'owner') {
                 await client.query('BEGIN')
-                const res_check =await client.query(
+                const res_check = await client.query(
                     `SELECT 
                         res_id,
                         is_active
@@ -158,7 +260,7 @@ class Table {
                     [zone_id]
                 );
 
-                if(res_check.rowCount==0||!res_check.rows?.[0]?.is_active||res_check.rows?.[0]?.res_id!=res_id){
+                if (res_check.rowCount == 0 || !res_check.rows?.[0]?.is_active || res_check.rows?.[0]?.res_id != res_id) {
                     await client.query('ROLLBACK');
                     return returnRes(res, 404, {
                         success: false,
@@ -172,7 +274,7 @@ class Table {
                     SET 
                         is_active=FALSE
                     WHERE id=$1
-                    `,[zone_id]
+                    `, [zone_id]
                 );
 
                 await client.query(
@@ -185,12 +287,12 @@ class Table {
 
                 await client.query('COMMIT');
 
-                return returnRes(res,200,{
-                    success:true,
-                    error:false,
-                    message:'Zone has been removed.'
+                return returnRes(res, 200, {
+                    success: true,
+                    error: false,
+                    message: 'Zone has been removed.'
                 });
-                
+
             }
             return returnRes(res, 403, {
                 success: false,
@@ -206,14 +308,11 @@ class Table {
                 message: 'Internal Server Error!'
             });
         }
-        finally{
+        finally {
             client.release();
         }
     }
-    // helper function for create or add tables under zone.
-    createTable = async (data) => {
 
-    }
 }
 
 export default new Table();
