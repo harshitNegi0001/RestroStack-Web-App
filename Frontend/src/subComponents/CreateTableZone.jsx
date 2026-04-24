@@ -36,18 +36,31 @@ export default function CreateTableZone({ type = "create", onClose, editData = n
     }, [editData]);
     const handleCreate = async () => {
         function successFunction(data) {
-            const newZone = {
-                id: data?.id,
-                zone_name: data?.zone_name ?? state.zone_name,
-                hourly_charge: data?.hourly_charge ?? state.hourly_charge,
-                table_count: data?.table_count ?? tablesArray.reduce((sum, curr) => sum + Number(curr.quantity), 0)
+            if (type == 'edit') {
+                const updatedZone = {
+                    id: data?.id || state?.id,
+                    zone_name: data?.zone_name ?? state.zone_name,
+                    hourly_charge: data?.hourly_charge ?? state.hourly_charge,
+                    table_count: data?.table_count ?? tablesArray.reduce((sum, curr) => sum + Number(curr.quantity), 0)
+                }
+
+                setTableZones(prev=>([...prev.map(t=>t.id===updatedZone?.id?updatedZone:t)]));
+            }
+            else {
+                const newZone = {
+                    id: data?.id,
+                    zone_name: data?.zone_name ?? state.zone_name,
+                    hourly_charge: data?.hourly_charge ?? state.hourly_charge,
+                    table_count: data?.table_count ?? tablesArray.reduce((sum, curr) => sum + Number(curr.quantity), 0)
+                }
+
+                setTableZones(prev => ([newZone, ...prev]));
             }
 
-            setTableZones(prev => ([newZone, ...prev]));
             onClose();
         }
         setIsLoadingBtn(true);
-        await createTableZone({ zone_name: state?.zone_name,id:state?.id, hourly_charge: state?.hourly_charge, tablesArray }, type, successFunction)
+        await createTableZone({ zone_name: state?.zone_name, id: state?.id, hourly_charge: state?.hourly_charge, tablesArray }, type, successFunction)
         setIsLoadingBtn(false);
     }
 

@@ -110,7 +110,7 @@ export default function TableSetupPage() {
                                             {t.table_count} tables
                                         </span>•
                                         {t.hourly_charge && <span>
-                                            {res_currency}{t.hourly_charge}/hr
+                                            {res_currency}{t.hourly_charge||0}/hr
                                         </span>}
                                     </div>
                                 </div>
