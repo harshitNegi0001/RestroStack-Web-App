@@ -89,9 +89,9 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
         setIsLoadingBtn(true);
 
         const successFunction = (data) => {
-            setOpenEdit(false); 
-            setLogoFile(null);  
-            
+            setOpenEdit(false);
+            setLogoFile(null);
+
             setResData(prev => ({
                 ...prev,
                 ...state,
@@ -306,7 +306,7 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
                                     <div className="flex flex-1 min-w-0 flex-col items-start ">
                                         <span className="flex items-center gap-2 text-[10px] md:text-[12px] text-low-text/70"><span>Email :</span>
                                             {resData?.verified_email ? <span className="rounded-2xl bg-toast-bg flex gap-1 items-center px-2 text-sec-text text-[9px]/4 md:text-[11px]/4 font-[Rubik]">Verified <MdVerified className="text-active-border" /></span> :
-                                                <span onClick={() => navigate('/verify-email?redirectTo=/restaurant-management',{state:{email:resData.email,prev:'/restaurant-management',otp_type:'res_email_verification',res_id:resData.id}})} className="rounded-2xl bg-indigo-600/10 flex gap-1 items-center px-2 text-indigo-600 cursor-pointer text-[9px]/4 md:text-[11px]/4 font-[Rubik]">Verify <FaExternalLinkAlt /></span>}
+                                                <span onClick={() => navigate('/verify-email?redirectTo=/restaurant-management', { state: { email: resData.email, prev: '/restaurant-management', otp_type: 'res_email_verification', res_id: resData.id } })} className="rounded-2xl bg-indigo-600/10 flex gap-1 items-center px-2 text-indigo-600 cursor-pointer text-[9px]/4 md:text-[11px]/4 font-[Rubik]">Verify <FaExternalLinkAlt /></span>}
                                         </span>
                                         <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.email}</span>
                                     </div>

@@ -117,7 +117,16 @@ class Restaurant {
                             'latitude',latitude,
                             'longitude',longitude
                         ) AS address,
-                        verified_email
+                        verified_email,
+                        res_type,
+                        res_status,
+                        opening_timeing,
+                        gstin,
+                        fssai_no,
+                        gst_tax,
+                        currency,
+                        updated_at,
+                        created_at
                     FROM restaurants 
                     WHERE id=$1
                     `,
@@ -144,6 +153,7 @@ class Restaurant {
         }
     }
 
+    // Controller function to edit restaurant details.
     editRestaurantDetails = async (req, res) => {
         const { id, role, res_id } = req.user;
         const permissions = req.permissions;
@@ -194,6 +204,7 @@ class Restaurant {
                             country=$8,
                             latitude=$9,
                             longitude=$10,
+                            updated_at=now(),
                             verified_email =
                                 CASE 
                                     WHEN $12 THEN TRUE

@@ -20,7 +20,7 @@ export const createRestaurantTable = async (pool) => {
                 country TEXT NOT NULL,
                 latitude DECIMAL,
                 longitude DECIMAL,
-                gstin VARCHAR(30) ,
+                gstin VARCHAR(30),
                 fssai_no VARCHAR(30),
                 gst_tax DECIMAL NOT NULL DEFAULT 0,
                 currency VARCHAR(5),
