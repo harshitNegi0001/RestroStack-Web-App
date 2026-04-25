@@ -21,7 +21,7 @@ export default function ResDetailPage(){
     const getData =async()=>{
         setIsLoading(true);
         const successFunction =({resData})=>{
-            setResData(...resData);
+            setResData({...resData});
         }
         await getCurrentRestaurant(successFunction);
         setIsLoading(false);

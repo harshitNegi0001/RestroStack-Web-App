@@ -132,13 +132,13 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
                                             </label>
                                             <input id='texPrecent-input' type='text'
                                                 placeholder='eg. 5' required
-                                                onFocus={() => setInputError(prev => ({ ...prev, tax_prec: '' }))}
-                                                value={state.tax_prec} onChange={(e) => setInputState(prev => ({ ...prev, tax_prec: e.target.value }))}
-                                                className={`${inputError.tax_prec ? 'outline-red-600' : 'outline-divider '}
+                                                onFocus={() => setInputError(prev => ({ ...prev, gst_tax: '' }))}
+                                                value={state.gst_tax} onChange={(e) => setInputState(prev => ({ ...prev, gst_tax: e.target.value }))}
+                                                className={`${inputError.gst_tax ? 'outline-red-600' : 'outline-divider '}
                                                     outline-1 focus:outline-2 px-9 focus:outline-active-border focus:border-active-border outline-0 
                                                 rounded-lg p-1 md:py-1 text-main-text text-[14px] md:text-[15px]`} />
                                         </div>
-                                        <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.tax_prec}</span>
+                                        <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.gst_tax}</span>
 
                                     </div>
                                 </div>
@@ -156,11 +156,11 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
 
                                 <div className="flex flex-1 min-w-0 flex-col items-start ">
                                     <span className="text-[10px] md:text-[12px] text-low-text/70">Currency :</span>
-                                    <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.currency}</span>
+                                    <span className=" flex items-center text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.currency}({currencies.find(c => c.key == state?.currency)?.name})</span>
                                 </div>
                                 <div className="flex flex-1 min-w-0 flex-col items-start ">
                                     <span className="text-[10px] md:text-[12px] text-low-text/70">Tax Precentage :</span>
-                                    <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.tax_prec}</span>
+                                    <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.gst_tax} %</span>
                                 </div>
                             </>
                 }
