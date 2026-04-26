@@ -3,10 +3,15 @@ import { LuPencil } from "react-icons/lu";
 import { MdAssignment } from 'react-icons/md';
 import { TbLicense } from 'react-icons/tb';
 import { HiOutlineReceiptTax } from "react-icons/hi";
-import { currencies } from "../utils/clientSideData/setupVariables";
+import { cuissineTypes, currencies } from "../utils/clientSideData/setupVariables";
+import { editRestaurantDetails } from "../Apis/restrauntSetupApi";
+import { PiForkKnife } from "react-icons/pi";
 
 
 
+const gstNoCheck = /^[a-zA-Z0-9-]{5,20}$/;
+const FssaiLiNoCheck = /^[a-zA-Z0-9\s/-]{5,30}$/;
+const nonNegativeRegex = /^\d*\.?\d+$/;
 export default function ResBuisness({ resData, setResData, isLoading }) {
     const [openEdit, setOpenEdit] = useState(false);
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
@@ -23,7 +28,42 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
         }
         setInputState({ ...resData });
 
-    }, [resData])
+    }, [resData]);
+
+    const editBuisnessDetails = async () => {
+        function successFunction(data) {
+            setOpenEdit(false);
+            setResData(prev => ({
+                ...prev,
+                ...data
+            }));
+            dispatch(getInitialState());
+        }
+
+        if (!gstNoCheck.test(state.gstin)) {
+            setInputError(prev => ({ ...prev, gstin: 'Please enter a valid Tax ID or VAT number (5-20 characters).' }));
+            return;
+        }
+        if (!FssaiLiNoCheck.test(state.fssai_no)) {
+            setInputError(prev => ({ ...prev, fssai_no: 'Please enter a valid Food Safety License or Health Permit number.' }));
+            return;
+        }
+        if (!nonNegativeRegex.test(state.gst_tax)) {
+            setInputError(prev => ({ ...prev, gst_tax: 'Tax percentage cannot be negative or contain invalid characters.' }));
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('type', 'buisness');
+        formData.append('gstin', state?.gstin);
+        formData.append('fssai_no', state?.fssai_no);
+        formData.append('gst_tax', state?.gst_tax);
+        formData.append('currency', state?.currency);
+
+        setIsLoadingBtn(true);
+        await editRestaurantDetails(formData, successFunction);
+        setIsLoadingBtn(false);
+    }
     return (
         <div className="w-full flex flex-col gap-2 md:gap-3 ">
             <div className="flex w-full justify-between gap-2 items-center h-[30px]">
@@ -45,7 +85,7 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
                         </> :
                         openEdit ?
                             <>
-                                <div className='w-full flex flex-col gap-0 relative pb-2'>
+                                <div className='w-full flex flex-col gap-0 relative mb-2'>
 
                                     <div
                                         className='w-[100%] flex flex-col gap-1 relative'>
@@ -65,14 +105,14 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
                                                 outline-1 focus:outline-2 pl-9 focus:outline-active-border focus:border-active-border outline-0 
                                                 rounded-lg p-1 md:py-1 text-main-text text-[14px] md:text-[15px]`} />
                                     </div>
-                                    <span className='text-red-500 text-[8px] w-full text-start md:text-[10px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.gstin}</span>
+                                    <span className='text-red-500 text-[8px] w-full text-start md:text-[10px] pl-1 whitespace-pre-line absolute top-[102%]' >{inputError.gstin}</span>
                                 </div>
-                                <div className='w-full flex flex-col gap-0 relative pb-2'>
+                                <div className='w-full flex flex-col gap-0 relative mb-2'>
 
                                     <div
                                         className='w-[100%] flex flex-col gap-1 relative'>
                                         <label htmlFor="fssaiLiNum-input"
-                                            className='text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px]'>FSSAI Number (Food License Number)</label>
+                                            className='text-sec-text pl-1 text-[12px] md:text-[13px]'>FSSAI Number (Food License Number)</label>
 
                                         <label htmlFor='fssaiLiNum-input'
                                             className='absolute bottom-0 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
@@ -88,13 +128,13 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
                                             outline-1 focus:outline-2 pl-9 focus:outline-active-border focus:border-active-border outline-0 
                                                 rounded-lg p-1 md:py-1 text-main-text text-[14px] md:text-[15px]`} />
                                     </div>
-                                    <span className='text-red-500 text-[8px] w-full text-start md:text-[10px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.fssai_no}</span>
+                                    <span className='text-red-500 text-[8px] w-full text-start md:text-[10px] pl-1 whitespace-pre-line absolute top-[102%]' >{inputError.fssai_no}</span>
                                 </div>
                                 <div className="w-full flex items-center  gap-3 ">
                                     <div
                                         className='w-[45%] flex flex-col gap-1 relative'>
                                         <label htmlFor="currency-input"
-                                            className='text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px]'>Currency</label>
+                                            className='text-sec-text pl-1 text-[12px] md:text-[13px]'>Currency</label>
 
                                         <label htmlFor='currency-input'
                                             className='absolute bottom-0 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
@@ -118,7 +158,7 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
                                         <div
                                             className='w-full flex flex-col gap-1 relative'>
                                             <label htmlFor="texPrecent-input"
-                                                className='text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px]'>Tax Precentage</label>
+                                                className='text-sec-text pl-1 text-[12px] md:text-[13px]'>Tax Precentage</label>
 
                                             <label htmlFor='texPrecent-input'
                                                 className='absolute bottom-0 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
@@ -138,9 +178,31 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
                                                     outline-1 focus:outline-2 px-9 focus:outline-active-border focus:border-active-border outline-0 
                                                 rounded-lg p-1 md:py-1 text-main-text text-[14px] md:text-[15px]`} />
                                         </div>
-                                        <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.gst_tax}</span>
+                                        <span className='text-red-500 text-[8px] w-full text-start md:text-[10px] pl-1 whitespace-pre-line absolute top-[102%]' >{inputError.gst_tax}</span>
 
                                     </div>
+                                </div>
+                                <div
+                                    className='w-[100%] flex flex-col gap-1 relative'>
+                                    <label htmlFor="restType-input"
+                                        className='text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px]'>Restaurant Type</label>
+
+                                    <label htmlFor='restType-input'
+                                        className='absolute bottom-0 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
+                                                size-[30px] text-[20px]'>
+                                        <PiForkKnife />
+                                    </label>
+                                    <select id="restType-input"
+                                        value={state.res_type} onChange={(e) => setInputState(prev => ({ ...prev, res_type: e.target.value }))}
+                                        className='outline-1 outline-divider focus:outline-2 pl-9 focus:outline-active-border focus:border-active-border outline-0 
+                                                rounded-lg p-1 md:py-1 text-main-text text-[14px] md:text-[15px]'>
+                                        {cuissineTypes.map(c => <option key={c.id} value={c.value}
+                                            className="bg-main-bg ">
+                                            {c.label}
+                                        </option>
+                                        )}
+                                    </select>
+
                                 </div>
 
                             </> :
@@ -162,9 +224,30 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
                                     <span className="text-[10px] md:text-[12px] text-low-text/70">Tax Precentage :</span>
                                     <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate">{resData?.gst_tax} %</span>
                                 </div>
+                                <div className="flex flex-1 min-w-0 flex-col items-start ">
+                                    <span className="text-[10px] md:text-[12px] text-low-text/70">Restaurant type :</span>
+                                    <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate capitalize">{cuissineTypes.find(c => c.value == resData?.res_type)?.label}</span>
+                                </div>
                             </>
                 }
             </div>
+            {!isLoading && openEdit &&
+                <div className="w-full flex justify-end p-3 ">
+                    <button
+                        onClick={() => editBuisnessDetails()}
+                        disabled={isLoadingBtn}
+                        className={`w-fit mt-3 py-2 px-3  rounded-lg bg-linear-0 text-white text-[13px] md:text-[14px] lg:text-[15px] font-[600] flex items-center justify-center
+                         
+                        ${isLoadingBtn ? 'bg-disabled-btn/60 cursor-not-allowed' : 'to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}>
+                        {isLoadingBtn ? <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg> : null}
+                        {
+                            isLoadingBtn ? <span className='text-white/80'>Processing...</span> : 'Save'
+                        }
+                    </button>
+                </div>}
         </div>
     )
 }

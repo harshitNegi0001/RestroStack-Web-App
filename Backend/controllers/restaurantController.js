@@ -157,11 +157,11 @@ class Restaurant {
     editRestaurantDetails = async (req, res) => {
         const { id, role, res_id } = req.user;
         const permissions = req.permissions;
-        const { type, res_name, email, contact_no, full_address } = req.body;
-
+        const { type } = req.body;
         try {
             if (permissions?.['manage_restaurant_setup'] || role == 'owner') {
                 if (type == 'identity') {
+                    const { res_name, email, contact_no, full_address } = req.body;
                     let imageUrl = req.body.logo || null;
                     if (req.file) {
                         try {
@@ -224,9 +224,10 @@ class Restaurant {
                                 'latitude',latitude,
                                 'longitude',longitude
                             ) AS address,
-                            verified_email
+                            verified_email,
+                            updated_at
                             `,
-                        [res_name, email, imageUrl, contact_no, full_address, city, state, country, latitude, longitude, res_id,(old_res_email == email && isVerified)]
+                        [res_name, email, imageUrl, contact_no, full_address, city, state, country, latitude, longitude, res_id, (old_res_email == email && isVerified)]
                     );
 
                     return returnRes(res, 200, {
@@ -234,6 +235,29 @@ class Restaurant {
                         message: 'Restaurant details updated successfully!',
                         resData: updatedData.rows[0]
                     });
+                }
+                if (type == 'buisness') {
+                    const { gstin, fssai_no, gst_tax, currency, res_type } = req.body;
+                    const updatedData = await db.query(
+                        `UPDATE restaurants
+                        SET 
+                            gstin=$1,
+                            fssai_no=$2,
+                            gst_tax=$3,
+                            currency=$4,
+                            res_type=$5,
+                            updated_at=now()
+                        WHERE id=$6
+                        RETURNING
+                            gstin,
+                            fssai_no,
+                            gst_tax,
+                            currency,
+                            res_type,
+                            updated_at
+                            `,
+                        [gstin,fssai_no,gst_tax,currency,res_type,res_id]
+                    );
                 }
 
                 return returnRes(res, 400, {

@@ -3,11 +3,6 @@ import toast from "react-hot-toast";
 
 
 
-const gstNoCheck = /^[a-zA-Z0-9-]{5,20}$/;
-const FssaiLiNoCheck = /^[a-zA-Z0-9\s/-]{5,30}$/;
-
-
-
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 

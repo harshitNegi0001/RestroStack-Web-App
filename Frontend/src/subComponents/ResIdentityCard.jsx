@@ -12,7 +12,10 @@ import { useDispatch } from "react-redux";
 import { getInitialState } from "../Store/Auth/authReducer";
 
 
-
+const restaurantNameCheck = /^[a-zA-Z0-9\s&'-]{3,50}$/;
+const locationCheck = /^[a-zA-Z0-9\s,.'#\-\/]{10,255}$/;
+const checkEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneNoCheck = /^(\+?\d{1,4}|\d{0,4})?\d{7,12}$/;
 export default function ResIdentityCard({ isLoading = true, resData = {}, setResData }) {
     const [openEdit, setOpenEdit] = useState(false);
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
@@ -23,7 +26,8 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
     const [inputError, setInputError] = useState({
         res_name: '',
         email: '',
-        phone_no: ''
+        contact_no: '',
+        full_address: ''
     });
     const [logoFile, setLogoFile] = useState(null);
     const logoInputRef = useRef(null);
@@ -86,7 +90,6 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
     }
 
     const editResIdentity = async () => {
-        setIsLoadingBtn(true);
 
         const successFunction = (data) => {
             setOpenEdit(false);
@@ -94,11 +97,27 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
 
             setResData(prev => ({
                 ...prev,
-                ...state,
-                res_logo: data.res_logo || state.res_logo
+                ...data
             }));
             dispatch(getInitialState());
         }
+        if (!restaurantNameCheck.test(state.res_name)) {
+            setInputError(prev => ({ ...prev, res_name: "Invalid name. Use 3-50 alphanumeric characters." }))
+            return;
+        }
+        if (!locationCheck.test(state.full_address)) {
+            setInputError(prev => ({ ...prev, full_address: "Please enter a valid address (10-255 characters)" }))
+            return;
+        }
+        if (!checkEmail.test(state.email)) {
+            setInputError(prev => ({ ...prev, email: 'Please enter a valid email address.' }));
+            return;
+        }
+        if (!phoneNoCheck.test(state.contact_no)) {
+            setInputError(prev => ({ ...prev, contact_no: "Please enter a valid phone number (eg. +91***** or **********)." }))
+            return;
+        }
+
         const formData = new FormData();
         formData.append('type', 'identity');
         formData.append('res_name', state?.res_name);
@@ -114,7 +133,7 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
         } else if (resData?.res_logo) {
             formData.append('logo', resData.res_logo);
         }
-
+        setIsLoadingBtn(true);
         await editRestaurantDetails(formData, successFunction);
         setIsLoadingBtn(false);
     }
@@ -131,7 +150,7 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
             <input type="file" ref={logoInputRef} id="logo-input" accept="image/*"
                 onChange={(e) => handleLogoChange(e.target.files[0])}
                 className="hidden" />
-            <div className="flex flex-row w-full items-start gap-4">
+            <div className="flex flex-col sm:flex-row w-full sm:items-start gap-4">
                 <div
                     onClick={() => {
                         if (openEdit && logoInputRef) {
@@ -168,7 +187,7 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
                             </> :
                             (openEdit) ?
                                 <>
-                                    <div className='w-full flex flex-col gap-0 relative pb-2'>
+                                    <div className='w-full flex flex-col gap-0 relative mb-2'>
 
                                         <div
                                             className='w-[100%] flex flex-col gap-1 relative'>
@@ -188,14 +207,14 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
                                                             outline-1 focus:outline-2 pl-9 focus:outline-active-border focus:border-active-border outline-0 
                                                             rounded-lg p-1 md:py-1 text-main-text text-[14px] md:text-[15px]`} />
                                         </div>
-                                        <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.res_name}</span>
+                                        <span className='text-red-500 text-[8px] w-full text-start md:text-[10px] pl-1 whitespace-pre-line absolute top-[102%]' >{inputError.res_name}</span>
                                     </div>
 
-                                    <div className='w-full flex flex-col gap-0 relative pb-2'>
+                                    <div className='w-full flex flex-col gap-0 relative mb-2'>
                                         <div
                                             className='w-[100%] flex flex-col gap-1 relative'>
                                             <label htmlFor="oneLineAddress-input"
-                                                className='text-sec-text pl-1 text-[12px] md:text-[13px] lg:text-[14px]'>Full Address</label>
+                                                className='text-sec-text pl-1 text-[12px] md:text-[13px]'>Full Address</label>
 
                                             <label htmlFor='oneLineAddress-input'
                                                 className='absolute bottom-0 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
@@ -244,10 +263,10 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
                                                 )}
                                             </div>
                                         }
-                                        <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-8px]' >{inputError.full_location}</span>
+                                        <span className='text-red-500 text-[8px] w-full text-start md:text-[10px] pl-1 whitespace-pre-line absolute top-[102%]' >{inputError.full_address}</span>
                                     </div>
 
-                                    <div className='w-full flex flex-col gap-0 relative pb-2'>
+                                    <div className='w-full flex flex-col gap-0 relative mb-2'>
 
                                         <div
                                             className='w-[100%] flex flex-col gap-1 relative'>
@@ -267,10 +286,10 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
                                                             outline-1 focus:outline-2 pl-9 focus:outline-active-border focus:border-active-border outline-0 
                                                             rounded-lg p-1 md:py-1 text-main-text text-[14px] md:text-[15px]`} />
                                         </div>
-                                        <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.email}</span>
+                                        <span className='text-red-500 text-[8px] w-full text-start md:text-[10px] pl-1 whitespace-pre-line absolute top-[102%]' >{inputError.email}</span>
                                     </div>
 
-                                    <div className='w-full flex flex-col gap-0 relative pb-2'>
+                                    <div className='w-full flex flex-col gap-0 relative mb-2'>
 
                                         <div
                                             className='w-[100%] flex flex-col gap-1 relative'>
@@ -291,7 +310,7 @@ export default function ResIdentityCard({ isLoading = true, resData = {}, setRes
                                                             outline-1 focus:outline-2 pl-9  focus:outline-active-border focus:border-active-border outline-0 
                                                             rounded-lg p-1 md:py-1 text-main-text text-[14px] md:text-[15px]`} />
                                         </div>
-                                        <span className='text-red-500 text-[8px] w-full text-start md:text-[12px] pl-1 whitespace-pre-line absolute bottom-[-5px] md:bottom-[-10px]' >{inputError.contact_no}</span>
+                                        <span className='text-red-500 text-[8px] w-full text-start md:text-[10px] pl-1 whitespace-pre-line absolute top-[102%]' >{inputError.contact_no}</span>
                                     </div>
                                 </> :
                                 <>
