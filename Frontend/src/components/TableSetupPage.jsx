@@ -8,9 +8,10 @@ import CreateTableZone from "../subComponents/CreateTableZone";
 import { useEffect } from "react";
 import { deleteZones, getTableZones } from "../Apis/tablesApi";
 import ConfirmBox from "../subComponents/ConfirmBox";
+import { useSelector } from "react-redux";
+import { currencies } from "../utils/clientSideData/setupVariables";
 
 
-const res_currency ='₹'
 export default function TableSetupPage() {
     const [openCreateTable, setOpenCreateTable] = useState(false);
     const [openEditZone, setOpenEditZone] = useState({
@@ -24,6 +25,10 @@ export default function TableSetupPage() {
         isOpen: false,
         data: {}
     });
+    const { rolesList, activeResId } = useSelector(state => state.auth);
+    const activeRes = rolesList.find(rl => rl.res_id ==activeResId)|| rolesList[0];
+    const currency =activeRes?.res_data?.currency ;
+    const res_currency = currencies.find(c=>c.key==currency)?.symbol || '₹';
     useEffect(() => {
         getZones();
     }, [])
@@ -57,7 +62,7 @@ export default function TableSetupPage() {
                 <CreateTableZone onClose={() => setOpenEditZone({ isOpen: false, editData: {} })} type="edit" editData={openEditZone?.editData} setTableZones={setTableZones} />
             </BackdropPage>
             <BackdropPage isOpen={openConfirm?.isOpen} onClose={() => setOpenConfirm({ isOpen: false, data: {} })} >
-                <ConfirmBox title={'Are your sure to delete'} confirmFunction={handleDelete} type={'error'} data={openConfirm?.data} onCancel={()=>setOpenConfirm({ isOpen: false, data: {} })} loadingBtn={delLoading} desc={'Tables in this zone will also removed.'} />
+                <ConfirmBox title={'Are your sure to delete'} confirmFunction={handleDelete} type={'error'} data={openConfirm?.data} onCancel={() => setOpenConfirm({ isOpen: false, data: {} })} loadingBtn={delLoading} desc={'Tables in this zone will also removed.'} />
             </BackdropPage>
             <div className={`p-2 md:p-3  flex flex-col w-full gap-2 `}>
                 <div className="text-[14px] md:text-[16px] text-sec-text">
@@ -110,7 +115,7 @@ export default function TableSetupPage() {
                                             {t.table_count} tables
                                         </span>•
                                         {t.hourly_charge && <span>
-                                            {res_currency}{t.hourly_charge||0}/hr
+                                            {res_currency}{t.hourly_charge || 0}/hr
                                         </span>}
                                     </div>
                                 </div>

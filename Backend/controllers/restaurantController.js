@@ -236,8 +236,12 @@ class Restaurant {
                         resData: updatedData.rows[0]
                     });
                 }
-                if (type == 'buisness') {
+                else if (type == 'buisness') {
                     const { gstin, fssai_no, gst_tax, currency, res_type } = req.body;
+                    let opening_timeing = {};
+                    if (req.body.opening_timeing) {
+                        opening_timeing = typeof req.body.opening_timeing === 'string' ? JSON.parse(req.body.opening_timeing) : req.body.opening_timeing;
+                    }
                     const updatedData = await db.query(
                         `UPDATE restaurants
                         SET 
@@ -246,20 +250,26 @@ class Restaurant {
                             gst_tax=$3,
                             currency=$4,
                             res_type=$5,
+                            opening_timeing=$6,
                             updated_at=now()
-                        WHERE id=$6
+                        WHERE id=$7
                         RETURNING
                             gstin,
                             fssai_no,
                             gst_tax,
                             currency,
                             res_type,
+                            opening_timeing,
                             updated_at
                             `,
-                        [gstin,fssai_no,gst_tax,currency,res_type,res_id]
+                        [gstin, fssai_no, gst_tax, currency, res_type, opening_timeing, res_id]
                     );
+                    return returnRes(res, 200, {
+                        success: true,
+                        message: 'Restaurant details updated successfully!',
+                        resData: updatedData.rows[0]
+                    });
                 }
-
                 return returnRes(res, 400, {
                     success: false,
                     message: 'Invalid update type provided.'

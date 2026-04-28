@@ -3,9 +3,13 @@ import { LuPencil } from "react-icons/lu";
 import { MdAssignment } from 'react-icons/md';
 import { TbLicense } from 'react-icons/tb';
 import { HiOutlineReceiptTax } from "react-icons/hi";
-import { cuissineTypes, currencies } from "../utils/clientSideData/setupVariables";
+import { cuissineTypes, currencies, weekArray } from "../utils/clientSideData/setupVariables";
 import { editRestaurantDetails } from "../Apis/restrauntSetupApi";
 import { PiForkKnife } from "react-icons/pi";
+import ResOpenningTime from "../Pages/auth/components/ResOpenningTime";
+import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { getInitialState } from "../Store/Auth/authReducer";
 
 
 
@@ -22,6 +26,7 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
         gst_tax: '',
         currency: '',
     });
+    const dispatch = useDispatch();
     useEffect(() => {
         if (!resData) {
             return;
@@ -52,13 +57,19 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
             setInputError(prev => ({ ...prev, gst_tax: 'Tax percentage cannot be negative or contain invalid characters.' }));
             return;
         }
-
+        const hasOpenDay = Object.values(state?.opening_timeing).some(day => !day.isClosed);
+        if (!hasOpenDay) {
+            toast.error('Select alteast one day to open restaurant.');
+            return;
+        }
         const formData = new FormData();
         formData.append('type', 'buisness');
         formData.append('gstin', state?.gstin);
         formData.append('fssai_no', state?.fssai_no);
         formData.append('gst_tax', state?.gst_tax);
         formData.append('currency', state?.currency);
+        formData.append('res_type', state?.res_type);
+        formData.append('opening_timeing', JSON.stringify(state?.opening_timeing));
 
         setIsLoadingBtn(true);
         await editRestaurantDetails(formData, successFunction);
@@ -204,6 +215,7 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
                                     </select>
 
                                 </div>
+                                <ResOpenningTime localState={state} setLocalState={setInputState} />
 
                             </> :
                             <>
@@ -227,6 +239,26 @@ export default function ResBuisness({ resData, setResData, isLoading }) {
                                 <div className="flex flex-1 min-w-0 flex-col items-start ">
                                     <span className="text-[10px] md:text-[12px] text-low-text/70">Restaurant type :</span>
                                     <span className="text-[12px] md:text-[14px] text-sec-text w-full truncate capitalize">{cuissineTypes.find(c => c.value == resData?.res_type)?.label}</span>
+                                </div>
+                                <div className="flex flex-1 min-w-0 flex-col items-start ">
+                                    <span className="text-[10px] md:text-[12px] text-low-text/70">Opening Timing :</span>
+
+                                    {
+                                        weekArray.map((d, i) => {
+                                            const day = d.label;
+                                            const openTime = state?.opening_timeing?.[day]?.opening;
+                                            const closeTime = state?.opening_timeing?.[day]?.closing;
+                                            const isClosed = state?.opening_timeing?.[day]?.isClosed;
+                                            return (
+                                                <div key={i} className="flex flex-row gap-1 text-[12px] md:text-[14px] text-sec-text w-full truncate capitalize">
+                                                    <span className="font-[500]">{day}:</span>
+                                                    <span className={` ${isClosed ? 'text-red-600/80' : 'text-sec-text/80'}`}>{isClosed ? 'Closed' : `${openTime} - ${closeTime}`}</span>
+                                                </div>
+                                            )
+                                        }
+                                        )
+                                    }
+
                                 </div>
                             </>
                 }

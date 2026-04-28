@@ -1,7 +1,7 @@
 import { IoMdTime } from 'react-icons/io';
 import { IoCheckmarkDoneSharp } from "react-icons/io5";
 import { IoIosTimer } from "react-icons/io";
-import { weekDays } from '../../../utils/clientSideData/setupVariables';
+import { weekArray, weekDays } from '../../../utils/clientSideData/setupVariables';
 import { IoMdCloseCircleOutline } from "react-icons/io";
 import { MdCheckCircleOutline } from "react-icons/md";
 import { FaRegCircle } from "react-icons/fa";
@@ -20,14 +20,7 @@ export default function ResOpenningTime({ localState, setLocalState }) {
         }))
     };
     const handleChangeOpening = (val, day) => {
-        // setLocalState(prev => {
-        //     const updatedTimings = [...prev.opening_timeing];
-        //     updatedTimings[index] = {
-        //         ...updatedTimings[index],
-        //         opening: val
-        //     };
-        //     return { ...prev, opening_timeing: updatedTimings };
-        // });
+        
         setLocalState(prev=>({
             ...prev,
             opening_timeing:{
@@ -121,11 +114,13 @@ export default function ResOpenningTime({ localState, setLocalState }) {
             </div>
             <div
                 className='flex flex-col w-full   gap-2'>
+                    
                 {
-                    Object.entries(localState.opening_timeing).map(([day, value]) => {
-                        
+                    weekArray.map((d,i)=> {
+                        const day = d.label;
+                        const value = localState?.opening_timeing?.[day];
                         const isClosed = value.isClosed;
-                        return (<div key={day}
+                        return (<div key={i}
 
                             className={`border-1 rounded-lg  p-2 ${!isClosed ? 'bg-green-800/10 border-green-500/50' : 'bg-red-800/10 border-red-500/50'} 
                         flex flex-col gap-1`}>
@@ -142,14 +137,14 @@ export default function ResOpenningTime({ localState, setLocalState }) {
                                 <input type="time" name="" id=""
                                     value={value.opening}
                                     onChange={(e) => handleChangeOpening(e.target.value, day)}
-                                    className='border-divider border-1 focus:outline-1  focus:outline-active-border focus:border-active-border outline-0 
-                                            rounded-lg p-1.5 md:py-2 text-main-text text-[13px] md:text-[15px]' />
+                                    className='outline-divider outline-1 focus:outline-2  focus:outline-active-border 
+                                            rounded-lg p-1.5 md:py-2 text-main-text text-[12px] md:text-[14px]' />
                                 <span>to</span>
                                 <input type="time" name="" id=""
                                     value={value.closing}
                                     onChange={(e) => handleChangeClosing(e.target.value, day)}
-                                    className='border-divider border-1 focus:outline-1  focus:outline-active-border focus:border-active-border outline-0 
-                                            rounded-lg p-1.5 md:py-2 text-main-text text-[13px] md:text-[15px]'/>
+                                    className='outline-divider outline-1 focus:outline-2  focus:outline-active-border 
+                                            rounded-lg p-1.5 md:py-2 text-main-text text-[12px] md:text-[14px]'/>
 
                             </div>}
                         </div>)
