@@ -4,6 +4,7 @@ import Appbar from "./Appbar";
 import DesktopSideabr from "./DesktopSidebar";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import MenuBuilder from "../../components/MenuBuilder";
 
 
 export default function MainLayout() {
@@ -43,8 +44,8 @@ export default function MainLayout() {
                         className="flex flex-col flex-1 min-w-0 h-full ">
                         <Appbar setOpenSidebar={setOpenSidebar} />
 
-                        <Outlet />
-
+                        {/* <Outlet /> */}
+<MenuBuilder/>
                     </div>
                     {openSidebar && <div
                         onClick={() => setOpenSidebar(false)}

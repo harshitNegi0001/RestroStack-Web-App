@@ -1,6 +1,7 @@
-import { LuGripHorizontal } from "react-icons/lu";
+
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useState } from "react";
+import CategoryCard from "./CategoryCard";
 
 
 
@@ -10,7 +11,8 @@ export default function CategoriesComponent({categories,setCategories,isLoading,
     const [loadingBtn,setLoadingBtn] = useState(false);
 
     return(
-        <div className="w-full flex flex-col gap-4">
+        <div className="w-full pb-2 sm:pb-0 sm:pr-2 sm:w-[250px] xl:w-[300px] h-full flex flex-col gap-4
+            border-b-1 sm:border-b-0 border-divider border-dashed border-r-0 sm:border-r-1 ">
                 <h6 className="text-main-text font-[600] text-[16px] sm:text-[17px] lg:text-[18px] ">
                     Categories
                 </h6>
@@ -28,18 +30,12 @@ export default function CategoriesComponent({categories,setCategories,isLoading,
                             }
                         </div> :
                         categories.length > 0 ?
-                            <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-5 gap-2 sm:gap-4">
-                                {categories.map(c => (
-                                    <div key={c.id} className="w-full p-2 bg-divider/40 hover:bg-active-border/10 active:bg-active-border/30 rounded-lg flex items-center gap-2">
-                                        <div onClick={(e)=>{
-                                            e.stopPropagation();
+                            <div className=" min-h-0 w-full pb-2 sm:pb-4 overflow-y-auto flex flex-col gap-2 sm:gap-4">
+                                <div className='w-full border-dashed border-1 border-active-border/50 hover:border-active-border/70 active:border-active-border rounded-md p-2 '>
 
-                                        }}
-                                        className="rounded-2xl text-main-text text-[14px] sm:text-[16px] p-2 hover:bg-divider/50 active:bg-divider/80 hover:cursor-grab active:cursor-grabbing">
-                                            <LuGripHorizontal />
-                                        </div>
-                                        <div className="flex-1 min-w-0 text-main-text text-[14px] sm:text-[16px] truncate">{c.category_name}</div>
-                                    </div>
+                                </div>
+                                {categories.map(c => (
+                                    <CategoryCard c={c} key={c.id} setCategories={setCategories}/>
                                 ))}
                             </div> :
                             <div>
