@@ -12,13 +12,13 @@ export default function AlertBox ({type,title,desc,confirmFunction,data,loadingB
 
     return(
         <div 
-        className=" max-w-[90%] w-[320px] md:w-[450px] p-2 sm:p-3 rounded-2xl flex flex-col gap-3
+        className=" max-w-[90%] w-[320px] md:w-[450px] p-3 sm:p-4 rounded-2xl flex flex-col gap-3
                 bg-card-bg shadow-black/30 shadow-md">
             <div className="w-full flex flex-col gap-1">
                 <div className="w-full text-[16px] md:text-[18px] font-[600] text-main-text">
                     {title}
                 </div>
-                <div className="w-full text-[11px] md:text-[12px] text-low-text/70">
+                <div className="w-full text-[11px] md:text-[12px] text-low-text/70 whitespace-pre-line">
                     {desc}
                 </div>
             </div>
