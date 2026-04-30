@@ -8,4 +8,7 @@ const router = e.Router();
 router.get('/get-categories', tokenOpener, Menu.getMenuCatrgories);
 router.post('/create-category', tokenOpener,permissionInjector, Menu.createMenuCategory);
 
+router.post('/edit-cat-name',tokenOpener,permissionInjector,Menu.editCategoryName);
+router.post('/del-category',tokenOpener,permissionInjector,Menu.removeCategory);
+
 export default router;

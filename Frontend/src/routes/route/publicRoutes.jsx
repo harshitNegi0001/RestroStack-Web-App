@@ -4,7 +4,7 @@ import RestaurantManagementPage from "../../Pages/view/RestaurantManagementPage"
 import MenuBuilder from "../../components/MenuBuilder";
 import MainLayout from "../../Pages/layout/MainLayout";
 
-// const   = lazy(()=>import(''));
+
 const Login = lazy(() => import('../../Pages/auth/Login'));
 const RegisterUser = lazy(() => import('../../Pages/auth/RegisterUser'));
 const PageNotFound = lazy(() => import('../../Pages/view/PageNotFound'));
@@ -62,7 +62,7 @@ export const publicRoutes = [
     {
         id: 8,
         path: '/offline-page',
-        element: <MainLayout />,
+        element: <MenuBuilder />,
     }
     // {
     //     id: 6,

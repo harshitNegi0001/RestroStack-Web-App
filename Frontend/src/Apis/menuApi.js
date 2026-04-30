@@ -40,18 +40,35 @@ export const createCategory =async(category_name,successFunction)=>{
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }
-
+export const editCatName = async(cat_id,category_name,successFunction)=>{
+    try {
+        const result = await axios.post(
+            `${backend_url}/menu/edit-cat-name`,
+            {
+                cat_id,
+                category_name
+            },
+            {
+                withCredentials:true
+            }
+        )
+        successFunction();
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}   
 export const deleteCategory = async(id,successFunction)=>{
     try {
-        // const result = await axios.post(
-        //     `${backend_url}/menu/del-category`,
-        //     {
-        //         category_id : id
-        //     },
-        //     {
-        //         withCredentials:true
-        //     }
-        // )
+        const result = await axios.post(
+            `${backend_url}/menu/del-category`,
+            {
+                category_id : id
+            },
+            {
+                withCredentials:true
+            }
+        )
 
         successFunction();
     } catch (err) {

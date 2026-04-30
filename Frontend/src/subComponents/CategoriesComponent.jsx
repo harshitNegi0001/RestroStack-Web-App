@@ -18,9 +18,9 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
         const cat_name = catInputRef.current.value;
         function successFunction(cat_id) {
             const new_cat = {
-                id:cat_id,
-                category_name:cat_name,
-                item_count:0
+                id: cat_id,
+                category_name: cat_name,
+                item_count: 0
             }
             setCategories(prev => ([new_cat, ...prev]));
             catInputRef.current.value = '';
@@ -63,19 +63,19 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
                             ))}
                         </div> :
                         <div className='flex flex-col items-center gap-2 text-center'>
-                            <img src="" alt="" />
-                            <div className='text-[16px] font-[600] '>
-
+                            <img src="https://res.cloudinary.com/dns5lxuvy/image/upload/v1776824800/uppdvvhqrps5hgxpnpwf.png" alt="" />
+                            <div className='text-[16px] sm:text-[18px] font-[600] text-main-text'>
+                                No Categories Found
                             </div>
-                            <span>
-
+                            <span className='text-[12px] sm:text-[13px] text-low-text/70 '>
+                                It looks like your menu is empty right now.
                             </span>
                         </div>
             }
             {
                 !isLoading &&
                 <div className={`w-full border-1 rounded-md
-                                    ${openAddCat ? 'border-active-border' : 'border-active-border/50 hover:border-active-border/70 active:border-active-border border-dashed'}`}>
+                            ${openAddCat ? 'border-active-border' : 'border-active-border/50 hover:border-active-border/70 active:border-active-border border-dashed'}`}>
                     {
                         openAddCat ?
                             <div className='w-full p-2 flex flex-col gap-1'>
