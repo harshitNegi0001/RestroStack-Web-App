@@ -1,8 +1,8 @@
 import { lazy } from "react";
 import StaffPage from "../../Pages/view/StaffPage";
 import RestaurantManagementPage from "../../Pages/view/RestaurantManagementPage";
-import MenuBuilder from "../../components/MenuBuilder";
 import MainLayout from "../../Pages/layout/MainLayout";
+import MenuBuilder from "../../Pages/view/MenuBuilder";
 
 
 const Login = lazy(() => import('../../Pages/auth/Login'));

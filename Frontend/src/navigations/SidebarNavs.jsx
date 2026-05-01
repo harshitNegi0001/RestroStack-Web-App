@@ -8,7 +8,7 @@ import { HiOutlineCreditCard } from "react-icons/hi2";
 import { LuSettings } from "react-icons/lu";
 import { IoReceiptOutline } from "react-icons/io5";
 import { LuPackage } from "react-icons/lu";
-
+import { BiFoodMenu } from "react-icons/bi";
 export const sidebarNavs = [
     {
         id: 1,
@@ -42,8 +42,15 @@ export const sidebarNavs = [
                 path: '/res-tables',
                 permission: 'can_manage_table'
             },
+            {
+                id: 5,
+                title: 'Menu',
+                icon: <BiFoodMenu />,
+                path: '/menu-management',
+                permission: 'manage_menu'
+            },
             // {
-            //     id: 5,
+            //     id: 6,
             //     title: 'Inventory',
             //     icon: <LuPackage />,
             //     path: '/inventory',

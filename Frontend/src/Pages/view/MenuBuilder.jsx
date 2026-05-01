@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useState } from "react"
-import { getMenuCategories } from "../Apis/menuApi";
 import { MdDragIndicator } from "react-icons/md";
-import CategoriesComponent from "../subComponents/CategoriesComponent";
+import { getMenuCategories } from "../../Apis/menuApi";
+import CategoriesComponent from "../../subComponents/CategoriesComponent";
 
 
 

@@ -5,8 +5,7 @@ const Dashboard = lazy(()=>import("../../Pages/view/Dashboard"));
 const StaffPage = lazy(()=>import("../../Pages/view/StaffPage"));
 const JobPosts = lazy(()=>import("../../Pages/view/JobPosts"));
 const RestaurantManagementPage = lazy(()=>import("../../Pages/view/RestaurantManagementPage"));
-
-
+const MenuBuilder = lazy(()=>import("../../Pages/view/MenuBuilder"));
 
 
 
@@ -34,5 +33,11 @@ export const permissionBasedRoutes = [
         path:'/restaurant-management',
         permission:'manage_restaurant_setup',
         element:<RestaurantManagementPage/>
+    },
+    {
+        id:4,
+        path:'/menu-management',
+        permission:'manage_menu',
+        element:<MenuBuilder/>
     }
 ]

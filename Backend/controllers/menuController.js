@@ -123,7 +123,8 @@ class Menu {
                     WHERE 
                         res_id = $1 AND
                         is_active = TRUE
-                        AND LOWER(category_name) = LOWER($2)`, [res_id, category_name]
+                        AND LOWER(category_name) = LOWER($2)
+                        AND id != $3`, [res_id, category_name,cat_id]
                 );
                 if (catNameCheck.rows.length != 0) {
                     return returnRes(res, 400, {
