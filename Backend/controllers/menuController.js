@@ -168,16 +168,17 @@ class Menu {
         const permissions = req.permissions;
         try {
             if (role == 'owner' || permissions?.['manage_menu']) {
+                
                 const categoryCheck = await db.query(
                     `SELECT 
-                        is_active
+                        1
                     FROM menu_categories
                     WHERE id = $1
-                        AND res_id = $2`,
+                        AND res_id = $2
+                        AND is_active = TRUE`,
                     [cat_id, res_id]
                 );
-
-                if (categoryCheck.rows.length == 0 || !categoryCheck.rows[0]?.is_active) {
+                if (categoryCheck.rows.length == 0 ) {
                     return returnRes(res, 404, {
                         success: false,
                         error: 'CATEGORY_NOT_FOUND_OR_DELETED',

@@ -58,12 +58,12 @@ export const editCatName = async(cat_id,category_name,successFunction)=>{
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }   
-export const deleteCategory = async(id,successFunction)=>{
+export const deleteCategory = async(cat_id,successFunction)=>{
     try {
         const result = await axios.post(
             `${backend_url}/menu/del-category`,
             {
-                category_id : id
+                cat_id
             },
             {
                 withCredentials:true
@@ -71,6 +71,7 @@ export const deleteCategory = async(id,successFunction)=>{
         )
 
         successFunction();
+        toast.success(result?.data?.message);
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
