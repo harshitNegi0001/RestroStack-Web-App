@@ -3,6 +3,7 @@ import { useState } from "react"
 import { MdDragIndicator } from "react-icons/md";
 import { getMenuCategories } from "../../Apis/menuApi";
 import CategoriesComponent from "../../subComponents/CategoriesComponent";
+import MenuItems from "../../subComponents/MenuItems";
 
 
 
@@ -20,20 +21,21 @@ export default function MenuBuilder() {
     const getCategory = async () => {
         function successFunction(data) {
             setCategories(data);
+            if(data?.length>0){
+                setActiveCat(data[0]);
+            }
         }
         setIsLoading(true);
         await getMenuCategories(successFunction);
         setIsLoading(false);
     }
     return (
-        <div className="flex-1 w-full min-h-0 p-2 md:p-4 flex flex-col sm:flex-row gap-2 md:gap-4  show-custom-scrollbar">
+        <div className="flex-1 w-full min-h-0 p-2 md:p-4 flex flex-col sm:flex-row gap-2 md:gap-4 overflow-y-auto show-custom-scrollbar">
             <CategoriesComponent categories={categories} setCategories={setCategories}
-                isLoading={isLoading} 
-                activeCat={activeCat} setActiveCat={setActiveCat}/>
+                isLoading={isLoading}
+                activeCat={activeCat} setActiveCat={setActiveCat} />
 
-            <div className="">
-                {/* Menu Item */}
-            </div>
+            <MenuItems  activeCat={activeCat} categories={categories}/>
         </div>
     )
 }
