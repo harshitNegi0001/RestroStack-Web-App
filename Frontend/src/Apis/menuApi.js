@@ -40,6 +40,25 @@ export const createCategory =async(category_name,successFunction)=>{
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }
+
+export const AddMenuItem = async(successFunction)=>{
+    try {
+        const result = await axios.post(
+            `${backend_url}/menu/add-item`,
+            {
+
+            },
+            {
+                withCredentials:false
+            }
+        );
+
+        toast.success(result?.data?.message || 'Item Added')
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
 export const editCatName = async(cat_id,category_name,successFunction)=>{
     try {
         const result = await axios.post(

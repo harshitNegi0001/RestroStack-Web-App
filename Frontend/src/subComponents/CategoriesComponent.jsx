@@ -59,7 +59,8 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
                         <div className=" min-h-0 w-full pb-10 overflow-y-auto show-custom-scrollbar flex flex-col gap-2 sm:gap-4">
 
                             {categories.map(c => (
-                                <CategoryCard c={c} key={c.id} setCategories={setCategories} />
+                                <CategoryCard c={c} key={c.id} setCategories={setCategories} activeCat={activeCat}
+                                    onClick={()=>setActiveCat(c.id)}/>
                             ))}
                         </div> :
                         <div className='flex flex-col items-center gap-2 text-center'>

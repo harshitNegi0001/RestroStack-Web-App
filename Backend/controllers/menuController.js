@@ -59,6 +59,22 @@ class Menu {
             });
         }
     }
+    // controller function to add Item in Menu.
+    addMenuItem = async(req,res)=>{
+        const {res_id,role} = req.user;
+        const {cat_id} = req.body;
+
+        try {
+            
+        } catch (err) {
+            console.log('Menu_Item creation error:', err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
+            });
+        }
+    }
     // controller function to get menu categories
     getMenuCatrgories = async (req, res) => {
         const { res_id } = req.user;

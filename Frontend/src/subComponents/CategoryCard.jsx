@@ -7,7 +7,7 @@ import { deleteCategory, editCatName } from "../Apis/menuApi";
 
 
 
-export default function CategoryCard({ c, setCategories }) {
+export default function CategoryCard({ c, setCategories,activeCat,onClick }) {
     const [openOption, setOpenOption] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [openConfirm, setOpenConfirm] = useState(false);
@@ -43,7 +43,8 @@ export default function CategoryCard({ c, setCategories }) {
         await deleteCategory(c.id, successFunction);
         setLoadingBtn(false);
     }
-    const handleEditSave = async()=>{
+    const handleEditSave = async(e)=>{
+        e.stopPropagation();
         function successFunction (){
             const updatedCat = {
                 ...c,category_name:catNameInputRef.current?.value
@@ -58,17 +59,25 @@ export default function CategoryCard({ c, setCategories }) {
         setLoadingBtn(false);
     }
     return (
-        <div key={c.id} className="relative w-full p-2 bg-divider/40 hover:bg-active-border/10 rounded-lg flex items-center gap-2">
+        <div key={c.id}
+            onClick={()=>{
+                if(openEdit){
+                    return
+                }
+                else{
+                    onClick();
+                }
+            }}
+         className={`relative w-full p-2 ${c.id==activeCat?'bg-divider/30 ':'hover:bg-sec-text/5 active:bg-sec-text/20 text-low-text/70 hover:text-low-text active:text-sec-text'} rounded-lg flex items-center gap-2`}>
             <div onClick={(e) => {
                 e.stopPropagation();
-
             }}
                 className="rounded-2xl text-main-text text-[12px] sm:text-[14px] p-2 hover:bg-divider/50 active:bg-divider/80 hover:cursor-grab active:cursor-grabbing">
                 <LuGripHorizontal />
             </div>
             {!openEdit ?
                 <>
-                    <div className="flex-1 min-w-0 text-main-text text-[12px] sm:text-[14px] truncate capitalize">{c.category_name}</div>
+                    <div className={`flex-1 min-w-0 ${c.id==activeCat? 'text-active-border':'text-main-text'} text-[12px] sm:text-[14px] truncate capitalize`}>{c.category_name}</div>
                     <span className="size-[20px] md:size-[25px] bg-toast-bg text-low-text rounded-[50%] flex justify-center items-center text-[10px] sm:text-[12px]">{(c.item_count) ? (c.item_count < 100 ? c.item_count : '99+') : 0}</span>
                 </> :
                 <div className="flex-1 min-w-0 ">

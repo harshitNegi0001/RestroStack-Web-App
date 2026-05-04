@@ -1,5 +1,7 @@
 import { createTokenTable } from "../schema/inviteTokenTable.js";
+import { createItemPriceTable } from "../schema/itemPriceTable.js";
 import { createMenuCategoryTable } from "../schema/menuCategoryTable.js";
+import { createMenuItemTable } from "../schema/menuItemTable.js";
 import { createOTPTable } from "../schema/otpTable.js";
 import { createRateLimitTable } from "../schema/rateLimitTable.js";
 import { createRestaurantTable } from "../schema/restaurantTable.js";
@@ -20,6 +22,8 @@ export const setupTable = async()=>{
         await createTableZone(pool);
         await createTablesTable(pool);
         await createMenuCategoryTable(pool);
+        await createMenuItemTable(pool);
+        await createItemPriceTable(pool);
     } catch (err) {
         console.log(err);
         throw err;

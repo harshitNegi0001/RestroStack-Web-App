@@ -9,7 +9,16 @@ import MenuItems from "../../subComponents/MenuItems";
 
 
 export default function MenuBuilder() {
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState([
+        {
+            id:1,
+            category_name:'Starter'
+        },
+        {
+            id:2,
+            category_name:'main course'
+        }
+    ]);
     const [activeCat, setActiveCat] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [loadingBtn, setLoadingBtn] = useState(false);
@@ -22,7 +31,7 @@ export default function MenuBuilder() {
         function successFunction(data) {
             setCategories(data);
             if(data?.length>0){
-                setActiveCat(data[0]);
+                setActiveCat(data[0]?.id);
             }
         }
         setIsLoading(true);

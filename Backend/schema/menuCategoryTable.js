@@ -14,6 +14,7 @@ export const createMenuCategoryTable = async (pool) => {
                 CONSTRAINT fk_menu_category_res_id
                     FOREIGN KEY (res_id)
                     REFERENCES restaurants(id)
+                    ON DELETE CASCADE
             )`
         )
 
@@ -22,7 +23,10 @@ export const createMenuCategoryTable = async (pool) => {
                 ON menu_categories (res_id, LOWER(category_name)) 
                 WHERE is_active = TRUE;`
         )
-
+        await pool.query(
+            `CREATE INDEX IF NOT EXISTS idx_menu_categories_res_id 
+                ON menu_categories(res_id);`
+        );
     } catch (err) {
         throw err;
     }
