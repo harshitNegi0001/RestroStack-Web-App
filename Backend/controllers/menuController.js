@@ -122,16 +122,23 @@ class Menu {
                     i.is_veg,
                     i.is_active,
                     i.created_at,
-                    (
-                        SELECT
-
-                        FROM item_prices AS p
-                    
+                    COALESCE(
+                        (
+                            SELECT json_agg(
+                                json_build_object(
+                                    'id', p.id,
+                                    'variant_name', p.variant_name,
+                                    'price', p.price
+                                )
+                            )
+                            FROM item_prices AS p
+                            WHERE p.item_id = i.id
+                        ), '[]'::json
                     ) AS price_array
                 FROM menu_items AS i
                 WHERE cat_id = $1`,
                 [cat_id]
-            )
+            );
 
             return returnRes(res,200,{
                 success:true,

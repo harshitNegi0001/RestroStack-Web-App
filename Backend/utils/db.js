@@ -11,25 +11,23 @@ const pool = new Pool(
     }
 )
 
-
-// pool.connect()
-//     .then(client => {
-//         console.log("✅ PostgreSQL connected successfully");
-//         client.release();
-//     })
-//     .catch(err => {
-//         console.error("❌ PostgreSQL connection error:", err.message);
-//     });
-
-// // Listen for runtime errors (prevents Node crash)
-// pool.on('error', err => {
-//     console.error('Unexpected PostgreSQL error:', err);
-// });
-
 pool.query('SELECT NOW()', (err, res) => {
     if (err) console.error("❌ DB Connection Error", err);
     else console.log("✅ DB Connected at:", res.rows[0].now);
 });
 
+// const pool = new Pool(
+//     {
+//         host:process.env.PG_HOST,
+//         user:process.env.PG_USER,
+//         password:process.env.PG_PASSWORD,
+//         port:process.env.PG_PORT,
+//         database:process.env.PG_DATABASE
+//     }
+// )
+// pool.query('SELECT NOW()', (err, res) => {
+//     if (err) console.error("❌ DB Connection Error", err);
+//     else console.log("✅ DB Connected at:", res.rows[0].now);
+// });
 
 export default pool;

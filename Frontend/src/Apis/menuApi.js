@@ -28,7 +28,7 @@ export const getCatItems =async (cat_id,successFunction)=>{
         const result = await axios.get(
             `${backend_url}/menu/get-items?cat_id=${cat_id}`,
             {
-                withCredentials:false
+                withCredentials:true
             }
         )
 

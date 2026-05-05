@@ -2,27 +2,48 @@ import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { IoAdd, IoArrowBack } from "react-icons/io5";
 import { AddMenuItem } from "../Apis/menuApi";
+import { useRef } from "react";
+import { LuImage } from "react-icons/lu";
 
 
 
 
 
 
-export default function AddNewMenuItem({ onClose,type='create',activeCat,categories }) {
-    const [isLoadingBtn,setIsLoadingBtn]=useState(false);
-    const [state,setInputState] = useState({
-        item_name:''
+export default function AddNewMenuItem({ onClose, type = 'create', activeCat, categories }) {
+    const [isLoadingBtn, setIsLoadingBtn] = useState(false);
+    const [state, setInputState] = useState({
+        item_name: '',
+        image: '',
+
     })
+    const [itemImage, setItemImage] = useState(null);
+    const imgInputRef = useRef(null);
 
-    const handlAddItem = async()=>{
-        function successFunction (){
+
+    const handlAddItem = async () => {
+        function successFunction() {
         }
         const formData = new FormData();
-        formData.append('type',type);
-        formData.append('item_name',state?.item_name);
+        formData.append('type', type);
+        formData.append('item_name', state?.item_name);
         setIsLoadingBtn(true);
-        await AddMenuItem({},successFunction);
+        await AddMenuItem({}, successFunction);
         setIsLoadingBtn(false);
+    }
+
+    const handleImgChange = (file) => {
+        if (!file) return;
+        const imgUrl = URL.createObjectURL(file);
+        setInputState(prev => ({
+            ...prev, image: imgUrl
+        }));
+        setItemImage(file);
+    }
+    const handleRemoveImage = () => {
+        setItemImage(null);
+        setInputState(prev => ({ ...prev, image: '' }));
+        imgInputRef.current.value=''
     }
     return (
         <div
@@ -52,7 +73,36 @@ export default function AddNewMenuItem({ onClose,type='create',activeCat,categor
                     <IoClose />
                 </button>
             </div>
+            <div className="flex-1 w-full min-h-0 overflow-y-auto show-custom-scrollbar p-3">
+                <div className="w-full flex flex-col items-center ">
+                    <input type="file" ref={imgInputRef} id="" accept="image/*"
+                        onChange={(e) => handleImgChange(e.target.files[0])}
+                        className="hidden" />
 
+                    {state?.image ?
+                        <div className="w-fit h-fit relative">
+                            <span onClick={handleRemoveImage}
+                                className="absolute top-0 left-[100%]  rounded-full p-2
+                            bg-divider/50 hover:bg-divider/70 active:bg-divider
+                            text-low-text/70 hover:text-sec-text active:text-main-text "><IoClose /></span>
+                            <img src={state.image} alt=""
+                                className="size-[100px] sm:size-[120px] lg:size-[150px] rounded-2xl object-cover" />
+                        </div> :
+                        <div onClick={() => imgInputRef.current.click()}
+                            className="size-[100px] sm:size-[120px] lg:size-[150px] rounded-2xl border-dashed p-2 border-1 flex flex-col items-center justify-center text-center
+                            cursor-pointer text-[12px] sm:text-[13px] lg:text-[14px]
+                            border-active-border/50 hover:border-active-border/70 active:border-active-border
+                            bg-active-border/5 hover:bg-active-border/10 active:bg-active-border/20
+                            text-active-border/50 hover:text-active-border/70 active:text-active-border">
+                            <LuImage />
+                            <span>
+                                Image of food item
+                            </span>
+                        </div>}
+
+                    {/* image section */}
+                </div>
+            </div>
 
             <div className="w-full p-3 border-t-1 border-divider flex justify-end">
                 <button disabled={isLoadingBtn}

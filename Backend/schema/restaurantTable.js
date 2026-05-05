@@ -15,9 +15,9 @@ export const createRestaurantTable = async (pool) => {
                 opening_timeing jsonb,
 
                 full_address TEXT NOT NULL,
-                city TEXT NOT NULL,
-                state TEXT NOT NULL,
-                country TEXT NOT NULL,
+                city TEXT ,
+                state TEXT ,
+                country TEXT ,
                 latitude DECIMAL,
                 longitude DECIMAL,
                 gstin VARCHAR(30),
