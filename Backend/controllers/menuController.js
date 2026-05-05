@@ -106,6 +106,47 @@ class Menu {
             });
         }
     }
+    // controller function to get menu items according category
+    getMenuItems = async(req,res)=>{
+        const {res_id} = req.user;
+        const {cat_id} = req.query;
+
+
+        try {
+            const result = await db.query(
+                `SELECT 
+                    i.id AS id,
+                    i.item_name,
+                    i.description,
+                    i.image,
+                    i.is_veg,
+                    i.is_active,
+                    i.created_at,
+                    (
+                        SELECT
+
+                        FROM item_prices AS p
+                    
+                    ) AS price_array
+                FROM menu_items AS i
+                WHERE cat_id = $1`,
+                [cat_id]
+            )
+
+            return returnRes(res,200,{
+                success:true,
+                error:false,
+                items:result.rows || []
+            })
+        } catch (err) {
+            console.log('Get menu items error:', err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
+            });
+        }
+    }
 
     // controller function to edit catagory
     editCategoryName = async (req, res) => {

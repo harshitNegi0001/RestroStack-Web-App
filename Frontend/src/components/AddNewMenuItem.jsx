@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { IoAdd, IoArrowBack } from "react-icons/io5";
+import { AddMenuItem } from "../Apis/menuApi";
 
 
 
@@ -9,10 +10,18 @@ import { IoAdd, IoArrowBack } from "react-icons/io5";
 
 export default function AddNewMenuItem({ onClose,type='create',activeCat,categories }) {
     const [isLoadingBtn,setIsLoadingBtn]=useState(false);
+    const [state,setInputState] = useState({
+        item_name:''
+    })
 
     const handlAddItem = async()=>{
+        function successFunction (){
+        }
+        const formData = new FormData();
+        formData.append('type',type);
+        formData.append('item_name',state?.item_name);
         setIsLoadingBtn(true);
-
+        await AddMenuItem({},successFunction);
         setIsLoadingBtn(false);
     }
     return (

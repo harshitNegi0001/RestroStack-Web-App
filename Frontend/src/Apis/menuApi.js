@@ -22,6 +22,23 @@ export const getMenuCategories =async(successFunction)=>{
     }
 }
 
+export const getCatItems =async (cat_id,successFunction)=>{
+    
+    try {
+        const result = await axios.get(
+            `${backend_url}/menu/get-items?cat_id=${cat_id}`,
+            {
+                withCredentials:false
+            }
+        )
+
+        successFunction(result?.data?.items);
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
+
 export const createCategory =async(category_name,successFunction)=>{
     try {
         const result = await axios.post(
@@ -41,7 +58,7 @@ export const createCategory =async(category_name,successFunction)=>{
     }
 }
 
-export const AddMenuItem = async(successFunction)=>{
+export const AddMenuItem = async(data,successFunction)=>{
     try {
         const result = await axios.post(
             `${backend_url}/menu/add-item`,
@@ -52,7 +69,7 @@ export const AddMenuItem = async(successFunction)=>{
                 withCredentials:false
             }
         );
-
+        successFunction();
         toast.success(result?.data?.message || 'Item Added')
     } catch (err) {
         console.log(err);

@@ -11,4 +11,6 @@ router.post('/create-category', tokenOpener,permissionInjector, Menu.createMenuC
 router.post('/edit-cat-name',tokenOpener,permissionInjector,Menu.editCategoryName);
 router.post('/del-category',tokenOpener,permissionInjector,Menu.removeCategory);
 
+router.get('/get-items',tokenOpener,Menu.getMenuItems);
+
 export default router;
