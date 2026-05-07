@@ -75,7 +75,7 @@ export default function TableAndCapacity({ id,setTablesArray }) {
                             size-[30px] text-[20px] '>
                         <MdOutlineTableBar />
                     </label>
-                    <input id={`capacity-${id}-input`} type="text"
+                    <input id={`quantity-${id}-input`} type="text"
                         value={quantity} onChange={(e) => setQuantity(e.target.value)}
                         placeholder='Total tables' required
                         onFocus={() => setInputError(prev => ({ ...prev, quan: '' }))}

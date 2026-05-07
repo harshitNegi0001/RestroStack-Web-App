@@ -6,40 +6,82 @@ import { useRef } from "react";
 import { LuImage } from "react-icons/lu";
 import { NonVegIcon, VegIcon } from "../utils/clientSideData/SvgVariable";
 
+import { MdOutlineRestaurantMenu, MdOutlineDescription } from "react-icons/md";
+import { BiCategoryAlt } from "react-icons/bi";
+import VariantPriceComponent from "../subComponents/VariantPriceComponent";
 
 
 
 
-
-export default function AddNewMenuItem({ onClose, type = 'create', activeCat, categories, itemData }) {
+export default function AddNewMenuItem({ onClose, type = 'create', activeCat, categories, itemData, setCatItems }) {
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
     const [state, setInputState] = useState({
         item_name: '',
         image: '',
         cat_id: type == 'create' ? activeCat : null,
-        is_veg:true
+        is_veg: true,
+        description: ''
     });
     const [inputError, setInputError] = useState({
         item_name: '',
-        description:''
+        description: ''
     })
+    const [priceArray, setPriceArray] = useState([
+        {
+            id: 1,
+            variant_name: '',
+            price: ''
+        }
+    ])
     const [itemImage, setItemImage] = useState(null);
     const imgInputRef = useRef(null);
-
-    useEffect(()=>{
-        if(type=='edit'){
+    
+    useEffect(() => {
+        if (type == 'edit') {
             setInputState(itemData);
+            setPriceArray(itemData?.price_array||[]);
         }
-    },[type])
+    }, [type]);
+
     const handlAddItem = async () => {
-        function successFunction() {
+        function successFunction(itemData) {
+            if (state.cat_id == activeCat) {
+                if (type == 'create') {
+                    setCatItems(prev => ([
+                        ...prev, itemData
+                    ]))
+                    console.log('added');
+                }
+                
+                else {
+                    setCatItems(prev => (
+                        [...prev.map(item => {
+                            if (item.id == state.id) {
+                                return itemData
+                            }
+                            else {
+                                return item
+                            }
+                        })]
+                    ))
+                }
+            }
+            onClose();
         }
         const formData = new FormData();
         formData.append('type', type);
         formData.append('item_name', state?.item_name);
-        formData.append('image',itemImage);
+        formData.append('cat_id',state.cat_id);
+        formData.append('description', state?.description);
+        formData.append('price_array', JSON.stringify(priceArray));
+        formData.append('is_veg',state?.is_veg);
+        if (itemImage instanceof File) {
+            formData.append('item_image', itemImage);
+        } else if (state.image) {
+            formData.append('image', state.image);
+        }
         setIsLoadingBtn(true);
-        await AddMenuItem({}, successFunction);
+        await AddMenuItem(formData, successFunction);
         setIsLoadingBtn(false);
     }
 
@@ -52,9 +94,21 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
         setItemImage(file);
     }
     const handleRemoveImage = () => {
+        if (state.image && state.image.startsWith('blob:')) {
+            URL.revokeObjectURL(state.image);
+        }
         setItemImage(null);
         setInputState(prev => ({ ...prev, image: '' }));
         imgInputRef.current.value = ''
+    }
+
+    const addRow = () => {
+        const newRow = [...priceArray, {
+            id: priceArray[priceArray.length - 1]?.id + 1 || 1,
+            variant_name: '',
+            price: ''
+        }]
+        setPriceArray(newRow);
     }
     return (
         <div
@@ -68,12 +122,14 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
                     <IoArrowBack />
                 </button><div className="flex-1 flex flex-col ">
                     <h6 className="text-main-text text-[16px]/5 md:text-[18px]/5 font-[500] capitalize">
-                        Setup Food Item
+                        {type == 'create' ?
+                            `Add New Menu Item` :
+                            `Edit Menu Item`}
                     </h6>
                     <span className="text-low-text/70 text-[10px] md:text-[11px] ">
                         {type == 'create' ?
-                            `Add new food item, set variant and according price.` :
-                            `Edit food Item, edit price and variant.`}
+                            `Enter item details, upload an image, and configure pricing variants.` :
+                            `Modify the details, image, and pricing for this item.`}
                     </span>
 
                 </div>
@@ -107,7 +163,7 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
                             text-active-border/50 hover:text-active-border/70 active:text-active-border">
                             <LuImage />
                             <span>
-                                Image of food item
+                                Click to Upload Image
                             </span>
                         </div>}
 
@@ -122,12 +178,12 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
 
                         <label htmlFor='item-name-input'
                             className='absolute bottom-0 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
-                                                size-[30px] text-[20px] '>
-                            {/* <RiArmchairLine /> */}
+                                size-[30px] text-[20px] '>
+                            <MdOutlineRestaurantMenu />
                         </label>
                         <input id='item-name-input' type="text"
                             value={state.item_name} onChange={(e) => setInputState(prev => ({ ...prev, item_name: e.target.value }))}
-                            placeholder='Enter Item Name' required
+                            placeholder='e.g., Classic Butter Chicken' required
                             onFocus={() => setInputError(prev => ({ ...prev, item_name: '' }))}
                             className={`${inputError.item_name ? 'outline-red-600' : 'outline-divider '}
                                 outline-1 focus:outline-2 pl-9 focus:outline-active-border focus:border-active-border outline-0 
@@ -138,8 +194,12 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
                 <div className='w-full flex flex-col gap-1 relative pb-2'>
                     <label htmlFor="category-input"
                         className='text-sec-text pl-1 text-[12px] md:text-[13px]'>Category</label>
+                    <label htmlFor='currency-input'
+                        className='absolute bottom-0 left-1 bottom-1 md:bottom-2 text-gray-500/60 flex justify-center items-center rounded-lg
+                            size-[30px] text-[20px]'>
+                        <BiCategoryAlt />
+                    </label>
 
-                    
                     <select id="category-input"
                         value={state.cat_id} onChange={(e) => setInputState(prev => ({ ...prev, cat_id: e.target.value }))}
                         className='outline-1 outline-divider focus:outline-2 pl-9 focus:outline-active-border focus:border-active-border  capitalize
@@ -150,23 +210,23 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
                         </option>
                         )}
                     </select>
-                    
+
                 </div>
                 <div className='w-full flex flex-col gap-0 relative pb-2'>
 
                     <div
                         className='w-[100%] flex flex-col gap-1 relative'>
                         <label htmlFor="item-desc"
-                            className='text-sec-text pl-1 text-[12px] md:text-[13px] '>Description</label>
+                            className='text-sec-text pl-1 text-[12px] md:text-[13px] '>Short Description</label>
 
                         <label htmlFor='item-desc'
                             className='absolute bottom-0 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
                                 size-[30px] text-[20px] '>
-                            {/* <RiArmchairLine /> */}
+                            <MdOutlineDescription />
                         </label>
                         <input id='item-desc' type="text"
                             value={state.description} onChange={(e) => setInputState(prev => ({ ...prev, description: e.target.value }))}
-                            placeholder='eg. Spicy, Deep grilled, etc' required
+                            placeholder='e.g., Aromatic rice cooked with tender chicken and spices' required
                             onFocus={() => setInputError(prev => ({ ...prev, description: '' }))}
                             className={`${inputError.description ? 'outline-red-600' : 'outline-divider '}
                                 outline-1 focus:outline-2 pl-9 focus:outline-active-border focus:border-active-border outline-0 
@@ -176,32 +236,32 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
                 </div>
 
                 <div className="w-full flex gap-2 pt-2 pb-4 justify-evenly">
-                    <div    onClick={()=>setInputState(prev=>({
-                        ...prev,is_veg:true
+                    <div onClick={() => setInputState(prev => ({
+                        ...prev, is_veg: true
                     }))}
-                     className={`${state?.is_veg?'border-active-border bg-active-border/20':'border-divider hover:bg-active-border/10'} 
+                        className={`${state?.is_veg ? 'border-active-border bg-active-border/20' : 'border-divider hover:bg-active-border/10'} 
                     border-2 rounded-lg flex items-center justify-center gap-1 sm:gap-2 p-1.5 md:p-2 w-[45%] cursor-pointer`}>
-                        <VegIcon className="size-[12px] md:size-[14px] xl:size-[16px]"/>
-                        <span className={`${state.is_veg?'text-active-border':'text-low-text/70 hover:text-sec-text'} text-[12px] sm:text-[14px]`}>Vegitarian</span>
+                        <VegIcon className="size-[12px] md:size-[14px] xl:size-[16px]" />
+                        <span className={`text-sec-text text-[12px] sm:text-[14px]`}>Vegetarian</span>
                     </div>
-                    <div    onClick={()=>setInputState(prev=>({
-                        ...prev,is_veg:false
+                    <div onClick={() => setInputState(prev => ({
+                        ...prev, is_veg: false
                     }))}
-                     className={`${state?.is_veg?'border-divider hover:bg-active-border/10':'border-active-border bg-active-border/20'} 
+                        className={`${state?.is_veg ? 'border-divider hover:bg-active-border/10' : 'border-active-border bg-active-border/20'} 
                     border-2 rounded-lg flex items-center justify-center gap-1 sm:gap-2 p-1.5 md:p-2 w-[45%] cursor-pointer`}>
-                        <NonVegIcon className="size-[12px] md:size-[14px] xl:size-[16px]"/>
-                        <span className={`${state.is_veg?'text-low-text/70 hover:text-sec-text':'text-active-border'} text-[12px] sm:text-[14px]`}>Non-Vegitarian</span>
+                        <NonVegIcon className="size-[12px] md:size-[14px] xl:size-[16px]" />
+                        <span className={`text-sec-text text-[12px] sm:text-[14px]`}>Non-Vegetarian</span>
                     </div>
                 </div>
 
                 <div className="border-dashed border-1 border-divider rounded-2xl p-2 flex flex-col items-center gap-2">
-                                    {/* {tablesArray?.map(t => <TableAndCapacity key={t.id} id={t.id} setTablesArray={setTablesArray} />)} */}
-                                    <button 
-                                    // onClick={addRow}
-                                        className="capitalize text-[11px] sm:text-[12px] font-[600] text-white w-fit py-2 px-3 rounded-lg
-                                            bg-linear-0 to-green-500 from-green-600  hover:from-green-700 active:scale-98 active:to-green-600 active:from-green-800
-                                            shadow-black/30 shadow-md hover:shadow-lg active:shadow-sm flex justify-center items-center"> <IoAdd /> add row</button>
-                                </div>
+                    {priceArray?.map(p => <VariantPriceComponent key={p.id} variantData={p} setPriceArray={setPriceArray} />)}
+                    <button
+                        onClick={addRow}
+                        className="capitalize text-[11px] sm:text-[12px] font-[600] text-white w-fit py-2 px-3 rounded-lg
+                            bg-linear-0 to-green-500 from-green-600  hover:from-green-700 active:scale-98 active:to-green-600 active:from-green-800
+                            shadow-black/30 shadow-md hover:shadow-lg active:shadow-sm flex justify-center items-center"> <IoAdd />Add New Variant</button>
+                </div>
 
             </div>
 
@@ -209,13 +269,13 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
                 <button disabled={isLoadingBtn}
                     onClick={handlAddItem}
                     className={`w-fit px-3 py-2 h-fit gap-1 rounded-lg bg-linear-0 text-white text-[12px] md:text-[13px] lg:text-[14px] font-[500] flex items-center justify-center                         
-                                        ${isLoadingBtn ? 'bg-disabled-btn/60 cursor-not-allowed' : 'to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}>
+                        ${isLoadingBtn ? 'bg-disabled-btn/60 cursor-not-allowed' : 'to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}>
                     {isLoadingBtn ? <svg className="animate-spin -ml-1  h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg> : null}
                     {
-                        isLoadingBtn ? <span className='text-white/80'>{type == 'create' ? 'Adding...' : 'Updating...'}</span> : (type == 'create') ? 'Add Item' : 'Update Changes'
+                        isLoadingBtn ? <span className='text-white/80'>Saving...</span> : <>Save Item</>
                     }
                 </button>
             </div>

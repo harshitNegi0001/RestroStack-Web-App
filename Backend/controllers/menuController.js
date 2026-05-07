@@ -1,5 +1,6 @@
 import { returnRes } from "../utils/returnRes.js";
 import db from '../utils/db.js';
+import { uploadImage } from "../utils/uploadImage.js";
 class Menu {
 
     // controller function to create menu category
@@ -60,19 +61,114 @@ class Menu {
         }
     }
     // controller function to add Item in Menu.
-    addMenuItem = async(req,res)=>{
-        const {res_id,role} = req.user;
-        const {cat_id} = req.body;
-
+    addMenuItem = async (req, res) => {
+        const { res_id, role } = req.user;
+        const { cat_id, type } = req.body;
+        const permissions = req.permissions;
+        
+        const client = await db.connect();
         try {
-            
+            if (role == 'owner' || permissions?.['manage_menu']) {
+                // check that cat_id has same res_id for security perpose.
+                await client.query('BEGIN');
+                const menu_check = await client.query(
+                    `SELECT 
+                        is_active
+                    FROM menu_categories
+                    WHERE id = $1
+                        AND res_id =$2`,
+                    [cat_id, res_id]
+                );
+
+                if (menu_check.rows.length == 0) {
+                    
+                    await client.query('ROLLBACK');
+                    return returnRes(res, 403, {
+                        success: false,
+                        error: 'ACCESS_DENIED',
+                        message: 'You do not have permission to create or manage the Menu.'
+                    });
+                }
+                if (!menu_check.rows?.[0]?.is_active) {
+                    await client.query('ROLLBACK');
+                    return returnRes(res, 404, {
+                        success: false,
+                        error: 'CATEGORY_NOT_FOUND',
+                        message: ''
+                    });
+                }
+                const { item_name, description, price_array, is_veg } = req.body;
+                let imageUrl = req.body.image || null;
+                if (req.file) {
+                    try {
+                        imageUrl = await uploadImage(req);
+                    } catch (uploadErr) {
+                        console.log('Image upload error:', uploadErr);
+                        return returnRes(res, 500, {
+                            success: false,
+                            error: 'UPLOAD_FAILED',
+                            message: 'Failed to upload image to the server.'
+                        });
+                    }
+                }
+                if (type == 'create') {
+
+                    const item = await client.query(
+                        `INSERT INTO 
+                        menu_items(
+                            item_name,
+                            cat_id,
+                            description,
+                            image,
+                            is_veg
+                        )
+                        VALUES (
+                            $1,$2,$3,$4,$5
+                        )
+                        RETURNING id`,
+                        [item_name?.trim(), cat_id, description, imageUrl, is_veg]
+                    );
+                    const item_id = item.rows[0]?.id;
+                    
+                    const itemData = {
+                        id:item_id,
+                        item_name:item_name?.trim(),
+                        image:imageUrl,
+                        cat_id,
+                        description,
+                        is_veg,
+                        price_array:[]
+                    }
+                    await client.query('COMMIT');
+
+                    return returnRes(res,200,{
+                        success:true,
+                        error:false,
+                        message:'Item Added Successfully',
+                        itemData
+                    })
+                }
+                else if (type == 'edit') {
+                    // update query;
+                }
+            }
+            return returnRes(res, 403, {
+                success: false,
+                error: 'ACCESS_DENIED',
+                message: 'You do not have permission to create or manage the Menu.'
+            });
+
         } catch (err) {
+            await client.query('ROLLBACK');
             console.log('Menu_Item creation error:', err);
             return returnRes(res, 500, {
                 success: false,
                 error: 'INTERNAL_SERVER_ERROR',
                 message: 'Internal Server Error!'
             });
+        }
+        finally {
+            client.release();
         }
     }
     // controller function to get menu categories
@@ -81,11 +177,17 @@ class Menu {
         try {
             const categories = await db.query(
                 `SELECT
-                    id,
-                    category_name,
-                    display_order,
-                    created_at
-                FROM menu_categories
+                    c.id,
+                    c.category_name,
+                    c.display_order,
+                    (
+                        SELECT 
+                            COUNT(i.id)
+                        FROM menu_items AS i
+                        WHERE i.cat_id=c.id
+                    )   AS item_count,
+                    c.created_at
+                FROM menu_categories AS c
                 WHERE res_id =$1 
                     AND is_active =TRUE
                 ORDER BY display_order ASC, created_at DESC`,
@@ -107,9 +209,9 @@ class Menu {
         }
     }
     // controller function to get menu items according category
-    getMenuItems = async(req,res)=>{
-        const {res_id} = req.user;
-        const {cat_id} = req.query;
+    getMenuItems = async (req, res) => {
+        const { res_id } = req.user;
+        const { cat_id } = req.query;
 
 
         try {
@@ -140,10 +242,10 @@ class Menu {
                 [cat_id]
             );
 
-            return returnRes(res,200,{
-                success:true,
-                error:false,
-                items:result.rows || []
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                items: result.rows || []
             })
         } catch (err) {
             console.log('Get menu items error:', err);
@@ -188,7 +290,7 @@ class Menu {
                         res_id = $1 AND
                         is_active = TRUE
                         AND LOWER(category_name) = LOWER($2)
-                        AND id != $3`, [res_id, category_name,cat_id]
+                        AND id != $3`, [res_id, category_name, cat_id]
                 );
                 if (catNameCheck.rows.length != 0) {
                     return returnRes(res, 400, {
@@ -233,7 +335,7 @@ class Menu {
         const permissions = req.permissions;
         try {
             if (role == 'owner' || permissions?.['manage_menu']) {
-                
+
                 const categoryCheck = await db.query(
                     `SELECT 
                         1
@@ -243,7 +345,7 @@ class Menu {
                         AND is_active = TRUE`,
                     [cat_id, res_id]
                 );
-                if (categoryCheck.rows.length == 0 ) {
+                if (categoryCheck.rows.length == 0) {
                     return returnRes(res, 404, {
                         success: false,
                         error: 'CATEGORY_NOT_FOUND_OR_DELETED',

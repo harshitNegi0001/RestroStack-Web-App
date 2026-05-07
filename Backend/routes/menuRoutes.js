@@ -2,7 +2,7 @@ import e from "express";
 import { tokenOpener } from "../middleware/tokenOpener.js";
 import Menu from '../controllers/menuController.js';
 import { permissionInjector } from "../middleware/permissionInjector.js";
-
+import upload from "../middleware/upload.js";
 const router = e.Router();
 
 router.get('/get-categories', tokenOpener, Menu.getMenuCatrgories);
@@ -12,5 +12,6 @@ router.post('/edit-cat-name',tokenOpener,permissionInjector,Menu.editCategoryNam
 router.post('/del-category',tokenOpener,permissionInjector,Menu.removeCategory);
 
 router.get('/get-items',tokenOpener,Menu.getMenuItems);
+router.post('/add-item',tokenOpener,permissionInjector,upload.single('item_image'),Menu.addMenuItem);
 
 export default router;

@@ -25,7 +25,7 @@ export default function LoadingMenuItemCard() {
             <div className="mt-2"></div>
             {
                 [1,2,3].map(i=>
-                    <div className="w-full flex justify-between items-center gap-1">
+                    <div key={i} className="w-full flex justify-between items-center gap-1">
                         <span className="w-[50%] rounded-lg animate-wave h-[10px] "></span>
                         <span className="w-[20%] rounded-lg animate-wave h-[10px] "></span>
                     </div>

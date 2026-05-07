@@ -58,19 +58,17 @@ export const createCategory =async(category_name,successFunction)=>{
     }
 }
 
-export const AddMenuItem = async(data,successFunction)=>{
+export const AddMenuItem = async(formData={},successFunction)=>{
     try {
         const result = await axios.post(
             `${backend_url}/menu/add-item`,
+            formData,
             {
-
-            },
-            {
-                withCredentials:false
+                withCredentials:true
             }
         );
-        successFunction();
-        toast.success(result?.data?.message || 'Item Added')
+        successFunction(result?.data?.itemData);
+        toast.success(result?.data?.message || 'Item Added');
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');

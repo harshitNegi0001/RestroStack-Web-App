@@ -7,7 +7,7 @@ import { deleteCategory, editCatName } from "../Apis/menuApi";
 
 
 
-export default function CategoryCard({ c, setCategories,activeCat,onClick }) {
+export default function CategoryCard({ c, setCategories,activeCat,onClick,setActiveCat }) {
     const [openOption, setOpenOption] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [openConfirm, setOpenConfirm] = useState(false);
@@ -38,6 +38,7 @@ export default function CategoryCard({ c, setCategories,activeCat,onClick }) {
             setCategories(prev => (
                 [...prev.filter(cat => cat.id != c.id)]
             ));
+            setActiveCat(null);
         }
         setLoadingBtn(true);
         await deleteCategory(c.id, successFunction);
@@ -78,7 +79,7 @@ export default function CategoryCard({ c, setCategories,activeCat,onClick }) {
             {!openEdit ?
                 <>
                     <div className={`flex-1 min-w-0 ${c.id==activeCat? 'text-active-border':'text-main-text'} text-[12px] sm:text-[14px] truncate capitalize`}>{c.category_name}</div>
-                    <span className="size-[20px] md:size-[25px] bg-toast-bg text-low-text rounded-[50%] flex justify-center items-center text-[10px] sm:text-[12px]">{(c.item_count) ? (c.item_count < 100 ? c.item_count : '99+') : 0}</span>
+                    <span className="size-[20px] md:size-[25px] bg-toast-bg text-low-text rounded-[50%] flex justify-center items-center text-[10px] sm:text-[12px]">{(c.item_count) ? (parseInt(c.item_count) < 100 ? c.item_count : '99+') : 0}</span>
                 </> :
                 <div className="flex-1 min-w-0 ">
                     <input type="text" name="" id="" ref={catNameInputRef}
