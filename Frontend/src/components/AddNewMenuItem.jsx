@@ -9,6 +9,7 @@ import { NonVegIcon, VegIcon } from "../utils/clientSideData/SvgVariable";
 import { MdOutlineRestaurantMenu, MdOutlineDescription } from "react-icons/md";
 import { BiCategoryAlt } from "react-icons/bi";
 import VariantPriceComponent from "../subComponents/VariantPriceComponent";
+import toast from "react-hot-toast";
 
 
 
@@ -18,7 +19,7 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
     const [state, setInputState] = useState({
         item_name: '',
         image: '',
-        cat_id: type == 'create' ? activeCat : null,
+        cat_id: activeCat,
         is_veg: true,
         description: ''
     });
@@ -38,6 +39,7 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
     
     useEffect(() => {
         if (type == 'edit') {
+            console.log(itemData?.cat_id)
             setInputState(itemData);
             setPriceArray(itemData?.price_array||[]);
         }
@@ -68,6 +70,11 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
             }
             onClose();
         }
+        const priceArrayCheck = priceArray.some(i=>!i.variant_name||!i.price);
+        if(priceArrayCheck){
+            toast.error('Please fill all variant rows or remove them');
+            return;
+        }
         const formData = new FormData();
         formData.append('type', type);
         formData.append('item_name', state?.item_name);
@@ -75,6 +82,9 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
         formData.append('description', state?.description);
         formData.append('price_array', JSON.stringify(priceArray));
         formData.append('is_veg',state?.is_veg);
+        if(type=='edit'){
+            formData.append('item_id',state?.id);
+        }
         if (itemImage instanceof File) {
             formData.append('item_image', itemImage);
         } else if (state.image) {

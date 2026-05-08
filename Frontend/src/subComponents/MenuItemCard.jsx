@@ -5,23 +5,46 @@ import { useOutsideClick } from "../utils/coustomHook/useOutsideClick";
 import { VegIcon, NonVegIcon } from "../utils/clientSideData/SvgVariable";
 import BackdropPage from "../components/BackdropPage";
 import AddNewMenuItem from "../components/AddNewMenuItem";
+import {useSelector} from 'react-redux';
+import { currencies } from "../utils/clientSideData/setupVariables";
+import AlertBox from "./ConfirmBox";
+import { deleteMenuItem } from "../Apis/menuApi";
 
 
 
 
-export default function MenuItemCard({ data,activeCat,categories,setCatItems }) {
+export default function MenuItemCard({ data, activeCat, categories, setCatItems }) {
     const [openOption, setOpenOption] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
+    const [openConfirm,setOpenConfirm] = useState(false);
+    const [loadingBtn,setLoadingBtn] = useState(false);
     const clickBtnRef = useRef();
     const optionsRef = useRef();
     useOutsideClick(optionsRef, () => setOpenOption(false), clickBtnRef);
+    const { activeResData } = useSelector(state => state.auth);
+    const currency = currencies.find(c => c.key == activeResData?.currency)?.symbol || '₹'
 
 
+    const removeItem = async()=>{
+        function  successFunction (){
+            setCatItems(prev=>([
+                ...prev.filter(item=>item.id!=data?.id)
+            ]));
+        }
+        setLoadingBtn(true);
+        await deleteMenuItem(data?.id,data?.cat_id,successFunction);
+        setLoadingBtn(false);
+    }
     return (
         <div className="w-full bg-card-bg h-fit shadow-black/30 shadow-md rounded-lg p-2 md:p-3 xl:p-4
         flex flex-col relative items-center gap-0.5 md:gap-1">
             <BackdropPage onClose={() => setOpenEdit(false)} isOpen={openEdit}>
-                <AddNewMenuItem onClose={() => setOpenEdit(false)} type="edit" activeCat={activeCat} categories={categories} setCatItems={setCatItems} itemData={data}/>
+                <AddNewMenuItem onClose={() => setOpenEdit(false)} type="edit" activeCat={activeCat} categories={categories} setCatItems={setCatItems} itemData={data} />
+            </BackdropPage>
+            <BackdropPage onClose={()=>setOpenConfirm(false)} isOpen={openConfirm}>
+                <AlertBox type={'error'}
+                    title={'Confirm Deletion'} desc={'Are you sure to delete this Item? \nThis action will permanently remove item.'}
+                    confirmFunction={removeItem} loadingBtn={loadingBtn} onCancel={() => setOpenConfirm(false)}/>
             </BackdropPage>
             {
                 openOption &&
@@ -38,7 +61,7 @@ export default function MenuItemCard({ data,activeCat,categories,setCatItems }) 
                     <button onClick={(e) => {
                         e.stopPropagation();
                         setOpenOption(false);
-                        // setOpenConfirm(true);
+                        setOpenConfirm(true);
                     }}
                         className="flex text-red-600/60
                             hover:text-red-600/80 active:text-red-600 hover:bg-red-600/10 active:bg-red-600/20 
@@ -79,7 +102,7 @@ export default function MenuItemCard({ data,activeCat,categories,setCatItems }) 
                         {row.variant_name}
                     </div>
                     <div className="w-fit h-fit text-[10px] md:text-[11px] font-[500] text-sec-text">
-                        ${row.price}
+                        {currency}{row.price}
                     </div>
                 </div>)}
         </div>

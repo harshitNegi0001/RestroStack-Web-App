@@ -13,5 +13,6 @@ router.post('/del-category',tokenOpener,permissionInjector,Menu.removeCategory);
 
 router.get('/get-items',tokenOpener,Menu.getMenuItems);
 router.post('/add-item',tokenOpener,permissionInjector,upload.single('item_image'),Menu.addMenuItem);
+router.post('/del-menu-item',tokenOpener,permissionInjector,Menu.removeMenuItem)
 
 export default router;

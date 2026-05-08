@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { MdOutlineDeleteForever } from "react-icons/md";
 import { BiText } from "react-icons/bi";
 import { IoCashOutline } from "react-icons/io5";
+import {useSelector} from 'react-redux';
+import { currencies } from "../utils/clientSideData/setupVariables";
 
 
 
@@ -13,6 +15,9 @@ export default function VariantPriceComponent({ variantData, setPriceArray }) {
         variant: '',
         price: ''
     });
+    
+    const {activeResData} = useSelector(state=>state.auth);
+    const currency= currencies.find(c=>c.key==activeResData?.currency)?.symbol||'₹'
 
     useEffect(() => {
         if (!variant_name && !price) {
@@ -63,7 +68,7 @@ export default function VariantPriceComponent({ variantData, setPriceArray }) {
                 <div
                     className='w-[100%] flex flex-col gap-1 relative'>
                     <label htmlFor={`price-${id}-input`}
-                        className='text-sec-text pl-1 text-[12px] md:text-[13px] '>Price (₹)</label>
+                        className='text-sec-text pl-1 text-[12px] md:text-[13px] '>Price ({currency})</label>
                     <label htmlFor={`price-${id}-input`}
                         className='absolute bottom-0 left-1 md:left-1.5 text-gray-500/60 flex justify-center items-center rounded-lg
                             size-[30px] text-[20px] '>

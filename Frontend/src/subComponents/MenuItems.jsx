@@ -81,7 +81,7 @@ export default function MenuItems({ activeCat, categories }) {
                                             </div>
                                         </div>
                                         : <div className="flex-1 min-h-0 overflow-y-auto show-custom-scrollbar pb-4
-                                        w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-2 md:gap-3 xl:gap-4">
+                                        w-full grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2 md:gap-3 xl:gap-4">
                                             {
                                                 catItems.map(i =>
                                                     <MenuItemCard data={i} key={i.id} setCatItems={setCatItems} activeCat={activeCat}

@@ -65,7 +65,7 @@ class Menu {
         const { res_id, role } = req.user;
         const { cat_id, type } = req.body;
         const permissions = req.permissions;
-        
+
         const client = await db.connect();
         try {
             if (role == 'owner' || permissions?.['manage_menu']) {
@@ -81,7 +81,7 @@ class Menu {
                 );
 
                 if (menu_check.rows.length == 0) {
-                    
+
                     await client.query('ROLLBACK');
                     return returnRes(res, 403, {
                         success: false,
@@ -111,8 +111,11 @@ class Menu {
                         });
                     }
                 }
+                let parsedPriceArray = [];
+                if (price_array) {
+                    parsedPriceArray = (typeof price_array == 'string') ? JSON.parse(price_array) : price_array;
+                }
                 if (type == 'create') {
-
                     const item = await client.query(
                         `INSERT INTO 
                         menu_items(
@@ -129,27 +132,55 @@ class Menu {
                         [item_name?.trim(), cat_id, description, imageUrl, is_veg]
                     );
                     const item_id = item.rows[0]?.id;
-                    
+                    await this.handlePriceArray('create', parsedPriceArray, item_id, client);
                     const itemData = {
-                        id:item_id,
-                        item_name:item_name?.trim(),
-                        image:imageUrl,
+                        id: item_id,
+                        item_name: item_name?.trim(),
+                        image: imageUrl,
                         cat_id,
                         description,
                         is_veg,
-                        price_array:[]
+                        price_array: parsedPriceArray || []
                     }
                     await client.query('COMMIT');
 
-                    return returnRes(res,200,{
-                        success:true,
-                        error:false,
-                        message:'Item Added Successfully',
+                    return returnRes(res, 200, {
+                        success: true,
+                        error: false,
+                        message: 'Item Added Successfully',
                         itemData
                     })
                 }
                 else if (type == 'edit') {
-                    // update query;
+                    const item_id = req.body?.item_id;
+                    await client.query(
+                        `UPDATE menu_items
+                        SET item_name=$1,
+                            cat_id=$2,
+                            description=$3,
+                            image=$4,
+                            is_veg=$5
+                        WHERE id =$6`,
+                        [item_name?.trim(), cat_id, description, imageUrl, is_veg, item_id]
+                    );
+                    await this.handlePriceArray('edit', parsedPriceArray, item_id, client);
+                    const itemData = {
+                        id: item_id,
+                        item_name: item_name?.trim(),
+                        image: imageUrl,
+                        cat_id,
+                        description,
+                        is_veg,
+                        price_array: parsedPriceArray || []
+                    }
+                    await client.query('COMMIT');
+
+                    return returnRes(res, 200, {
+                        success: true,
+                        error: false,
+                        message: 'Updated Successfully',
+                        itemData
+                    })
                 }
             }
             return returnRes(res, 403, {
@@ -171,6 +202,74 @@ class Menu {
             client.release();
         }
     }
+    // helper function to add/edit variant and their price
+    handlePriceArray = async (type = 'create', priceArray = [], item_id, client) => {
+
+
+        if (type === 'create') {
+            // CREATE MODE: Seedha insert karo. 
+            // Frontend ne jo temporary id (1, 2, 3) bheji hai, hum use ignore karenge.
+            for (let variant of priceArray) {
+                await client.query(
+                    `INSERT INTO item_prices (item_id, variant_name, price) 
+                     VALUES ($1, $2, $3)`,
+                    [item_id, variant.variant_name, variant.price]
+                );
+            }
+        }
+        else if (type === 'edit') {
+            // EDIT MODE: Yahan magic hoga (Sync logic)
+
+            // Step 1: Database me is item ke paas currently kaun kaun si IDs hain?
+            const dbResult = await client.query(
+                `SELECT id FROM item_prices WHERE item_id = $1`,
+                [item_id]
+            );
+            // Ise string array me convert kar lete hain easy comparison ke liye: ['101', '102']
+            const existingDbIds = dbResult.rows.map(row => row.id.toString());
+
+            // Step 2: Frontend se array me kaun kaun si IDs aayi hain?
+            const incomingFrontendIds = priceArray.map(v => v.id.toString());
+
+            // Step 3: Delete the removed rows
+            // Jo IDs database me toh hain, par frontend wale array me NAHI hain, matlab user ne unhe delete kar diya hai.
+            const idsToDelete = existingDbIds.filter(id => !incomingFrontendIds.includes(id));
+
+            if (idsToDelete.length > 0) {
+                // ANY($1::int[]) use karke ek hi query me saare delete ho jayenge
+                await client.query(
+                    `DELETE FROM item_prices WHERE id = ANY($1::int[]) AND item_id = $2`,
+                    [idsToDelete, item_id]
+                );
+            }
+
+            // Step 4: Update existing OR Insert new rows
+            for (let variant of priceArray) {
+                const variaty_name = variant.variant_name;
+                const price = variant.price;
+                if (!variaty_name || !price) {
+                    continue;
+                }
+                if (existingDbIds.includes(variant.id.toString())) {
+                    // Agar frontend ki ID database ki existing ID se match karti hai -> UPDATE
+                    await client.query(
+                        `UPDATE item_prices 
+                         SET variant_name = $1, price = $2 
+                         WHERE id = $3 AND item_id = $4`,
+                        [variant.variant_name, variant.price, variant.id, item_id]
+                    );
+                } else {
+                    // Agar ID match NAHI karti -> Iska matlab user ne 'Add New Variant' click kiya hai
+                    // aur React ne ek temporary ID (jaise 4, 5) bheji hai. Use ignore karke naya INSERT karo.
+                    await client.query(
+                        `INSERT INTO item_prices (item_id, variant_name, price) 
+                         VALUES ($1, $2, $3)`,
+                        [item_id, variaty_name, price]
+                    );
+                }
+            }
+        }
+    }
     // controller function to get menu categories
     getMenuCatrgories = async (req, res) => {
         const { res_id } = req.user;
@@ -185,6 +284,7 @@ class Menu {
                             COUNT(i.id)
                         FROM menu_items AS i
                         WHERE i.cat_id=c.id
+                            AND i.is_active=TRUE
                     )   AS item_count,
                     c.created_at
                 FROM menu_categories AS c
@@ -224,6 +324,7 @@ class Menu {
                     i.is_veg,
                     i.is_active,
                     i.created_at,
+                    i.cat_id,
                     COALESCE(
                         (
                             SELECT json_agg(
@@ -238,7 +339,8 @@ class Menu {
                         ), '[]'::json
                     ) AS price_array
                 FROM menu_items AS i
-                WHERE cat_id = $1`,
+                WHERE i.cat_id = $1
+                    AND i.is_active = TRUE`,
                 [cat_id]
             );
 
@@ -382,6 +484,64 @@ class Menu {
         }
 
     }
+
+    // controller function to soft delete menu item
+    removeMenuItem = async (req, res) => {
+        const { role, res_id } = req.user;
+        const { item_id,cat_id } = req.body;
+        const permissions = req.permissions;
+
+        try {
+            if (role == 'owner' || permissions?.['manage_menu']) {
+                const categoryCheck = await db.query(
+                    `SELECT 
+                        1
+                    FROM menu_categories AS c
+                    JOIN menu_items AS i
+                    ON i.cat_id=c.id
+                    WHERE c.id = $1
+                        AND c.res_id = $2
+                        AND c.is_active = TRUE
+                        AND i.id=$3
+                        AND i.is_active=TRUE`,
+                    [cat_id, res_id,item_id]
+                );
+                if (categoryCheck.rows.length == 0) {
+                    return returnRes(res, 404, {
+                        success: false,
+                        error: 'CATEGORY_NOT_FOUND_OR_DELETED',
+                        message: "Category doesn't exists or has been removed."
+                    });
+                }
+                await db.query(
+                    `UPDATE menu_items 
+                    SET
+                        is_active = FALSE
+                    WHERE id = $1`,
+                    [item_id]
+                );
+                return returnRes(res, 200, {
+                    success: true,
+                    error: false,
+                    message: 'Item has been deleted.',
+                });
+
+            }
+            return returnRes(res, 403, {
+                success: false,
+                error: 'ACCESS_DENIED',
+                message: 'You do not have permission to create or manage the Menu.'
+            });
+        } catch (err) {
+            console.log('Remove Menu Item error:', err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
+            });
+        }
+    }
 }
+
 
 export default new Menu();

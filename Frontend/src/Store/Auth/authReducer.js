@@ -13,7 +13,8 @@ const initialState = {
     rolesList: [],
     activeResId: null,
     permissions: {},
-    isLoading: true
+    isLoading: true,
+    activeResData:{}
 }
 
 export const getInitialState = createAsyncThunk(
@@ -107,6 +108,7 @@ const authReducer = createSlice({
                     state.permissions = action.payload.permissions,
                     state.rolesList = action.payload.rolesList,
                     state.activeResId = action.payload.activeResId
+                    state.activeResData = state.rolesList.find(rl => rl.res_id ==state.activeResId)?.res_data|| state.rolesList[0]?.res_data
             })
 
             .addCase(changeActiveRole.pending, (state) => {
@@ -123,6 +125,7 @@ const authReducer = createSlice({
                     state.role = action.payload.role;
                     state.permissions = action.payload.permissions;
                     state.activeResId = action.payload.activeResId;
+                    state.activeResData = state.rolesList.find(rl => rl.res_id ==state.activeResId)?.res_data|| state.rolesList[0]?.res_data
                 }
             })
     }

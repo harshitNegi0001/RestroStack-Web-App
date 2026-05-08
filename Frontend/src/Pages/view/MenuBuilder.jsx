@@ -9,16 +9,7 @@ import MenuItems from "../../subComponents/MenuItems";
 
 
 export default function MenuBuilder() {
-    const [categories, setCategories] = useState([
-        {
-            id:1,
-            category_name:'Starter'
-        },
-        {
-            id:2,
-            category_name:'main course'
-        }
-    ]);
+    const [categories, setCategories] = useState([]);
     const [activeCat, setActiveCat] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [loadingBtn, setLoadingBtn] = useState(false);

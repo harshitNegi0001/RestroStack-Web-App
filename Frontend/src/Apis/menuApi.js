@@ -111,3 +111,24 @@ export const deleteCategory = async(cat_id,successFunction)=>{
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }
+
+export const deleteMenuItem = async(item_id,cat_id,successFunction)=>{
+    try {
+        const result = await axios.post(
+            `${backend_url}/menu/del-menu-item`,
+            {
+                item_id,
+                cat_id
+            },
+            {
+               withCredentials:true
+            }
+        );
+
+        successFunction();
+        toast.success(result?.data?.message||'Item has been removed.');
+    } catch (error) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
