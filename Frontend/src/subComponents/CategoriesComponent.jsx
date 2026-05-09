@@ -15,25 +15,20 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
     const catInputRef = useRef(null);
 
     const handleDragEnd = async(result) => {
-        // Agar list ke bahar drop kiya, toh kuch mat karo
         if (!result.destination) return;
 
-        // Current categories ki copy banao
         const items = Array.from(categories);
-        // Drag kiye gaye item ko purani jagah se nikalo
         const [reorderedItem] = items.splice(result.source.index, 1);
-        // Nayi jagah par insert kar do
         items.splice(result.destination.index, 0, reorderedItem);
 
-        // State update kardo (UI turant update ho jayega)
         setCategories(items);
         const orderData = items.map((cat, index) => ({
             id: cat.id,
             display_order: index
         }));
+        
         await editCategoryOrder(orderData);
-        // TODO (Optional): Aap yahan API call karke backend me 'display_order' save kar sakte hain
-        // updateCategoryOrderAPI(items.map(cat => cat.id));
+       
     };
     const handleCreateCat = async () => {
         const cat_name = catInputRef.current.value;

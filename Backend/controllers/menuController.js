@@ -207,8 +207,6 @@ class Menu {
 
 
         if (type === 'create') {
-            // CREATE MODE: Seedha insert karo. 
-            // Frontend ne jo temporary id (1, 2, 3) bheji hai, hum use ignore karenge.
             for (let variant of priceArray) {
                 await client.query(
                     `INSERT INTO item_prices (item_id, variant_name, price) 
@@ -218,32 +216,24 @@ class Menu {
             }
         }
         else if (type === 'edit') {
-            // EDIT MODE: Yahan magic hoga (Sync logic)
 
-            // Step 1: Database me is item ke paas currently kaun kaun si IDs hain?
             const dbResult = await client.query(
                 `SELECT id FROM item_prices WHERE item_id = $1`,
                 [item_id]
             );
-            // Ise string array me convert kar lete hain easy comparison ke liye: ['101', '102']
             const existingDbIds = dbResult.rows.map(row => row.id.toString());
 
-            // Step 2: Frontend se array me kaun kaun si IDs aayi hain?
             const incomingFrontendIds = priceArray.map(v => v.id.toString());
 
-            // Step 3: Delete the removed rows
-            // Jo IDs database me toh hain, par frontend wale array me NAHI hain, matlab user ne unhe delete kar diya hai.
             const idsToDelete = existingDbIds.filter(id => !incomingFrontendIds.includes(id));
 
             if (idsToDelete.length > 0) {
-                // ANY($1::int[]) use karke ek hi query me saare delete ho jayenge
                 await client.query(
                     `DELETE FROM item_prices WHERE id = ANY($1::int[]) AND item_id = $2`,
                     [idsToDelete, item_id]
                 );
             }
 
-            // Step 4: Update existing OR Insert new rows
             for (let variant of priceArray) {
                 const variaty_name = variant.variant_name;
                 const price = variant.price;
@@ -251,7 +241,6 @@ class Menu {
                     continue;
                 }
                 if (existingDbIds.includes(variant.id.toString())) {
-                    // Agar frontend ki ID database ki existing ID se match karti hai -> UPDATE
                     await client.query(
                         `UPDATE item_prices 
                          SET variant_name = $1, price = $2 
@@ -259,8 +248,6 @@ class Menu {
                         [variant.variant_name, variant.price, variant.id, item_id]
                     );
                 } else {
-                    // Agar ID match NAHI karti -> Iska matlab user ne 'Add New Variant' click kiya hai
-                    // aur React ne ek temporary ID (jaise 4, 5) bheji hai. Use ignore karke naya INSERT karo.
                     await client.query(
                         `INSERT INTO item_prices (item_id, variant_name, price) 
                          VALUES ($1, $2, $3)`,
@@ -429,6 +416,73 @@ class Menu {
             });
         }
     }
+    // controller function to edit display order of Category
+    editCategoryOrder = async (req, res) => {
+        const { res_id, role } = req.user;
+        const permissions = req.permissions;
+        const { orderData } = req.body;
+        const client = await db.connect();
+
+        try {
+            if (role !== 'owner' && !permissions?.['manage_menu']) {
+                return returnRes(res, 403, {
+                    success: false,
+                    error: 'ACCESS_DENIED',
+                    message: 'You do not have permission to manage the Menu.'
+                });
+            }
+
+            if (!orderData) {
+                return returnRes(res, 400, {
+                    success: false,
+                    error: 'INVALID_DATA',
+                    message: 'Order data is missing.'
+                });
+            }
+
+            const parsedOrderData = (typeof orderData === 'string') ? JSON.parse(orderData) : orderData;
+
+            if (!Array.isArray(parsedOrderData) || parsedOrderData.length === 0) {
+                return returnRes(res, 400, {
+                    success: false,
+                    error: 'INVALID_DATA',
+                    message: 'Invalid order data format.'
+                });
+            }
+
+            await client.query('BEGIN');
+
+            for (let cat of parsedOrderData) {
+                await client.query(
+                    `UPDATE menu_categories 
+                         SET display_order = $1 
+                         WHERE id = $2 AND res_id = $3`,
+                    [cat.display_order, cat.id, res_id]
+                );
+            }
+
+            await client.query('COMMIT'); 
+
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                message: 'Category order updated successfully.'
+            });
+
+
+
+        } catch (err) {
+            await client.query('ROLLBACK');
+            console.log('Reordering Menu Category error:', err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
+            });
+        } finally {
+            client.release(); 
+        }
+    }
 
     // controller function to soft delete menu category
     removeCategory = async (req, res) => {
@@ -488,7 +542,7 @@ class Menu {
     // controller function to soft delete menu item
     removeMenuItem = async (req, res) => {
         const { role, res_id } = req.user;
-        const { item_id,cat_id } = req.body;
+        const { item_id, cat_id } = req.body;
         const permissions = req.permissions;
 
         try {
@@ -504,7 +558,7 @@ class Menu {
                         AND c.is_active = TRUE
                         AND i.id=$3
                         AND i.is_active=TRUE`,
-                    [cat_id, res_id,item_id]
+                    [cat_id, res_id, item_id]
                 );
                 if (categoryCheck.rows.length == 0) {
                     return returnRes(res, 404, {

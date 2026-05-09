@@ -9,6 +9,7 @@ router.get('/get-categories', tokenOpener, Menu.getMenuCatrgories);
 router.post('/create-category', tokenOpener,permissionInjector, Menu.createMenuCategory);
 
 router.post('/edit-cat-name',tokenOpener,permissionInjector,Menu.editCategoryName);
+router.post('/edit-cat-order',tokenOpener,permissionInjector,Menu.editCategoryOrder)
 router.post('/del-category',tokenOpener,permissionInjector,Menu.removeCategory);
 
 router.get('/get-items',tokenOpener,Menu.getMenuItems);
