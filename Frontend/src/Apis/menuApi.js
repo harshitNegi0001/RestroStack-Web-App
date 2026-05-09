@@ -132,3 +132,21 @@ export const deleteMenuItem = async(item_id,cat_id,successFunction)=>{
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }
+
+export const editCategoryOrder = async(orderData)=>{
+
+    try {
+        const result = await axios.post(
+            `${backend_url}/menu/edit-cat-order`,
+            {
+                orderData
+            },
+            {
+                withCredentials:true
+            }
+        )
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}

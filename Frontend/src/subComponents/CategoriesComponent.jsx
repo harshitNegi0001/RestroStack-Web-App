@@ -1,9 +1,9 @@
 
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable } from '@hello-pangea/dnd';
 import { useRef, useState, useEffect } from "react";
 import CategoryCard from "./CategoryCard";
 import { LuPlus } from 'react-icons/lu';
-import { createCategory } from '../Apis/menuApi';
+import { createCategory, editCategoryOrder } from '../Apis/menuApi';
 
 
 
@@ -14,6 +14,27 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
     const [openAddCat, setOpenAddCat] = useState(false);
     const catInputRef = useRef(null);
 
+    const handleDragEnd = async(result) => {
+        // Agar list ke bahar drop kiya, toh kuch mat karo
+        if (!result.destination) return;
+
+        // Current categories ki copy banao
+        const items = Array.from(categories);
+        // Drag kiye gaye item ko purani jagah se nikalo
+        const [reorderedItem] = items.splice(result.source.index, 1);
+        // Nayi jagah par insert kar do
+        items.splice(result.destination.index, 0, reorderedItem);
+
+        // State update kardo (UI turant update ho jayega)
+        setCategories(items);
+        const orderData = items.map((cat, index) => ({
+            id: cat.id,
+            display_order: index
+        }));
+        await editCategoryOrder(orderData);
+        // TODO (Optional): Aap yahan API call karke backend me 'display_order' save kar sakte hain
+        // updateCategoryOrderAPI(items.map(cat => cat.id));
+    };
     const handleCreateCat = async () => {
         const cat_name = catInputRef.current.value;
         function successFunction(cat_id) {
@@ -30,6 +51,7 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
         await createCategory(cat_name, successFunction);
         setLoadingBtn(false);
     }
+
 
     useEffect(() => {
         if (openAddCat && catInputRef.current) {
@@ -56,13 +78,31 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
                         }
                     </div> :
                     categories.length > 0 ?
-                        <div className=" min-h-0 w-full pb-10 overflow-y-auto show-custom-scrollbar flex flex-col gap-2 sm:gap-4">
-
-                            {categories.map(c => (
-                                <CategoryCard c={c} key={c.id} setCategories={setCategories} activeCat={activeCat} setActiveCat={setActiveCat}
-                                    onClick={()=>setActiveCat(c.id)}/>
-                            ))}
-                        </div> :
+                        <DragDropContext onDragEnd={handleDragEnd}>
+                            {/* 👇 Droppable area define kiya */}
+                            <Droppable droppableId="categories-list">
+                                {(provided) => (
+                                    <div
+                                        {...provided.droppableProps}
+                                        ref={provided.innerRef}
+                                        className=" min-h-0 w-full pb-10 overflow-y-auto show-custom-scrollbar flex flex-col gap-2 sm:gap-4"
+                                    >
+                                        {categories.map((c, index) => (
+                                            <CategoryCard
+                                                c={c}
+                                                key={c.id}
+                                                index={index} // 👈 Index pass karna zaroori hai
+                                                setCategories={setCategories}
+                                                activeCat={activeCat}
+                                                setActiveCat={setActiveCat}
+                                                onClick={() => setActiveCat(c.id)}
+                                            />
+                                        ))}
+                                        {provided.placeholder} {/* 👈 Yeh empty space maintain karta hai drag ke time */}
+                                    </div>
+                                )}
+                            </Droppable>
+                        </DragDropContext> :
                         <div className='flex flex-col items-center gap-2 text-center'>
                             <img src="https://res.cloudinary.com/dns5lxuvy/image/upload/v1776824800/uppdvvhqrps5hgxpnpwf.png" alt="" />
                             <div className='text-[16px] sm:text-[18px] font-[600] text-main-text'>

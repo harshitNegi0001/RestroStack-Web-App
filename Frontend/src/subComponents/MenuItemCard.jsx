@@ -5,7 +5,7 @@ import { useOutsideClick } from "../utils/coustomHook/useOutsideClick";
 import { VegIcon, NonVegIcon } from "../utils/clientSideData/SvgVariable";
 import BackdropPage from "../components/BackdropPage";
 import AddNewMenuItem from "../components/AddNewMenuItem";
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import { currencies } from "../utils/clientSideData/setupVariables";
 import AlertBox from "./ConfirmBox";
 import { deleteMenuItem } from "../Apis/menuApi";
@@ -16,8 +16,8 @@ import { deleteMenuItem } from "../Apis/menuApi";
 export default function MenuItemCard({ data, activeCat, categories, setCatItems }) {
     const [openOption, setOpenOption] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
-    const [openConfirm,setOpenConfirm] = useState(false);
-    const [loadingBtn,setLoadingBtn] = useState(false);
+    const [openConfirm, setOpenConfirm] = useState(false);
+    const [loadingBtn, setLoadingBtn] = useState(false);
     const clickBtnRef = useRef();
     const optionsRef = useRef();
     useOutsideClick(optionsRef, () => setOpenOption(false), clickBtnRef);
@@ -25,14 +25,14 @@ export default function MenuItemCard({ data, activeCat, categories, setCatItems 
     const currency = currencies.find(c => c.key == activeResData?.currency)?.symbol || '₹'
 
 
-    const removeItem = async()=>{
-        function  successFunction (){
-            setCatItems(prev=>([
-                ...prev.filter(item=>item.id!=data?.id)
+    const removeItem = async () => {
+        function successFunction() {
+            setCatItems(prev => ([
+                ...prev.filter(item => item.id != data?.id)
             ]));
         }
         setLoadingBtn(true);
-        await deleteMenuItem(data?.id,data?.cat_id,successFunction);
+        await deleteMenuItem(data?.id, data?.cat_id, successFunction);
         setLoadingBtn(false);
     }
     return (
@@ -41,10 +41,10 @@ export default function MenuItemCard({ data, activeCat, categories, setCatItems 
             <BackdropPage onClose={() => setOpenEdit(false)} isOpen={openEdit}>
                 <AddNewMenuItem onClose={() => setOpenEdit(false)} type="edit" activeCat={activeCat} categories={categories} setCatItems={setCatItems} itemData={data} />
             </BackdropPage>
-            <BackdropPage onClose={()=>setOpenConfirm(false)} isOpen={openConfirm}>
+            <BackdropPage onClose={() => setOpenConfirm(false)} isOpen={openConfirm}>
                 <AlertBox type={'error'}
                     title={'Confirm Deletion'} desc={'Are you sure to delete this Item? \nThis action will permanently remove item.'}
-                    confirmFunction={removeItem} loadingBtn={loadingBtn} onCancel={() => setOpenConfirm(false)}/>
+                    confirmFunction={removeItem} loadingBtn={loadingBtn} onCancel={() => setOpenConfirm(false)} />
             </BackdropPage>
             {
                 openOption &&
@@ -96,15 +96,18 @@ export default function MenuItemCard({ data, activeCat, categories, setCatItems 
             <div className="w-full line-clamp-3 text-low-text/70 text-[9px]/3 md:text-[10px]/3">
                 {data?.description}
             </div>
-            {data?.price_array?.map(row =>
-                <div key={row.id} className="w-full min-w-0 flex items-center justify-between">
-                    <div className="flex-1 min-w-0 truncate text-low-text text-[9px] md:text-[10px]">
-                        {row.variant_name}
-                    </div>
-                    <div className="w-fit h-fit text-[10px] md:text-[11px] font-[500] text-sec-text">
-                        {currency}{row.price}
-                    </div>
-                </div>)}
+            <div className="w-full flex flex-col">
+                {data?.price_array?.map(row =>
+                    <div key={row.id} className="w-full min-w-0 flex items-center justify-between">
+                        <div className="flex-1 min-w-0 truncate text-low-text text-[9px]/4 md:text-[10px]/4">
+                            {row.variant_name}
+                        </div>
+                        <div className="w-fit h-fit text-[10px]/4 md:text-[11px]/4 font-[500] text-sec-text">
+                            {currency}{row.price}
+                        </div>
+                    </div>)}
+            </div>
+
         </div>
     )
 }
