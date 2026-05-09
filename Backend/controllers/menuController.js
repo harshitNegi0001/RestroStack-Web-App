@@ -421,7 +421,6 @@ class Menu {
         const { res_id, role } = req.user;
         const permissions = req.permissions;
         const { orderData } = req.body;
-        const client = await db.connect();
 
         try {
             if (role !== 'owner' && !permissions?.['manage_menu']) {
@@ -449,27 +448,30 @@ class Menu {
                     message: 'Invalid order data format.'
                 });
             }
-
-            await client.query('BEGIN');
-
-            for (let cat of parsedOrderData) {
-                await client.query(
-                    `UPDATE menu_categories 
+            const client = await db.connect();
+            try {
+                await client.query('BEGIN');
+                for (let cat of parsedOrderData) {
+                    await client.query(
+                        `UPDATE menu_categories 
                          SET display_order = $1 
                          WHERE id = $2 AND res_id = $3`,
-                    [cat.display_order, cat.id, res_id]
-                );
+                        [cat.display_order, cat.id, res_id]
+                    );
+                }
+                await client.query('COMMIT');
+
+                return returnRes(res, 200, {
+                    success: true,
+                    error: false,
+                    message: 'Category order updated successfully.'
+                });
+            } catch (txError) {
+                await client.query('ROLLBACK'); 
+                throw txError; 
+            } finally {
+                client.release(); 
             }
-
-            await client.query('COMMIT'); 
-
-            return returnRes(res, 200, {
-                success: true,
-                error: false,
-                message: 'Category order updated successfully.'
-            });
-
-
 
         } catch (err) {
             await client.query('ROLLBACK');
@@ -479,8 +481,6 @@ class Menu {
                 error: 'INTERNAL_SERVER_ERROR',
                 message: 'Internal Server Error!'
             });
-        } finally {
-            client.release(); 
         }
     }
 
