@@ -60,7 +60,7 @@ export default function StaffDirectory() {
     return (
         <div className="w-full flex flex-col gap-3">
             <EmployeeFilter role={role} setRole={setRole} roles={roles} searchValue={searchValue} setSearchValue={setSearchValue} />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+            <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {
                     isLoading ?
                         [1, 2, 3, 4, 5, 6].map(i =>

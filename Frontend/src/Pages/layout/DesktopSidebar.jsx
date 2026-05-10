@@ -4,25 +4,43 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import { TbLogout } from "react-icons/tb";
 import { getSidebarNavs } from "../../navigations/getSidebar";
-import {useSelector} from 'react-redux'
+import {useDispatch, useSelector} from 'react-redux'
+import BackdropPage from "../../components/BackdropPage";
+import AlertBox from "../../subComponents/ConfirmBox";
+import { logout } from "../../Apis/authApi";
+import { clearState } from "../../Store/Auth/authReducer";
 
 
 export default function DesktopSideabr({ openSidebar ,setOpenSidebar}) {
     
-    
+    const [openConfirm,setOpenConfirm] = useState(false);
+    const [loadingBtn,setLoadingBtn] = useState(false);
     const {role,permissions,userInfo,isLoading} =useSelector(state=>state.auth);
     const sidebarNavs = useMemo(()=>getSidebarNavs(role,permissions),[role,permissions])
     const {pathname} =useLocation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const logoutBtnHandler = async()=>{
+        function successFunction(){
+            setOpenConfirm(false);
+            navigate('/auth-window');
+            dispatch(clearState());
+        }
 
+        setLoadingBtn(true);
+        await logout(successFunction);
+        setLoadingBtn(false);
+    }
 
-    // useEffect(()=>{
-    //     setOpenSidebar(true);
-    // },[])
+    
     return (
         <div
             className={`${openSidebar ? 'w-[280px]' : 'w-[73px]'} h-full hidden lg:flex flex-col bg-card-bg border-r-1 border-divider  z-10 gap-3
             transition-all duration-[500ms] `}>
+                <BackdropPage isOpen={openConfirm} onClose={()=>setOpenConfirm(false)} >
+                    <AlertBox onCancel={()=>setOpenConfirm(false)} confirmFunction={logoutBtnHandler} loadingBtn={loadingBtn}
+                        title={'Logout'} desc={'Are you sure to log out?'} type={'error'}/>
+                </BackdropPage>
             <div
                 className="h-[65px] w-full p-3 border-b-1 border-divider mb-2">
 
@@ -64,7 +82,7 @@ export default function DesktopSideabr({ openSidebar ,setOpenSidebar}) {
                     <span className="w-full truncate text-low-text/70 text-[12px]/3">{role}</span>
                 </div>}
                 {openSidebar&&<button type="button"
-                    // onClick={() => setDropdownOpen(prev => !prev)}
+                    onClick={() => setOpenConfirm(prev => !prev)}
                     className={` flex justify-center items-center text-center p-2 rounded-[50%] text-sec-text/80 
                                 hover:bg-divider/30 active:bg-divider/50 hover:text-sec-text active:text-main-text`}>
                     <TbLogout />

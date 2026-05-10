@@ -104,21 +104,21 @@ export const loginUser = async (e, state, setIsLoadingBtn, successFunction) => {
         if (result?.data?.isVerified) {
             toast.success(result?.data?.message);
         }
-        else{
+        else {
             toast(result?.data?.message);
         }
-        const userInfo =result?.data?.userInfo;
-        const rolesList =result?.data?.rolesList;
-        const permissions =result?.data?.permissions;
-        const role =result?.data?.role;
-        const navigateTo =result?.data?.redirectTo;
+        const userInfo = result?.data?.userInfo;
+        const rolesList = result?.data?.rolesList;
+        const permissions = result?.data?.permissions;
+        const role = result?.data?.role;
+        const navigateTo = result?.data?.redirectTo;
 
         successFunction({
             userInfo,
             rolesList,
             permissions,
             role
-        },navigateTo);
+        }, navigateTo);
     } catch (err) {
         setIsLoadingBtn(false);
         console.log(err);
@@ -126,7 +126,7 @@ export const loginUser = async (e, state, setIsLoadingBtn, successFunction) => {
     }
 }
 
-export const verifyOtp = async (e, email, otp,res_id,otp_type, setIsLoadingBtn, successFunction) => {
+export const verifyOtp = async (e, email, otp, res_id, otp_type, setIsLoadingBtn, successFunction) => {
     e.preventDefault();
 
     try {
@@ -172,6 +172,25 @@ export const askForOtp = async (data = {}, setIsLoadingBtn, successFunction) => 
 
     } catch (err) {
         setIsLoadingBtn(false);
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
+
+
+export const logout = async (successFunction) => {
+
+    try {
+        const result = await axios.post(
+            `${backend_url}/auth/logout`,
+            {
+
+            },
+            {
+                withCredentials: true
+            });
+        successFunction();
+    } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }

@@ -14,7 +14,7 @@ const initialState = {
     activeResId: null,
     permissions: {},
     isLoading: true,
-    activeResData:{}
+    activeResData: {}
 }
 
 export const getInitialState = createAsyncThunk(
@@ -90,6 +90,15 @@ const authReducer = createSlice({
             if (action.payload.rolesList) {
                 state.rolesList = action.payload.rolesList
             }
+        },
+        clearState: (state) => {
+            state.userInfo = null,
+                state.role = null,
+                state.rolesList = [],
+                state.activeResId = null,
+                state.permissions = {},
+                state.isLoading = false,
+                state.activeResData = {}
         }
 
     },
@@ -108,7 +117,7 @@ const authReducer = createSlice({
                     state.permissions = action.payload.permissions,
                     state.rolesList = action.payload.rolesList,
                     state.activeResId = action.payload.activeResId
-                    state.activeResData = state.rolesList.find(rl => rl.res_id ==state.activeResId)?.res_data|| state.rolesList[0]?.res_data
+                state.activeResData = state.rolesList.find(rl => rl.res_id == state.activeResId)?.res_data || state.rolesList[0]?.res_data
             })
 
             .addCase(changeActiveRole.pending, (state) => {
@@ -125,11 +134,11 @@ const authReducer = createSlice({
                     state.role = action.payload.role;
                     state.permissions = action.payload.permissions;
                     state.activeResId = action.payload.activeResId;
-                    state.activeResData = state.rolesList.find(rl => rl.res_id ==state.activeResId)?.res_data|| state.rolesList[0]?.res_data
+                    state.activeResData = state.rolesList.find(rl => rl.res_id == state.activeResId)?.res_data || state.rolesList[0]?.res_data
                 }
             })
     }
 })
 
-export const { setTheme, setState } = authReducer.actions;
+export const { setTheme, setState, clearState } = authReducer.actions;
 export default authReducer.reducer;

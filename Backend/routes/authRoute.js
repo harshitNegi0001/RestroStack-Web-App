@@ -8,6 +8,7 @@ router.post('/register',validateRegisteration,Auth.registerUser);
 router.post('/verify-otp',Auth.verifyOtp);
 router.post('/resend-otp',Auth.resendOtp);
 router.post('/login',Auth.loginUser);
+router.post('/logout',Auth.logout)
 
 router.get('/get-my-info',tokenOpener,Auth.getMe);
 

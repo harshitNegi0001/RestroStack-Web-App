@@ -5,7 +5,12 @@ import { createStaffInvitationMain } from "../utils/inviteStaffMail.js";
 import { sendEmail } from "../config/sendMail.js";
 import { defaultPermisson } from "../utils/defaultPermission.js";
 import { getUserFullDetail } from "../utils/getUserFullDetail.js";
+import createToken from "../utils/createToken.js";
+import dotenv from 'dotenv';
 
+dotenv.config();
+
+const isProduction = process.env.NODE_ENV == 'production';
 
 class Staff {
     generateInviteToken = async (req, res) => {
@@ -197,6 +202,13 @@ class Staff {
                     await client.query('COMMIT');
 
                     const response = await getUserFullDetail(id);
+                    const authToken = createToken({id:response?.userInfo?.id,role:response?.role,res_id:response?.activeResId,email:response?.userInfo?.email});
+                    res.cookie('authToken', authToken, {
+                        httpOnly: true,
+                        secure: isProduction,
+                        sameSite: isProduction ? 'none' : 'lax',
+                        maxAge: 1000 * 60 * 60 * 24 * 7
+                    });
                     return returnRes(res, 200, response);
                 }
                 else if (req_type == 'decline') {
@@ -207,6 +219,11 @@ class Staff {
                         [token]
                     );
                     await client.query('COMMIT');
+                    return returnRes(res, 200, {
+                        success: true,
+                        error:false,
+                        message:'Invitation declined.'
+                    });
                 }
                 else {
                     await client.query('COMMIT');

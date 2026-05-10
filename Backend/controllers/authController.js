@@ -448,6 +448,22 @@ class Auth {
         }
     }
 
+    // controller function to logout user
+    logout = async (req, res) => {
+
+        res.cookie('authToken', null, {
+            httpOnly: true,
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
+            maxAge: 0
+        });
+        return returnRes(res, 200, {
+            success: true,
+            error: false,
+            message: 'Loged out successfully.'
+        })
+    }
+
     // controller function to get intial information for client
     getMe = async (req, res) => {
 

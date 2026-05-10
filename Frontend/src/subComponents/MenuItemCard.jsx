@@ -12,7 +12,6 @@ import { deleteMenuItem } from "../Apis/menuApi";
 
 
 
-
 export default function MenuItemCard({ data, activeCat, categories, setCatItems }) {
     const [openOption, setOpenOption] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
@@ -93,7 +92,7 @@ export default function MenuItemCard({ data, activeCat, categories, setCatItems 
                 </div>
             </div>
 
-            <div className="w-full line-clamp-3 text-low-text/70 text-[9px]/3 md:text-[10px]/3">
+            <div className="w-full line-clamp-3 text-low-text/70 text-[9px] md:text-[10px]">
                 {data?.description}
             </div>
             <div className="w-full flex flex-col">

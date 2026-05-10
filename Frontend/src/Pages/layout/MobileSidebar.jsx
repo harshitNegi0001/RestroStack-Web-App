@@ -4,23 +4,43 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
 import { TbLogout } from "react-icons/tb";
 import { getSidebarNavs } from "../../navigations/getSidebar";
-import { useSelector } from 'react-redux'
-
+import { useSelector, useDispatch } from 'react-redux'
+import BackdropPage from "../../components/BackdropPage";
+import AlertBox from "../../subComponents/ConfirmBox";
+import { logout } from "../../Apis/authApi";
+import { clearState } from "../../Store/Auth/authReducer";
 
 
 
 export default function Sidebar({ openSidebar, setOpenSidebar }) {
-    const { role, permissions,userInfo } = useSelector(state => state.auth);
+
+    const [openConfirm, setOpenConfirm] = useState(false);
+    const [loadingBtn, setLoadingBtn] = useState(false);
+    const { role, permissions, userInfo } = useSelector(state => state.auth);
     const sidebarNavs = useMemo(() => getSidebarNavs(role, permissions), [role, permissions]);
 
     const { pathname } = useLocation();
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const logoutBtnHandler = async () => {
+        function successFunction() {
+            setOpenConfirm(false);
+            navigate('/auth-window');
+            dispatch(clearState());
+        }
 
+        setLoadingBtn(true);
+        await logout(successFunction);
+        setLoadingBtn(false);
+    }
     return (
         <div
             className={`absolute top-0 lg:hidden bg-card-bg   z-100 h-[100dvh]  w-[260px] flex flex-col gap-2
         ${!openSidebar ? 'left-[-260px] lg:left-0 ' : 'left-0'} transition-all duration-[200ms]`}>
-
+            <BackdropPage isOpen={openConfirm} onClose={() => setOpenConfirm(false)} >
+                <AlertBox onCancel={() => setOpenConfirm(false)} confirmFunction={logoutBtnHandler} loadingBtn={loadingBtn}
+                    title={'Logout'} desc={'Are you sure to log out?'} type={'error'} />
+            </BackdropPage>
             <div
                 className="h-[65px] w-full p-3 border-b-1 border-divider mb-3">
                 <RestaurantSelectComponent openSidebar={openSidebar} />
@@ -33,7 +53,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
                         {nav.title}
                     </span>
                     {nav.options.map((o) => <div key={`option-${nav.id}-${o.id}`}
-                        onClick={() => {navigate(o.path);setOpenSidebar(false);}}
+                        onClick={() => { navigate(o.path); setOpenSidebar(false); }}
                         className={`p-3 h-[45px] cursor-pointer rounded-2xl min-w-0 w-full 
                     ${o.path == pathname ? 'bg-divider/30 text-active-border' : 'hover:bg-sec-text/5 active:bg-sec-text/20 text-low-text/70 hover:text-low-text active:text-sec-text'} 
                     flex items-center gap-1 text-[16px] shrink-0`}>
@@ -50,8 +70,8 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
                         ">
                     {
                         userInfo?.image ?
-                            <img src={userInfo?.image} alt="" 
-                            className="size-full object-cover rounded-[50%]"/> :
+                            <img src={userInfo?.image} alt=""
+                                className="size-full object-cover rounded-[50%]" /> :
                             <FaUserCircle />
 
                     }
@@ -61,7 +81,7 @@ export default function Sidebar({ openSidebar, setOpenSidebar }) {
                     <span className="w-full truncate text-low-text/70 text-[12px]/3">{role}</span>
                 </div>
                 <button type="button"
-                    // onClick={() => setDropdownOpen(prev => !prev)}
+                    onClick={() => setOpenConfirm(prev => !prev)}
                     className={` flex justify-center items-center text-center p-2 rounded-[50%] text-sec-text/80 
                                 hover:bg-divider/30 active:bg-divider/50 hover:text-sec-text active:text-main-text`}>
                     <TbLogout />
