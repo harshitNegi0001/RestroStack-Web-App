@@ -74,7 +74,7 @@ export default function CategoryCard({ c, setCategories, activeCat, onClick, set
                             onClick();
                         }
                     }}
-                    className={`relative w-full cursor-pointer p-2 ${c.id == activeCat ? 'bg-divider/30 ' : 'hover:bg-sec-text/5 active:bg-sec-text/20 text-low-text/70 hover:text-low-text active:text-sec-text'} rounded-lg flex items-center gap-2`}>
+                    className={`relative w-full cursor-pointer p-2 ${c.id == activeCat ? 'sm:bg-divider/30 active:bg-sec-text/20 hover:bg-sec-text/5' : 'hover:bg-sec-text/5 active:bg-sec-text/20 text-low-text/70 hover:text-low-text active:text-sec-text'} rounded-lg flex items-center gap-2`}>
                     <div
                         {...provided.dragHandleProps} 
                         onClick={(e) => e.stopPropagation()}
@@ -84,7 +84,7 @@ export default function CategoryCard({ c, setCategories, activeCat, onClick, set
                     </div>
                     {!openEdit ?
                         <>
-                            <div className={`flex-1 min-w-0 ${c.id == activeCat ? 'text-active-border' : 'text-main-text'} text-[12px] sm:text-[14px] truncate capitalize`}>{c.category_name}</div>
+                            <div className={`flex-1 min-w-0 ${c.id == activeCat ? 'text-main-text sm:text-active-border' : 'text-main-text'} text-[12px] sm:text-[14px] truncate capitalize`}>{c.category_name}</div>
                             <span className="size-[20px] md:size-[25px] bg-toast-bg text-low-text rounded-[50%] flex justify-center items-center text-[10px] sm:text-[12px]">{(c.item_count) ? (parseInt(c.item_count) < 100 ? c.item_count : '99+') : 0}</span>
                         </> :
                         <div className="flex-1 min-w-0 ">

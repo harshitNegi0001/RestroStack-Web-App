@@ -130,7 +130,8 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
                     className=" p-1.5 sm:hidden flex  rounded-[50%] text-low-text/70 text-[20px] hover:text-sec-text active:text-main-text
                         hover:bg-main-text/5 active:bg-main-text/10">
                     <IoArrowBack />
-                </button><div className="flex-1 flex flex-col ">
+                </button>
+                <div className="flex-1 flex flex-col ">
                     <h6 className="text-main-text text-[16px]/5 md:text-[18px]/5 font-[500] capitalize">
                         {type == 'create' ?
                             `Add New Menu Item` :

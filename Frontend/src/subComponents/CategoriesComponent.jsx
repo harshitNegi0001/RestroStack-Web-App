@@ -9,12 +9,12 @@ import { createCategory, editCategoryOrder } from '../Apis/menuApi';
 
 
 
-export default function CategoriesComponent({ categories, setCategories, isLoading, activeCat, setActiveCat }) {
+export default function CategoriesComponent({ categories, setCategories, isLoading, activeCat, setActiveCat, showMobileItems, setShowMobileItems }) {
     const [loadingBtn, setLoadingBtn] = useState(false);
     const [openAddCat, setOpenAddCat] = useState(false);
     const catInputRef = useRef(null);
 
-    const handleDragEnd = async(result) => {
+    const handleDragEnd = async (result) => {
         if (!result.destination) return;
 
         const items = Array.from(categories);
@@ -26,9 +26,9 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
             id: cat.id,
             display_order: index
         }));
-        
+
         await editCategoryOrder(orderData);
-       
+
     };
     const handleCreateCat = async () => {
         const cat_name = catInputRef.current.value;
@@ -54,8 +54,8 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
         }
     }, [openAddCat]);
     return (
-        <div className="w-full pb-2 sm:pb-0 sm:pr-2 sm:w-[250px] xl:w-[300px] h-fit sm:h-full flex flex-col gap-4
-            border-b-1 sm:border-b-0 border-divider border-dashed border-r-0 sm:border-r-1 ">
+        <div className={`w-full ${!showMobileItems ? 'flex' : 'hidden sm:flex'} pb-2 sm:pb-0 sm:pr-2 sm:w-[250px] xl:w-[300px] h-full sm:h-full flex-col gap-4
+             border-divider border-dashed border-r-0 sm:border-r-1 `}>
             <h6 className="text-main-text font-[600] text-[16px] sm:text-[17px] lg:text-[18px] ">
                 Categories
             </h6>
@@ -74,7 +74,6 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
                     </div> :
                     categories.length > 0 ?
                         <DragDropContext onDragEnd={handleDragEnd}>
-                            {/* 👇 Droppable area define kiya */}
                             <Droppable droppableId="categories-list">
                                 {(provided) => (
                                     <div
@@ -86,14 +85,17 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
                                             <CategoryCard
                                                 c={c}
                                                 key={c.id}
-                                                index={index} // 👈 Index pass karna zaroori hai
+                                                index={index}
                                                 setCategories={setCategories}
                                                 activeCat={activeCat}
                                                 setActiveCat={setActiveCat}
-                                                onClick={() => setActiveCat(c.id)}
+                                                onClick={() => {
+                                                    setActiveCat(c.id);
+                                                    setShowMobileItems(true);
+                                                }}
                                             />
                                         ))}
-                                        {provided.placeholder} {/* 👈 Yeh empty space maintain karta hai drag ke time */}
+                                        {provided.placeholder} 
                                     </div>
                                 )}
                             </Droppable>

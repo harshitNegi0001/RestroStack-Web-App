@@ -12,7 +12,7 @@ export default function MenuBuilder() {
     const [categories, setCategories] = useState([]);
     const [activeCat, setActiveCat] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [loadingBtn, setLoadingBtn] = useState(false);
+    const [showMobileItems,setShowMobileItems ] = useState(false);
 
     useEffect(() => {
         getCategory();
@@ -32,10 +32,12 @@ export default function MenuBuilder() {
     return (
         <div className="flex-1 w-full min-h-0 p-2 md:p-4 flex flex-col sm:flex-row gap-2 md:gap-4 overflow-y-auto show-custom-scrollbar">
             <CategoriesComponent categories={categories} setCategories={setCategories}
-                isLoading={isLoading}
+                isLoading={isLoading} showMobileItems={showMobileItems} setShowMobileItems={setShowMobileItems}
                 activeCat={activeCat} setActiveCat={setActiveCat} />
 
-            <MenuItems  activeCat={activeCat} categories={categories}/>
+            <MenuItems  activeCat={activeCat} 
+            categories={categories} setCategories={setCategories}
+            showMobileItems={showMobileItems} setShowMobileItems={setShowMobileItems}/>
         </div>
     )
 }
