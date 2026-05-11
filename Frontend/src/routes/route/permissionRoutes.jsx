@@ -1,4 +1,5 @@
 import { lazy } from "react";
+import ComingSoon from "../../Pages/view/ComingSoon";
 
 
 const Dashboard = lazy(()=>import("../../Pages/view/Dashboard"));
@@ -35,9 +36,39 @@ export const permissionBasedRoutes = [
         element:<RestaurantManagementPage/>
     },
     {
-        id:4,
+        id:5,
         path:'/menu-management',
         permission:'manage_menu',
         element:<MenuBuilder/>
+    },
+    {
+        id:6,
+        path:'/settings',
+        permission:'',
+        element:<ComingSoon/>
+    },
+    {
+        id:7,
+        path:'/res-tables',
+        permission:'',
+        element:<ComingSoon/>
+    },
+    {
+        id:8,
+        path:'/live-orders',
+        permission:'',
+        element:<ComingSoon/>
+    },
+    {
+        id:9,
+        path:'/transactions',
+        permission:'',
+        element:<ComingSoon/>
+    },
+    {
+        id:10,
+        path:'/subscription',
+        permission:'',
+        element:<ComingSoon/>
     }
 ]

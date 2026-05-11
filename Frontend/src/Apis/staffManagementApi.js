@@ -119,6 +119,22 @@ export const verifyInviteToken = async (token, req_type, successFunction, restri
     }
 }
 
+export const getInviteHistory = async(successFunction) =>{
+    try {
+        const result = await axios.get(
+            `${backend_url}/staff/get-invite-hist`,
+            {
+                withCredentials:true
+            }
+        );
+
+        successFunction(result?.data?.inviteList||[]);
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
+
 export const getStaffList = async (setStaffList) => {
 
     try {

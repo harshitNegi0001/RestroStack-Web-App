@@ -8,6 +8,7 @@ export const createTokenTable = async(pool)=>{
                 status VARCHAR(20) NOT NULL DEFAULT 'pending',
                 res_id BIGINT NOT NULL,
                 role_name TEXT NOT NULL,
+                sent_to TEXT NOT NULL,
 
                 expires_at TIMESTAMPTZ NOT NULL,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

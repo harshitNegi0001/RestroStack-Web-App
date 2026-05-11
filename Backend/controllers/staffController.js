@@ -47,12 +47,13 @@ class Staff {
                         token,
                         res_id,
                         role_name,
-                        expires_at
+                        expires_at,
+                        sent_to
                     )
                     VALUES(
-                        $1,$2,$3,$4
+                        $1,$2,$3,$4,$5
                     )`,
-                        [modifiedToken, res_id, role_name, expiresAt]
+                        [modifiedToken, res_id, role_name, expiresAt,email]
                     );
                     // send an email.
                     const user = await db.query(
@@ -74,7 +75,7 @@ class Staff {
                 else {
                     return returnRes(res, 403, {
                         error: 'ACCESS_DENIED',
-                        message: 'Only owners are authorized to access this resource.'
+                        message: 'You do not have permission to create or manage the Menu.'
                     });
                 }
             }
@@ -195,14 +196,14 @@ class Staff {
                     );
                     await client.query(
                         `UPDATE tokens
-                            SET status = 'used'
+                            SET status = 'accepted'
                         WHERE token=$1`,
                         [token]
                     );
                     await client.query('COMMIT');
 
                     const response = await getUserFullDetail(id);
-                    const authToken = createToken({id:response?.userInfo?.id,role:response?.role,res_id:response?.activeResId,email:response?.userInfo?.email});
+                    const authToken = createToken({ id: response?.userInfo?.id, role: response?.role, res_id: response?.activeResId, email: response?.userInfo?.email });
                     res.cookie('authToken', authToken, {
                         httpOnly: true,
                         secure: isProduction,
@@ -221,8 +222,8 @@ class Staff {
                     await client.query('COMMIT');
                     return returnRes(res, 200, {
                         success: true,
-                        error:false,
-                        message:'Invitation declined.'
+                        error: false,
+                        message: 'Invitation declined.'
                     });
                 }
                 else {
@@ -257,6 +258,50 @@ class Staff {
         }
     }
 
+    // controller function to get invitaion history
+    getInviteHistory = async (req, res) => {
+        const { res_id, role } = req.user;
+        const permissions = req.permissions;
+
+        try {
+            if (role !== 'owner' && !permissions?.['can_manage_staff']) {
+                return returnRes(res, 403, {
+                    success: false,
+                    error: 'ACCESS_DENIED',
+                    message: 'You do not have permission to create or manage the Menu.'
+                });
+            }
+            
+            const result = await db.query(
+                `SELECT
+                    id,
+                    status,
+                    role_name,
+                    sent_to,
+                    created_at,
+                    expires_at
+                FROM  tokens
+                WHERE res_id = $1
+                ORDER BY id DESC`,
+                [res_id]
+            );
+
+            return returnRes(res,200,{
+                success:true,
+                error:false,
+                inviteList:result.rows
+            });
+
+        } catch (err) {
+            console.log('getting token history error: ',err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
+            });
+        }
+    }
+
     // Controller function to get stafflist of restaraunts
     getStaffList = async (req, res) => {
         const { id, role, res_id } = req.user;
@@ -288,7 +333,7 @@ class Staff {
                         AND rl.role_name !='owner'
                         AND rl.is_active=TRUE
                     `,
-                    [res_id,id]
+                    [res_id, id]
                 );
                 const staff_list = result.rows;
                 return returnRes(res, 200, {
