@@ -126,10 +126,10 @@ class Staff {
                     await client.query('COMMIT');
                     return returnRes(res, 410, {
                         success: false,
-                        error: tokenData.status == 'expired' ? 'TOKEN_EXPIRED' : (tokenData.status == 'used') ? 'TOKEN_USED' : 'TOKEN_DECLINED',
+                        error: tokenData.status == 'expired' ? 'TOKEN_EXPIRED' : (tokenData.status == 'accepted') ? 'TOKEN_USED' : 'TOKEN_DECLINED',
                         message: tokenData.status == 'expired' ?
                             'This invitation has expired. \nPlease ask the owner for a new link.'
-                            : (tokenData.status == 'used') ? 'This invitation has been used. \nPlease ask the owner for a new link.' :
+                            : (tokenData.status == 'accepted') ? 'This invitation has been used. \nPlease ask the owner for a new link.' :
                                 "You've been declined to join. No further action is needed."
                     });
                 }

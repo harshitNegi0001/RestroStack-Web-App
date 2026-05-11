@@ -146,7 +146,6 @@ export const getStaffList = async (setStaffList) => {
         );
 
         setStaffList(result?.data?.staff_list);
-        console.log('result',result?.data?.staff_list)
     } catch (err) {
         console.error(err);
         toast.error(err?.response?.data?.error || 'Something Went Wrong!');
