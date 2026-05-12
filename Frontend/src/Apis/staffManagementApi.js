@@ -135,17 +135,17 @@ export const getInviteHistory = async(successFunction) =>{
     }
 }
 
-export const getStaffList = async (setStaffList) => {
+export const getStaffList = async (filters,successFunction) => {
 
     try {
         const result = await axios.get(
-            `${backend_url}/staff/get-staff-list`,
+            `${backend_url}/staff/get-staff-list?emp_query=${filters?.query||''}&&emp_role=${filters?.role||'all'}`,
             {
                 withCredentials:true
             }
         );
 
-        setStaffList(result?.data?.staff_list);
+        successFunction(result?.data?.staff_list);
     } catch (err) {
         console.error(err);
         toast.error(err?.response?.data?.error || 'Something Went Wrong!');

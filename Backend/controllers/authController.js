@@ -278,7 +278,6 @@ class Auth {
                     );
 
                     const userInfo = await getUserInfo(userId);
-                    console.log(userInfo);
                     const roles = await getRoles(userId);
                     const activeRole = (roles.length == 0) ? null : (roles.length == 1) ? roles[0].role_name : roles.find(role => role.id == userInfo.last_role_id)?.role_name;
                     const activeResId = (roles.length == 0) ? null : (roles.length == 1) ? roles[0].res_id : roles.find(role => role.id == userInfo.last_role_id)?.res_id;

@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 
-export default function SegmentOptions({ options = [],activeOption,setActiveOption }) {
+export default function SegmentOptions({ options = [],activeOption,setActiveOption,searchValue,setSearchValue}) {
     
 
     return (

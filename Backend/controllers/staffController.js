@@ -306,6 +306,7 @@ class Staff {
     getStaffList = async (req, res) => {
         const { id, role, res_id } = req.user;
         const permissions = req.permissions;
+        const {emp_query='',emp_role='all'} = req.query;
         try {
             if (permissions?.can_manage_staff || role == 'owner') {
 
@@ -332,8 +333,11 @@ class Staff {
                         AND rl.user_id != $2
                         AND rl.role_name !='owner'
                         AND rl.is_active=TRUE
+                        AND (u.name ILIKE ($3::TEXT || '%') 
+                            OR (u.email ILIKE ($3::TEXT||'%')))
+                        AND (rl.role_name=$4 OR $4='all')
                     `,
-                    [res_id, id]
+                    [res_id, id,emp_query,emp_role]
                 );
                 const staff_list = result.rows;
                 return returnRes(res, 200, {

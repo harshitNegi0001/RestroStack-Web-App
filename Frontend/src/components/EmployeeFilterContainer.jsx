@@ -20,7 +20,7 @@ export default function EmployeeFilter({ searchValue, setSearchValue, roles, rol
                     placeholder='Search by name or email...' required
                     className='border-divider bg-toast-bg/60
                                     border-1 focus:outline-1 pl-9  focus:outline-active-border focus:border-active-border outline-0 
-                                                    rounded-lg p-1.5  text-main-text text-[16px] ' />
+                                    rounded-lg p-1.5  text-main-text text-[16px] ' />
             </div>
             <div className="flex flex-row flex-wrap gap-2">
                 <div

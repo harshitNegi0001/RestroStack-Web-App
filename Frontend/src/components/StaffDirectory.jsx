@@ -43,17 +43,33 @@ const roles = [
 
 export default function StaffDirectory() {
     const [searchValue, setSearchValue] = useState('');
+    const [debouncedSearch, setDebauncedSearch] = useState('');
     const [role, setRole] = useState('all');
     const [staffList, setStaffList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        getData();
-    }, []);
+        const debouncingTimer = setTimeout(() => {
+            setDebauncedSearch(searchValue);
+        }, 1200)
+        return () => clearTimeout(debouncingTimer);
+    }, [searchValue]);
 
-    const getData = async () => {
+    useEffect(()=>{
+        getFilteredStaff();
+
+    },[debouncedSearch,role])
+    
+    const getFilteredStaff = async()=>{
+        const filters = {
+            query:debouncedSearch,
+            role
+        }
+        function successFunction (data){
+            setStaffList(data);
+        }
         setIsLoading(true);
-        await getStaffList(setStaffList);
+        await getStaffList(filters,successFunction);
         setIsLoading(false);
     }
 
