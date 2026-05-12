@@ -50,5 +50,18 @@ export const defaultPermisson = {
         "view_billings": false,
         "buy_subscription": false,
         "manage_settings": false
+    },
+    'cashier': {
+        "view_dashboard": true,
+        "view_live_orders": true,
+        "manage_restaurant_setup": false,
+        "can_manage_table": true,
+        "view_inventory": false,
+        "manage_menu":false,
+        "can_manage_staff": false,
+        "can_post_jobs": false,
+        "view_billings": false,
+        "buy_subscription": false,
+        "manage_settings": false
     }
 }
