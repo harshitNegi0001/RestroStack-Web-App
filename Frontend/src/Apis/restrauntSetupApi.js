@@ -95,3 +95,20 @@ export const editRestaurantDetails= async(formData,successFunction)=>{
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }
+
+
+export const searchRestaurants = async (search_query,successFunction)=>{
+    try {
+        const result = await axios.get(
+            `${backend_url}/res/search-res?search_query=${search_query}`,
+            {
+                withCredentials:true
+            }
+        )
+
+        successFunction(result?.data?.restaurantsList||[]);
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}

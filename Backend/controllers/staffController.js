@@ -333,9 +333,13 @@ class Staff {
                         AND rl.user_id != $2
                         AND rl.role_name !='owner'
                         AND rl.is_active=TRUE
-                        AND (u.name ILIKE ($3::TEXT || '%') 
-                            OR (u.email ILIKE ($3::TEXT||'%')))
+                        AND u.acc_status = 'active'
+                        AND (
+                            u.name ILIKE ('%'|| $3|| '%') 
+                            OR u.email ILIKE ('%'|| $3|| '%')
+                        )
                         AND (rl.role_name=$4 OR $4='all')
+                    ORDER BY rl.created_at DESC
                     `,
                     [res_id, id,emp_query,emp_role]
                 );

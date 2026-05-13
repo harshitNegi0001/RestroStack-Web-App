@@ -27,6 +27,7 @@ function ProtectedRoute({ route, children }) {
     if (!userInfo) {
         return <Navigate to={`/auth-window?redirectTo=${encodeURIComponent(location.pathname + location.search)}`} replace />
     }
+    // handle case based on user account_status here
     if (route.needAuth) {
         return <Suspense fallback={null}>{children}</Suspense>
 

@@ -285,6 +285,50 @@ class Restaurant {
             return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }
+
+
+    // controller function to search restaurant.
+    searchRestaurant = async (req,res)=>{
+        const {search_query=''} = req.query;
+
+
+        try {
+            const searchResult = await db.query(
+                `SELECT 
+                    res.id,
+                    res.res_name,
+                    res.res_logo,
+                    COUNT(r.id) 
+                        FILTER( 
+                            WHERE r.role_name!='owner' 
+                                AND r.is_active =TRUE
+                            )
+                         AS emp_count,
+                    res.res_type,
+                    res.full_address
+                FROM restaurants AS res
+                LEFT JOIN roles AS r
+                ON r.res_id= res.id
+                WHERE ( res.res_name ILIKE ('%' || $1 || '%')
+                        OR res.full_address ILIKE ($1:: TEXT || '%'))
+                    AND res.res_status = 'active'
+                GROUP BY res.id,
+                    res.res_name,
+                    res.res_logo,
+                    res.full_address
+                    `,[search_query]
+            )
+
+            return returnRes(res,200,{
+                success:true,
+                error:false,
+                restaurantsList:searchResult.rows
+            });
+        } catch (err) {
+            console.log('Search Restaurant Error : ',err);
+            return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+        }
+    }
 }
 
 export default new Restaurant();
