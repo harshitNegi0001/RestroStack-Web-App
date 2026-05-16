@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { MdSearch } from "react-icons/md";
 import RestaurantDisplayCard from './RestaurantDisplayCard';
 import RestaurantDisplayCardSkeleton from './RestaunrantDisplayCardSkeleton';
-import { searchRestaurants } from '../../../Apis/restrauntSetupApi';
+import { searchRestaurants, sendConnectReq } from '../../../Apis/restrauntSetupApi';
 
 const fakeRestaurantData = [
     {
@@ -100,6 +100,7 @@ export default function EmpSearchRes() {
     const [display,setDisplay] = useState(false);
     const [restaurantsList,setRestaurantList] = useState([]);
     const [loadingRes, setLoadingRes] = useState(false);
+    const [loadingBtn,setLoadingBtn] = useState(false);
 
     const connectBtnDisabled = Boolean(!selected);
     const handleSearch = async () => {
@@ -111,6 +112,14 @@ export default function EmpSearchRes() {
         setLoadingRes(true);
         await searchRestaurants(searchValue,successFunction);
         setLoadingRes(false);
+    }
+    const sendConnReq = async()=>{
+        function successFunction (){
+            
+        }
+        setLoadingBtn(true);
+        await sendConnectReq(selected,successFunction);
+        setLoadingBtn(false);
     }
     return (
         <div className={`w-full flex flex-col gap-2 md:gap-6 items-start border-b-1 border-divider py-4`}>
@@ -166,10 +175,10 @@ export default function EmpSearchRes() {
                         <RestaurantDisplayCardSkeleton  key={r} />
                     )
                 }
-
             </div>}
             {display && <div className='w-full '>
                 <button disabled={connectBtnDisabled}
+                onClick={sendConnReq}
                     className={`  py-2  w-full flex justify-center text-center items-center rounded-lg bg-linear-0  text-[12px] md:text-[13px] lg:text-[14px] font-[600]
                          ${connectBtnDisabled ? 'bg-divider cursor-not-allowed text-low-text/70' : 'text-white to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}
                 >

@@ -112,3 +112,24 @@ export const searchRestaurants = async (search_query,successFunction)=>{
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }
+
+
+export const sendConnectReq = async (res_id,successFunction)=>{
+    try {
+        const result = await axios.post(
+            `${backend_url}/res/send-connect-req`,
+            {
+                res_id
+            },
+            {
+                withCredentials:true
+            }
+        );
+
+        toast.success(result?.data?.message || 'Connection Request Sent.');
+        successFunction();
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}

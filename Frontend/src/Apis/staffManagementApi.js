@@ -152,3 +152,18 @@ export const getStaffList = async (filters,successFunction) => {
     }
 }
 
+export const getConnectionRequests = async(successFunction)=>{
+    try {
+        const result = await axios.get(
+            `${backend_url}/staff/get-conn-req`,
+            {
+                withCredentials:true
+            }
+        );
+        successFunction(result?.data?.requestList||[]);
+    } catch (err) {
+        console.error(err);
+        toast.error(err?.response?.data?.error || 'Something Went Wrong!');
+    }
+}
+

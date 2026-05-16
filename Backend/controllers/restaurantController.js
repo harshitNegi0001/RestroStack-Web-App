@@ -288,8 +288,8 @@ class Restaurant {
 
 
     // controller function to search restaurant.
-    searchRestaurant = async (req,res)=>{
-        const {search_query=''} = req.query;
+    searchRestaurant = async (req, res) => {
+        const { search_query = '' } = req.query;
 
 
         try {
@@ -316,19 +316,55 @@ class Restaurant {
                     res.res_name,
                     res.res_logo,
                     res.full_address
-                    `,[search_query]
+                    `, [search_query]
             )
 
-            return returnRes(res,200,{
-                success:true,
-                error:false,
-                restaurantsList:searchResult.rows
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                restaurantsList: searchResult.rows
             });
         } catch (err) {
-            console.log('Search Restaurant Error : ',err);
+            console.log('Search Restaurant Error : ', err);
             return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
         }
     }
+
+    sendConnectionReq = async (req, res) => {
+        const {id} = req.user;
+        const {res_id} = req.body;
+        try {
+            await db.query(
+                `INSERT INTO 
+                connect_requests(
+                    res_id,
+                    user_id
+                )
+                VALUES(
+                    $1,$2
+                )
+                ON CONFLICT (res_id,user_id)
+                DO
+                UPDATE 
+                    SET created_at = now()
+                `,[res_id,id]
+            );
+            return returnRes(res,200,{
+                success:true,
+                error:false,
+                message:'Connection request sent.'
+            });
+        } catch (err) {
+            console.log('Connect Restaurant Error : ', err);
+            return returnRes(res, 500, {
+                success: false,
+                message: 'Internal Server Error!',
+                error: 'INTERNAL_SERVER_ERROR'
+            });
+
+        }
+    }
+
 }
 
 export default new Restaurant();

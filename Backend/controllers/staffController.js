@@ -53,7 +53,7 @@ class Staff {
                     VALUES(
                         $1,$2,$3,$4,$5
                     )`,
-                        [modifiedToken, res_id, role_name, expiresAt,email]
+                        [modifiedToken, res_id, role_name, expiresAt, email]
                     );
                     // send an email.
                     const user = await db.query(
@@ -271,7 +271,7 @@ class Staff {
                     message: 'You do not have permission to create or manage the Menu.'
                 });
             }
-            
+
             const result = await db.query(
                 `SELECT
                     id,
@@ -286,14 +286,14 @@ class Staff {
                 [res_id]
             );
 
-            return returnRes(res,200,{
-                success:true,
-                error:false,
-                inviteList:result.rows
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                inviteList: result.rows
             });
 
         } catch (err) {
-            console.log('getting token history error: ',err);
+            console.log('getting token history error: ', err);
             return returnRes(res, 500, {
                 success: false,
                 error: 'INTERNAL_SERVER_ERROR',
@@ -306,7 +306,7 @@ class Staff {
     getStaffList = async (req, res) => {
         const { id, role, res_id } = req.user;
         const permissions = req.permissions;
-        const {emp_query='',emp_role='all'} = req.query;
+        const { emp_query = '', emp_role = 'all' } = req.query;
         try {
             if (permissions?.can_manage_staff || role == 'owner') {
 
@@ -341,7 +341,7 @@ class Staff {
                         AND (rl.role_name=$4 OR $4='all')
                     ORDER BY rl.created_at DESC
                     `,
-                    [res_id, id,emp_query,emp_role]
+                    [res_id, id, emp_query, emp_role]
                 );
                 const staff_list = result.rows;
                 return returnRes(res, 200, {
@@ -365,7 +365,51 @@ class Staff {
             });
         }
     }
+    // controller function to view connection requests for staff member.
+    getConnectReq = async (req, res) => {
+        try {
+            const { role, res_id } = req.user;
+            const permissions = req.permissions;
+            if (role != 'owner' && !permissions?.['can_manage_staff']) {
+                return returnRes(res, 403, {
+                    success: false,
+                    error: 'ACCESS_DENIED',
+                    message: 'You do not have permission to view or manage the connection requests.'
+                });
+            }
+            const result = await db.query(
+                `SELECT 
+                    c.id AS id,
+                    c.user_id,
+                    c.created_at AS created_at,
+                    c.status AS status,
+                    u.name AS name,
+                    u.email,
+                    u.image,
+                    u.verified_email
+                FROM connect_requests  AS c
+                JOIN users AS u
+                ON c.user_id = u.id
+                WHERE c.res_id =$1
+                    AND c.status != 'canceled'
+                    AND u.acc_status = 'active'
+                `,[res_id]
+            );
 
+            return returnRes(res,200,{
+                requestList:result.rows,
+                success:true,
+                error:false
+            });
+        } catch (err) {
+            console.error('Connection Req Getting Error:', err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
+            });
+        }
+    }
 }
 
 export default new Staff();

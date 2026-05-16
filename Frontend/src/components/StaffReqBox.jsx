@@ -2,49 +2,10 @@ import { LuInbox } from "react-icons/lu";
 import ChipComponent from "./ChipComponent";
 import { useState } from "react";
 import StaffRequestRow from "./StaffRequestsRow";
+import { useEffect } from "react";
+import { getConnectionRequests } from "../Apis/staffManagementApi";
 
-const staffRequests = [
-    {
-        id:1,
-        user_data:{
-            name:'Harshit Singh Negi',
-            email:'negiharshitsingh919@gmail.com',
-            image:'https://res.cloudinary.com/dns5lxuvy/image/upload/q_auto/f_auto/v1774678509/dlavfvrj493hxruq90qy.png'
-        },
-        status:'pending',
-        created_at:''
-    },
-    {
-        id:2,
-        user_data:{
-            name:'Roop Singh',
-            email:'dhamiroop@gmail.com',
-            image:''
-        },
-        status:'rejected',
-        created_at:''
-    },
-    {
-        id:3,
-        user_data:{
-            name:'Harshit Singh Negi',
-            email:'negiharshitsingh919@gmail.com',
-            image:''
-        },
-        status:'approved',
-        created_at:''
-    },
-    {
-        id:4,
-        user_data:{
-            name:'Ayush Singh',
-            email:'ayushsingh534@gmail.com',
-            image:''
-        },
-        status:'rejected',
-        created_at:''
-    },
-]
+
 
 const filterTypes = [
     'all',
@@ -57,6 +18,22 @@ export default function StaffReqBox(){
 
     const [perPage,setPerPage] = useState(10);
     const [activeType,setActiveType] =useState('all');
+    const [requestList,setRequestList] = useState([]);
+    const [isLoading,setIsLoading] = useState(false);
+
+    useEffect(()=>{
+        getStaffReq();
+    },[]);
+
+    const getStaffReq =async()=>{
+        function successFunction(data){
+            setRequestList(data);
+        }
+        setIsLoading(true);
+        await getConnectionRequests(successFunction);
+        setIsLoading(false);
+    }
+
     return(
         <div className="w-full rounded-2xl bg-card-bg flex flex-col shadow-md shadow-black/30 ">
             <div className="p-2 flex flex-col gap-2 md:flex-row md:justify-between w-full ">
@@ -74,7 +51,7 @@ export default function StaffReqBox(){
             </div>
             <div className="w-full flex flex-col">
                 {
-                    staffRequests.map(r=>
+                    requestList.map(r=>
                         <StaffRequestRow key={r.id} data={r} />
                     )
                 }

@@ -10,7 +10,7 @@ export default function RestaurantDisplayCard({ onClick, isActive = false, data 
 
     return (
         <div onClick={onClick}
-            className={`w-full rounded-2xl border-1 flex gap-2 p-2
+            className={`w-full rounded-2xl border-1 flex gap-2 p-2 cursor-pointer
             ${isActive ? 'border-active-border bg-active-border/10' : 'border-divider bg-transparent hover:border-active-border/50 active:border-active-border hover:bg-active-border/5 active:bg-active-border/10'}
         `}>
             <div

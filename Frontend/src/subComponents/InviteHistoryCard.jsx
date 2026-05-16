@@ -24,7 +24,7 @@ export default function InviteHistoryCard({ isLoading, data }) {
     return (
         <div className={`${isLoading ? 'animate-pulse' : ''}
             bg-toast-bg flex items-center gap-1 p-2 rounded-lg`}>
-            <div className="flex-1 min-w-0 flex flex-col gap-1">
+            <div className="flex-1 min-w-0 flex flex-col gap-1" title="Invite Token">
                 <span className={`${isLoading ? 'w-full max-w-[180px] p-1.5 rounded-2xl animate-wave my-1' :
                     'text-[10px] sm:text-[11px] lg:text-[12px] px-2 py-1 rounded-md bg-divider/50 w-fit max-w-full min-w-0 truncate'}`}>
                     {!isLoading && 'Res-**************************************'}
@@ -43,7 +43,7 @@ export default function InviteHistoryCard({ isLoading, data }) {
                     'text-low-text/70 text-[8px] sm:text-[9px] lg:text-[10px] px-2'
                     }`}>{!isLoading ? `Date : ${formatDate(data?.created_at)}` : null}</span>
             </div>
-            <div className={`${isLoading ? 'animate-wave w-[80px] rounded-lg py-3' :
+            <div title="Invitation Status" className={`${isLoading ? 'animate-wave w-[80px] rounded-lg py-3' :
                 'flex items-center px-3 py-1 rounded-lg gap-0.5'}
                     ${statusColor[status]}`}>
                 {
