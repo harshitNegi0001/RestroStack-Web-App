@@ -21,6 +21,8 @@ const pool = new Pool(
 //         database:process.env.PG_DATABASE
 //     }
 // )
+
+
 pool.query('SELECT NOW()', (err, res) => {
     if (err) console.error("❌ DB Connection Error", err);
     else console.log("✅ DB Connected at:", res.rows[0].now);

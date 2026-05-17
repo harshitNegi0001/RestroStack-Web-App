@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import ComingSoon from "../../Pages/view/ComingSoon";
+import LiveTable from "../../Pages/view/LiveTable";
 
 
 const Dashboard = lazy(()=>import("../../Pages/view/Dashboard"));
@@ -51,7 +52,7 @@ export const permissionBasedRoutes = [
         id:7,
         path:'/res-tables',
         permission:'',
-        element:<ComingSoon/>
+        element:<LiveTable/>
     },
     {
         id:8,

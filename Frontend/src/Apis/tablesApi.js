@@ -4,59 +4,78 @@ import toast from "react-hot-toast";
 
 const backend_url = import.meta.env.VITE_BACKEND_URL;
 
-export const createTableZone = async (data,type,successFunction)=>{
+export const createTableZone = async (data, type, successFunction) => {
     try {
-        const result =await axios.post(
+        const result = await axios.post(
             `${backend_url}/table/create-table-zone`,
             {
-                zone_id:data?.id,
-                zone_name:data?.zone_name,
-                hourly_charge:data?.hourly_charge,
-                tablesArray:data?.tablesArray,
+                zone_id: data?.id,
+                zone_name: data?.zone_name,
+                hourly_charge: data?.hourly_charge,
+                tablesArray: data?.tablesArray,
                 type
             },
             {
-                withCredentials:true
+                withCredentials: true
             }
         );
-        toast.success(result?.data?.message||`Zone has been ${type=='create'?'created':'updated'}.`);
+        toast.success(result?.data?.message || `Zone has been ${type == 'create' ? 'created' : 'updated'}.`);
         successFunction(result?.data?.zone_data);
 
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
-} 
+}
 
 
-export const getTableZones = async(successFunction)=>{
+export const getTableZones = async (successFunction) => {
     try {
-        const result =await axios.get(
+        const result = await axios.get(
             `${backend_url}/table/get-table-zones`,
             {
-                withCredentials:true
+                withCredentials: true
             }
         );
-        successFunction(result?.data?.table_zones||[]);
+        successFunction(result?.data?.table_zones || []);
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }
 
-export const deleteZones = async(id,successFunction)=>{
+export const deleteZones = async (id, successFunction) => {
     try {
         const result = await axios.post(
             `${backend_url}/table/remove-zone`,
             {
-                zone_id:id
+                zone_id: id
             },
             {
-                withCredentials:true
+                withCredentials: true
             }
         );
-        toast.success(result?.data?.message||'Zone has been removed.');
+        toast.success(result?.data?.message || 'Zone has been removed.');
         successFunction();
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
+
+
+export const getTables = async (zone_id,zone_type, successFunction) => {
+
+
+    try {
+        const result = await axios.get(
+            `${backend_url}/table/get-tables?zone_type=${zone_type}&&zone_id=${zone_id}`,
+            {
+                withCredentials: true
+            }
+        )
+
+        successFunction(result?.data?.tableList || []);
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
