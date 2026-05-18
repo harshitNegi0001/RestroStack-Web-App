@@ -2,7 +2,7 @@ import {useSelector} from 'react-redux';
 import TableTypeSelector from '../../components/TableTypeSelector';
 import TableView from '../../components/TablesView';
 import { useEffect, useState } from 'react';
-import { getTableZones } from '../../Apis/tablesApi';
+import { getTables } from '../../Apis/tablesApi';
 import MainPagesHeader from '../../components/MainPagesHeader';
 import { IoAdd } from 'react-icons/io5';
 import BackdropPage from '../../components/BackdropPage';
@@ -37,13 +37,13 @@ export default function LiveTable(){
         }
 
         setIsLoading(true);
-        await getTableZones(successFunction);
+        await getTables(successFunction);
         setIsLoading(false);
     }
     return(
         <div className="w-full h-full p-2 md:p-4 flex flex-col gap-2 md:gap-4 items-center overflow-y-auto show-custom-scrollbar">
             <MainPagesHeader 
-                pageHeading={'Live Floor'} tagline={'Manage live tables and fast-track customer orders.'}
+                pageHeading={'Live Tables'} tagline={'Manage live tables and fast-track customer orders.'}
                 containBtn={role=='owner' || permissions?.['can_manage_table']} btnData={ {iconStart:<IoAdd/>, text:'Add Table',onClick:()=>{setOpenAddTable(true)} }}/>
             <BackdropPage isOpen={openAddTable} onClose={()=>setOpenAddTable(false)} >
                 <AddNewTable onClose={()=>setOpenAddTable(false)}/>

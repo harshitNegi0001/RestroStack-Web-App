@@ -46,11 +46,11 @@ class Table {
                     VALUES (
                         $1,$2,$3
                     )
-                    RETURNING id`, [res_id, zone_name, hourly_charge||0]
+                    RETURNING id`, [res_id, zone_name, hourly_charge || 0]
                     );
 
                     const zone_id = result.rows[0]?.id;
-                    
+
                     if (tablesArray?.length > 0) {
 
                         if (!zone_id) {
@@ -105,7 +105,7 @@ class Table {
                             zone_name=$1,
                             hourly_charge = $2
                         WHERE id = $3`,
-                        [zone_name, hourly_charge||0, zone_id]
+                        [zone_name, hourly_charge || 0, zone_id]
                     );
                     await client.query('COMMIT');
                     return returnRes(res, 200, {
@@ -161,7 +161,7 @@ class Table {
             let paramIndex = 1;
             let counter = 1;
             for (const t of tablesArray) {
-                const quantity = parseInt(t.quantity) || 0; 
+                const quantity = parseInt(t.quantity) || 0;
                 const capacity = parseInt(t.capacity) || 4;
                 for (let i = 0; i < quantity; i++) {
 
@@ -169,7 +169,7 @@ class Table {
 
                     while (existingNames.has(tableName)) {
                         counter++;
-                        tableName = `T-${counter}(${zone_name})`;
+                        tableName = `T-${counter} (${zone_name})`;
                     }
                     existingNames.add(tableName);
                     placeholders.push(`($${paramIndex}, $${paramIndex + 1}, $${paramIndex + 2}, $${paramIndex + 3})`);
@@ -186,7 +186,7 @@ class Table {
                     RETURNING id, table_name, capacity
                 `;
                 const result = await client.query(query, values);
-                return result.rows; 
+                return result.rows;
             }
             return [];
         } catch (err) {
@@ -301,7 +301,7 @@ class Table {
             });
         } catch (err) {
             client.query('ROLLBACK');
-            console.log('Get_table_zone_err: ', err);
+            console.log('Remove_table_zone_err: ', err);
             return returnRes(res, 500, {
                 success: false,
                 error: 'INTERNAL_SERVER_ERROR',
@@ -313,6 +313,58 @@ class Table {
         }
     }
 
+    getTables = async (req, res) => {
+        const { res_id } = req.user;
+
+
+        try {
+            if (!res_id) {
+                return returnRes(res, 404, {
+                    success: false,
+                    error: 'RESTAURANT_NOT_FOUND',
+                    message: 'Restaurant id not found,\nPlease join a restaurant.'
+                });
+            }
+            const result = await db.query(
+                `SELECT 
+                    z.id,
+                    z.zone_name,
+                    z.hourly_charge,
+                    COALESCE(
+                        json_agg(
+                            json_build_object(
+                                'id',t.id,
+                                'table_name',t.table_name,
+                                'capacity',t.capacity,
+                                'status',t.status,
+                                'created_at',t.created_at
+                            )ORDER BY t.id ASC
+                        )FILTER (WHERE t.id IS NOT NULL),'[]'::json
+                    ) AS tables_array
+                FROM table_zone AS z
+                LEFT JOIN tables AS t
+                ON t.zone_id=z.id 
+                    AND t.is_active = TRUE
+                WHERE z.res_id = $1
+                    AND z.is_active = TRUE
+                GROUP BY z.id
+                ORDER BY z.id DESC
+                `, [res_id]
+            );
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                tableList: result.rows
+            });
+        } catch (err) {
+            console.log('Get_tables_err: ', err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
+            });
+        }
+    }
 }
 
 export default new Table();

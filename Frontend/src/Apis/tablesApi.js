@@ -64,12 +64,12 @@ export const deleteZones = async (id, successFunction) => {
 }
 
 
-export const getTables = async (zone_id,zone_type, successFunction) => {
+export const getTables = async ( successFunction) => {
 
 
     try {
         const result = await axios.get(
-            `${backend_url}/table/get-tables?zone_type=${zone_type}&&zone_id=${zone_id}`,
+            `${backend_url}/table/get-live-tables`,
             {
                 withCredentials: true
             }
