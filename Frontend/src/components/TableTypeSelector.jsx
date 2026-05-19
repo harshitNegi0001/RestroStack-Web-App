@@ -10,7 +10,7 @@ export default function TableTypeSelector({ zonesList=[], activeZone, setActiveZ
     const [showMore,setShowMore] = useState(false);
     const wrapedZoneList = (showMore)?zonesList:zonesList.slice(0,maxShow);
     return (
-        <div className="w-full flex flex-row flex-wrap items-center gap-2">
+        <div className="w-full flex flex-row flex-wrap items-center gap-2 pt-2">
             {
                 isLoading ?
                     [1,2,3,4,5,6,7,8,9,10].map(i=>
