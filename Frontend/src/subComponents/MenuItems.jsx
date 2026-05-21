@@ -3,35 +3,28 @@ import BackdropPage from "../components/BackdropPage";
 import AddNewMenuItem from "../components/AddNewMenuItem";
 import MenuItemCard from "./MenuItemCard";
 import LoadingMenuItemCard from "./LoadingMenuItemCard";
-import { getCatItems } from "../Apis/menuApi";
+// import { getCatItems } from "../Apis/menuApi";
 import { IoArrowBack } from "react-icons/io5";
+import { useSelector } from "react-redux";
 
 
-export default function MenuItems({ activeCat, categories, showMobileItems, setShowMobileItems }) {
+export default function MenuItems({ activeCat, showMobileItems, setShowMobileItems }) {
     const [openAddItem, setOpenAddItem] = useState(false);
     const [catItems, setCatItems] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-
+    const {isLoading,menu} = useSelector(state=>state.menu);
 
     useEffect(() => {
         if (!activeCat) {
             return;
         }
-        getItemHandler(activeCat);
+        setCatItems(menu.find(c=>c.id == activeCat)?.items||[]);
     }, [activeCat]);
 
-    const getItemHandler = async (cat_id) => {
-        function successFunction(items) {
-            setCatItems(items);
-        }
-        setIsLoading(true);
-        await getCatItems(cat_id, successFunction);
-        setIsLoading(false);
-    }
     return (
         <div className={` flex-1 min-w-0 h-full min-h-0 ${showMobileItems ? 'flex' : 'hidden sm:flex'} flex-col gap-2 md:gap-3`}>
             <BackdropPage isOpen={openAddItem} onClose={() => setOpenAddItem(false)} >
-                <AddNewMenuItem onClose={() => setOpenAddItem(false)} type="create" activeCat={activeCat} categories={categories} setCatItems={setCatItems} />
+                <AddNewMenuItem onClose={() => setOpenAddItem(false)} type="create" activeCat={activeCat} 
+                setCatItems={setCatItems} />
             </BackdropPage>
             {
                 !activeCat ?
@@ -67,7 +60,7 @@ export default function MenuItems({ activeCat, categories, showMobileItems, setS
                                                 <IoArrowBack />
                                             </button>
                                             <span className="text-main-text font-[500] text-[14px] capitalize">
-                                                {categories.find(c => c.id === activeCat)?.category_name || 'Items'}
+                                                {menu.find(c => c.id === activeCat)?.category_name || 'Items'}
                                             </span>
                                         </div>
                                         <button onClick={() => setOpenAddItem(true)}
@@ -97,7 +90,7 @@ export default function MenuItems({ activeCat, categories, showMobileItems, setS
                                             {
                                                 catItems.map(i =>
                                                     <MenuItemCard data={i} key={i.id} setCatItems={setCatItems} activeCat={activeCat}
-                                                        categories={categories} />
+                                                    />
                                                 )
                                             }
                                         </div>

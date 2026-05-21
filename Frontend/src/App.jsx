@@ -6,6 +6,7 @@ import { Toaster } from "react-hot-toast";
 import { getAllRoutes } from './routes/route';
 import { getInitialState } from './Store/Auth/authReducer';
 import { getPrivateRoutes } from './routes/route/privateRoutes';
+import { getMenu } from './Store/Menu/menuReducer';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getInitialState());
+    dispatch(getMenu());
   }, []);
 
   useEffect(() => {

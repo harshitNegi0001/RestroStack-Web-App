@@ -127,7 +127,7 @@ export const deleteMenuItem = async(item_id,cat_id,successFunction)=>{
 
         successFunction();
         toast.success(result?.data?.message||'Item has been removed.');
-    } catch (error) {
+    } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
@@ -150,3 +150,20 @@ export const editCategoryOrder = async(orderData)=>{
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }
+
+
+// export const getMenu = async(successFunction)=>{
+//     try {   
+//         const result = await axios.get(
+//             `${backend_url}/menu/get-menu`,
+//             {
+//                 withCredentials:true
+//             }
+//         );
+
+//         successFunction(result?.data?.menu);
+        
+//     } catch (err) {
+        
+//     }
+// }

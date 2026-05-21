@@ -5,18 +5,21 @@ import { useOutsideClick } from "../utils/coustomHook/useOutsideClick";
 import BackdropPage from "../components/BackdropPage";
 import AlertBox from "./ConfirmBox";
 import { deleteCategory, editCatName } from "../Apis/menuApi";
+import { useDispatch, useSelector } from "react-redux";
+import { setMenu } from "../Store/Menu/menuReducer";
 
 
 
-export default function CategoryCard({ c, setCategories, activeCat, onClick, setActiveCat ,index}) {
+export default function CategoryCard({ c, activeCat, onClick, setActiveCat, index }) {
     const [openOption, setOpenOption] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
     const [openConfirm, setOpenConfirm] = useState(false);
     const [loadingBtn, setLoadingBtn] = useState(false);
-
+    const { menu } = useSelector(state => state.menu);
     const catNameInputRef = useRef(null);
     const optionRef = useRef(null);
     const clickBtnRef = useRef(null);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         if (catNameInputRef.current) {
@@ -36,9 +39,8 @@ export default function CategoryCard({ c, setCategories, activeCat, onClick, set
 
     const removeCat = async () => {
         function successFunction() {
-            setCategories(prev => (
-                [...prev.filter(cat => cat.id != c.id)]
-            ));
+            const filteredMenu = menu.filter(cat => cat.id != c.id);
+            dispatch(setMenu(filteredMenu))
             setActiveCat(null);
         }
         setLoadingBtn(true);
@@ -48,12 +50,8 @@ export default function CategoryCard({ c, setCategories, activeCat, onClick, set
     const handleEditSave = async (e) => {
         e.stopPropagation();
         function successFunction() {
-            const updatedCat = {
-                ...c, category_name: catNameInputRef.current?.value
-            }
-            setCategories(prev => (
-                [...prev.map(cat => cat.id != c.id ? cat : updatedCat)]
-            ))
+            const updatedCat = menu.map(cat => cat.id != c.id ? cat : { ...cat, category_name: catNameInputRef.current?.value });
+            dispatch(setMenu(updatedCat));
             setOpenEdit(false);
         }
         setLoadingBtn(true);
@@ -64,7 +62,7 @@ export default function CategoryCard({ c, setCategories, activeCat, onClick, set
         <Draggable draggableId={c.id.toString()} index={index}>
             {(provided, snapshot) => (
                 <div key={c.id}
-                ref={provided.innerRef}
+                    ref={provided.innerRef}
                     {...provided.draggableProps}
                     onClick={() => {
                         if (openEdit) {
@@ -76,7 +74,7 @@ export default function CategoryCard({ c, setCategories, activeCat, onClick, set
                     }}
                     className={`relative w-full cursor-pointer p-2 ${c.id == activeCat ? 'sm:bg-divider/30 active:bg-sec-text/20 hover:bg-sec-text/5' : 'hover:bg-sec-text/5 active:bg-sec-text/20 text-low-text/70 hover:text-low-text active:text-sec-text'} rounded-lg flex items-center gap-2`}>
                     <div
-                        {...provided.dragHandleProps} 
+                        {...provided.dragHandleProps}
                         onClick={(e) => e.stopPropagation()}
                         className="rounded-2xl text-main-text text-[12px] sm:text-[14px] p-2 hover:bg-divider/50 active:bg-divider/80 hover:cursor-grab active:cursor-grabbing"
                     >
@@ -85,7 +83,7 @@ export default function CategoryCard({ c, setCategories, activeCat, onClick, set
                     {!openEdit ?
                         <>
                             <div className={`flex-1 min-w-0 ${c.id == activeCat ? 'text-main-text sm:text-active-border' : 'text-main-text'} text-[12px] sm:text-[14px] truncate capitalize`}>{c.category_name}</div>
-                            <span className="size-[20px] md:size-[25px] bg-toast-bg text-low-text rounded-[50%] flex justify-center items-center text-[10px] sm:text-[12px]">{(c.item_count) ? (parseInt(c.item_count) < 100 ? c.item_count : '99+') : 0}</span>
+                            <span className="size-[20px] md:size-[25px] bg-toast-bg text-low-text rounded-[50%] flex justify-center items-center text-[10px] sm:text-[12px]">{c.items?.length>0 ? (c.items?.length < 100 ? c.items?.length : '99+') : 0}</span>
                         </> :
                         <div className="flex-1 min-w-0 ">
                             <input type="text" name="" id="" ref={catNameInputRef}

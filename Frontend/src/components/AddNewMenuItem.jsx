@@ -10,11 +10,13 @@ import { MdOutlineRestaurantMenu, MdOutlineDescription } from "react-icons/md";
 import { BiCategoryAlt } from "react-icons/bi";
 import VariantPriceComponent from "../subComponents/VariantPriceComponent";
 import toast from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import { setMenu } from "../Store/Menu/menuReducer";
 
 
 
 
-export default function AddNewMenuItem({ onClose, type = 'create', activeCat, categories, itemData, setCatItems }) {
+export default function AddNewMenuItem({ onClose, type = 'create',  activeCat, itemData, setCatItems }) {
     const [isLoadingBtn, setIsLoadingBtn] = useState(false);
     const [state, setInputState] = useState({
         item_name: '',
@@ -36,12 +38,13 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
     ])
     const [itemImage, setItemImage] = useState(null);
     const imgInputRef = useRef(null);
-    
+    const { menu } = useSelector(state => state.menu);
+    const dispatch = useDispatch();
+
     useEffect(() => {
         if (type == 'edit') {
-            console.log(itemData?.cat_id)
             setInputState(itemData);
-            setPriceArray(itemData?.price_array||[]);
+            setPriceArray(itemData?.price_array || []);
         }
     }, [type]);
 
@@ -52,9 +55,13 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
                     setCatItems(prev => ([
                         ...prev, itemData
                     ]))
-                    console.log('added');
+
+                    const updatedMenu = menu.map(cat => cat.id != activeCat ? cat : {
+                        ...cat,
+                        items: [...cat.items, itemData]
+                    });
+                    dispatch(setMenu(updatedMenu));
                 }
-                
                 else {
                     setCatItems(prev => (
                         [...prev.map(item => {
@@ -65,25 +72,60 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
                                 return item
                             }
                         })]
-                    ))
+                    ));
+
+                    const updatedMenu = menu.map(cat => cat.id != activeCat ? cat : {
+                        ...cat, items: cat.items?.map(i => i.id == itemData?.id ? itemData : i)
+                    });
+                    dispatch(setMenu(updatedMenu));
+                }
+            }
+            else {
+                if (type == 'create') {
+                    const updatedMenu = menu.map(cat => cat.id != itemData?.cat_id ? cat : {
+                        ...cat, items: [...cat.items, itemData]
+                    })
+                    dispatch(setMenu(updatedMenu));
+                }
+                else {
+                    setCatItems(prev => ([
+                        ...prev.filter(item => item.id != itemData?.id)
+                    ]));
+                    let updatedMenu = menu.map(cat=> {
+                        if(cat.id==itemData?.cat_id){
+                            return {
+                                ...cat,items: [...cat.items,itemData]
+                            }
+                        }
+                        else if(cat.id == activeCat){
+                            return {
+                                ...cat, items: cat.items?.filter(i=>i.id !=itemData?.id )
+                            }
+                        }   
+                        else{
+                           return cat
+                        }
+                    })
+                    
+                    dispatch(setMenu(updatedMenu));
                 }
             }
             onClose();
         }
-        const priceArrayCheck = priceArray.some(i=>!i.variant_name||!i.price);
-        if(priceArrayCheck){
+        const priceArrayCheck = priceArray.some(i => !i.variant_name || !i.price);
+        if (priceArrayCheck) {
             toast.error('Please fill all variant rows or remove them');
             return;
         }
         const formData = new FormData();
         formData.append('type', type);
         formData.append('item_name', state?.item_name);
-        formData.append('cat_id',state.cat_id);
+        formData.append('cat_id', state.cat_id);
         formData.append('description', state?.description);
         formData.append('price_array', JSON.stringify(priceArray));
-        formData.append('is_veg',state?.is_veg);
-        if(type=='edit'){
-            formData.append('item_id',state?.id);
+        formData.append('is_veg', state?.is_veg);
+        if (type == 'edit') {
+            formData.append('item_id', state?.id);
         }
         if (itemImage instanceof File) {
             formData.append('item_image', itemImage);
@@ -215,7 +257,7 @@ export default function AddNewMenuItem({ onClose, type = 'create', activeCat, ca
                         value={state.cat_id} onChange={(e) => setInputState(prev => ({ ...prev, cat_id: e.target.value }))}
                         className='outline-1 outline-divider focus:outline-2 pl-9 focus:outline-active-border focus:border-active-border  capitalize
                             rounded-lg p-1 md:py-2 text-main-text text-[14px] md:text-[15px]'>
-                        {categories.map(cat => <option key={cat.id} value={cat.id}
+                        {menu.map(cat => <option key={cat.id} value={cat.id}
                             className="bg-main-bg capitalize">
                             {cat.category_name}
                         </option>

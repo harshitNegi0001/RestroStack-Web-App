@@ -346,6 +346,67 @@ class Menu {
         }
     }
 
+    getMenu = async (req, res) => {
+        const { res_id } = req.user;
+        try {
+            const result = await db.query(
+                `SELECT 
+                    c.id,
+                    c.category_name,
+                    c.display_order,
+                    c.created_at,
+                    COALESCE(
+                        json_agg(
+                            json_build_object(
+                                'id',i.id,
+                                'image',i.image,
+                                'item_name',i.item_name,
+                                'description',i.description,
+                                'is_veg',i.is_veg,
+                                'created_at',i.created_at,
+                                'is_active',i.is_active,
+                                'cat_id',i.cat_id,
+                                'price_array',COALESCE(
+                                    (
+                                        SELECT json_agg(
+                                            json_build_object(
+                                                'id', p.id,
+                                                'variant_name', p.variant_name,
+                                                'price', p.price
+                                            )
+                                        )
+                                        FROM item_prices AS p
+                                        WHERE p.item_id = i.id
+                                    ), '[]'::json
+                                )
+                            )
+                        ) FILTER (WHERE i.id IS NOT NULL), '[]'::json
+                    ) AS items
+                FROM menu_categories AS c
+                LEFT JOIN menu_items AS i
+                ON i.cat_id=c.id AND i.is_active=TRUE
+                WHERE c.res_id = $1
+                    AND c.is_active=TRUE
+                GROUP by c.id
+                ORDER BY c.display_order ASC, c.created_at DESC`,
+                [res_id]
+            )
+
+            return returnRes(res,200,{
+                success:true,
+                error:false,
+                menu:result.rows
+            })
+        } catch (err) {
+            console.log('Get Menu error:', err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
+            });
+        }
+    }
+
     // controller function to edit catagory
     editCategoryName = async (req, res) => {
         const { role, res_id } = req.user;
@@ -467,10 +528,10 @@ class Menu {
                     message: 'Category order updated successfully.'
                 });
             } catch (txError) {
-                await client.query('ROLLBACK'); 
-                throw txError; 
+                await client.query('ROLLBACK');
+                throw txError;
             } finally {
-                client.release(); 
+                client.release();
             }
 
         } catch (err) {

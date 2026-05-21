@@ -4,24 +4,27 @@ import { useRef, useState, useEffect } from "react";
 import CategoryCard from "./CategoryCard";
 import { LuPlus } from 'react-icons/lu';
 import { createCategory, editCategoryOrder } from '../Apis/menuApi';
+import { useDispatch, useSelector } from 'react-redux';
+import { setMenu } from '../Store/Menu/menuReducer';
 
 
 
 
 
-export default function CategoriesComponent({ categories, setCategories, isLoading, activeCat, setActiveCat, showMobileItems, setShowMobileItems }) {
+export default function CategoriesComponent({activeCat, setActiveCat, showMobileItems, setShowMobileItems }) {
     const [loadingBtn, setLoadingBtn] = useState(false);
+    const {isLoading,menu} = useSelector(state=>state.menu);
     const [openAddCat, setOpenAddCat] = useState(false);
     const catInputRef = useRef(null);
-
+    const dispatch = useDispatch();
     const handleDragEnd = async (result) => {
         if (!result.destination) return;
 
-        const items = Array.from(categories);
+        const items = Array.from(menu);
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
 
-        setCategories(items);
+        dispatch(setMenu(items));
         const orderData = items.map((cat, index) => ({
             id: cat.id,
             display_order: index
@@ -36,9 +39,10 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
             const new_cat = {
                 id: cat_id,
                 category_name: cat_name,
-                item_count: 0
+                item_count: 0,
+                items:[]
             }
-            setCategories(prev => ([new_cat, ...prev]));
+            dispatch(setMenu([new_cat,...menu]));
             catInputRef.current.value = '';
             setOpenAddCat(false);
         }
@@ -53,6 +57,11 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
             catInputRef.current.focus();
         }
     }, [openAddCat]);
+    useEffect(()=>{
+        if(menu?.length>0 && !activeCat){
+            setActiveCat(menu[0].id);
+        }
+    },[])
     return (
         <div className={`w-full ${!showMobileItems ? 'flex' : 'hidden sm:flex'} pb-2 sm:pb-0 sm:pr-2 sm:w-[250px] xl:w-[300px] h-full sm:h-full flex-col gap-4
              border-divider border-dashed border-r-0 sm:border-r-1 `}>
@@ -72,7 +81,7 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
                             )
                         }
                     </div> :
-                    categories.length > 0 ?
+                    menu.length > 0 ?
                         <DragDropContext onDragEnd={handleDragEnd}>
                             <Droppable droppableId="categories-list">
                                 {(provided) => (
@@ -81,12 +90,11 @@ export default function CategoriesComponent({ categories, setCategories, isLoadi
                                         ref={provided.innerRef}
                                         className=" min-h-0 w-full pb-10 overflow-y-auto show-custom-scrollbar flex flex-col gap-2 sm:gap-4"
                                     >
-                                        {categories.map((c, index) => (
+                                        {menu.map((c, index) => (
                                             <CategoryCard
                                                 c={c}
                                                 key={c.id}
                                                 index={index}
-                                                setCategories={setCategories}
                                                 activeCat={activeCat}
                                                 setActiveCat={setActiveCat}
                                                 onClick={() => {
