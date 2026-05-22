@@ -102,7 +102,7 @@ export default function MenuItemCard({ data, activeCat, setCatItems }) {
                 </div>
             </div>
 
-            <div className="w-full line-clamp-3 text-low-text/70 text-[9px] md:text-[10px]">
+            <div className="w-full line-clamp-3 text-low-text/70 text-[9px]/3 md:text-[10px]/3">
                 {data?.description}
             </div>
             <div className="w-full flex flex-col">

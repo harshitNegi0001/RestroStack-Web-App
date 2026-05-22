@@ -1,15 +1,16 @@
 import { useState } from "react";
 import { useSelector } from "react-redux"
+import OrderFoodCard from "./OrderFoodCard";
 
 
 
 
 
 
-export default function TableOrderFood({  }) {
-    const { isLoading, menu } = useSelector(state=>state.menu);
-    const [activeCat, setActiveCat]= useState(menu?.[0]?.id);
-    
+export default function TableOrderFood({ }) {
+    const { isLoading, menu } = useSelector(state => state.menu);
+    const [activeCat, setActiveCat] = useState(menu?.[0]?.id);
+
     return (
         <div className="w-full flex flex-col gap-2">
             <div className={`w-full flex flex-row flex-wrap items-center gap-2 pt-2`}>
@@ -24,21 +25,20 @@ export default function TableOrderFood({  }) {
                                 className={`${activeCat != c.id ? 'border-divider text-low-text hover:text-sec-text' :
                                     'bg-active-border border-active-border text-white'}
                                 px-2 py-1 text-[12px] border-1  md:text-[14px] rounded-2xl cursor-pointer`}>
-                                    {c.category_name}
+                                {c.category_name}
                             </div>
 
                         )
                 }
             </div>
-            <div className="w-full">
+            <div className={`w-full flex flex-col gap-1 ${isLoading?'mask-bottom-fade':''}`}>
                 {
-                        isLoading ?
-                        <>
-                        </>:
-                        menu?.find(c=>c.id==activeCat)?.items?.map(i=>
-                            <div>
-                                {i.item_name}
-                            </div>
+                    isLoading ?
+                        [1,2,3,4,5].map(i=>
+                            <OrderFoodCard key={i} isLoading={true} />
+                        ) :
+                        menu?.find(c => c.id == activeCat)?.items?.map(i =>
+                            <OrderFoodCard key={i} data={i} isLoading={false} />
                         )
                 }
             </div>

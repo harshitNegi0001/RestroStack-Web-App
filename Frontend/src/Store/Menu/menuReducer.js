@@ -26,7 +26,7 @@ const menuReducer = createSlice({
     name:'menu',
     initialState:{
         menu:initialMenu,
-        isLoading:false
+        isLoading:true
     },
     reducers:{
         setMenu:(state,action)=>{
