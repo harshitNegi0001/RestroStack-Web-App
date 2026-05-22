@@ -15,7 +15,7 @@ function App() {
     getAllRoutes(),
     ...getPrivateRoutes()
   ];
-  const { theme, userInfo,role } = useSelector(state => state.auth);
+  const { theme, userInfo,activeResId } = useSelector(state => state.auth);
   
   const dispatch = useDispatch();
   useEffect(() => {
@@ -23,10 +23,10 @@ function App() {
   }, []);
 
   useEffect(()=>{
-    if(role){
+    if(activeResId){
       dispatch(getMenu());
     }
-  },[role])
+  },[activeResId])
 
   useEffect(() => {
     if (theme == 'dark') {
