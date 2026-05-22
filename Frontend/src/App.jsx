@@ -15,12 +15,18 @@ function App() {
     getAllRoutes(),
     ...getPrivateRoutes()
   ];
-  const { theme, userInfo } = useSelector(state => state.auth);
+  const { theme, userInfo,role } = useSelector(state => state.auth);
+  
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getInitialState());
-    dispatch(getMenu());
   }, []);
+
+  useEffect(()=>{
+    if(role){
+      dispatch(getMenu());
+    }
+  },[role])
 
   useEffect(() => {
     if (theme == 'dark') {
