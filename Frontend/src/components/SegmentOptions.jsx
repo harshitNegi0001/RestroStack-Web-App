@@ -5,7 +5,7 @@ export default function SegmentOptions({ options = [],activeOption,setActiveOpti
     
 
     return (
-        <div className="w-full flex mt-5">
+        <div className="w-full flex mt-1">
             {/* page selection options */}
             <div
                 className="flex flex-row bg-toast-bg/60 p-1.5 inset-shadow-sm inset-shadow-black/30 gap-1.5 rounded-4xl text-[11px] md:text-[13px] [*>&]:cursor-pointer max-w-full overflow-x-auto show-custom-scrollbar">

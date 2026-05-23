@@ -1,9 +1,21 @@
+import { useSelector } from "react-redux"
 import { NonVegIcon, VegIcon } from "../utils/clientSideData/SvgVariable"
+import { currencies } from "../utils/clientSideData/setupVariables";
+import { BiPlus } from "react-icons/bi";
 
 
 
 
 function OrderFoodCard({ data, isLoading }) {
+    const {activeResData} = useSelector(state=>state.auth);
+    const currency= currencies.find(c=>c.key==activeResData?.currency)?.symbol||'₹';
+    let lowest
+    let highest 
+
+        data?.price_array?.map(a=>{
+            lowest = (lowest && lowest <a.price)?lowest :a.price;
+            highest = (highest && highest >a.price)?highest:a.price
+        })
     return (
         <div className={`${isLoading ? 'animate-pulse' : ''} 
         border-divider border-1 rounded-lg shadow-md shadow-black/30
@@ -25,23 +37,19 @@ function OrderFoodCard({ data, isLoading }) {
                 <div className="w-full line-clamp-3 text-[9px]/3 sm:text-[10px]/3 text-low-text/70">
                     {data?.description}
                 </div>
-                {
-                    data?.price_array?.map(r =>
-                        <div key={r.id} className="flex flex-row items-center">
-                            <div className="flex-1 min-w-0 truncate text-low-text text-[9px]/4 md:text-[10px]/4">
-                                {r.variant_name}
-                            </div>
-                            {true?<button className="text-[9px] sm:text-[10px] font-[500] text-white px-1 py-0.5 rounded bg-linear-0
-                            to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99">
-                                Add
-                            </button>:
-                            <button className="text-[9px] sm:text-[10px] font-[500] text-white px-1 py-0.5 rounded bg-linear-0
-                            to-red-500  hover:from-red-700 active:to-red-600 active:from-red-800 from-red-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99">
-                                Remove
-                            </button>}
-                        </div>
-                    )
-                }
+                <div className="w-full flex items-center gap-1">
+                    <div className="w-full truncate text-[16px] sm:text-[18px] font-[500] text-main-text ">
+                            {`${currency}${lowest||0}-${currency}${highest||0}`}
+                    </div>
+                
+                </div>
+                <div className="w-full flex justify-center">
+                    <button className="w-[120px] py-1 bg-linear-0 text-white font-[500] text-[13px] sm:text-[15px] rounded-lg flex items-center justify-center gap-0.5
+                to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99">
+                    Add <BiPlus color="white" />
+                </button>
+                </div>
+                
 
             </div>
         </div>

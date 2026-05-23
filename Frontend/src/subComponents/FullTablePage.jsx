@@ -31,7 +31,7 @@ export default function FullTablePage({ onClose, tableData = {} }) {
     return (
         <div
             className="w-[100dvw] h-[100dvh] sm:w-[500px] sm:h-[98dvh]   bg-card-bg sm:rounded-2xl
-        flex flex-col gap-2 ">
+        flex flex-col gap-0 ">
             <div className="flex flex-row justify-start gap-2 sm:justify-between items-start sm:items-center p-3 border-b-1 border-divider">
 
                 <button onClick={onClose}
@@ -42,7 +42,7 @@ export default function FullTablePage({ onClose, tableData = {} }) {
                     <h6 className="text-main-text text-[16px]/5 md:text-[18px]/5 font-[500] capitalize">
                         {tableData?.table_name}
                     </h6>
-                    <div className="text-low-text/70 text-[10px] md:text-[11px] flex items-center gap-1">
+                    <div className={`text-low-text/70 text-[10px] md:text-[11px] flex items-center gap-1 ${tableStatusColor?.[tableData?.status]}/10 w-fit h-fit px-2 py-0.5 rounded-2xl`}>
                         <span className={`w-2 h-2 rounded-full ${tableStatusColor?.[tableData?.status]}`}> </span>
                         <span className="capitalize" >{tableData?.status}</span>
                     </div>
