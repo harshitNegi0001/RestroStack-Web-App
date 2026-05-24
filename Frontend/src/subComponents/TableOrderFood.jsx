@@ -7,9 +7,10 @@ import OrderFoodCard from "./OrderFoodCard";
 
 
 
-export default function TableOrderFood({ }) {
+export default function TableOrderFood({ setOpenCustomize,setCustomizeData}) {
     const { isLoading, menu } = useSelector(state => state.menu);
     const [activeCat, setActiveCat] = useState(menu?.[0]?.id);
+    
 
     return (
         <div className="w-full flex flex-col gap-2">
@@ -31,14 +32,14 @@ export default function TableOrderFood({ }) {
                         )
                 }
             </div>
-            <div className={`w-full flex flex-col gap-1 ${isLoading?'mask-bottom-fade':''}`}>
+            <div className={`w-full flex flex-col relative gap-1 ${isLoading?'mask-bottom-fade':''}`}>
                 {
                     isLoading ?
                         [1,2,3,4,5].map(i=>
                             <OrderFoodCard key={i} isLoading={true} />
                         ) :
                         menu?.find(c => c.id == activeCat)?.items?.map(i =>
-                            <OrderFoodCard key={i} data={i} isLoading={false} />
+                            <OrderFoodCard key={i} data={i} isLoading={false} setOpenCustomize={setOpenCustomize} setCustomizeData={setCustomizeData} />
                         )
                 }
             </div>

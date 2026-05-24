@@ -2,13 +2,18 @@ import { useSelector } from "react-redux"
 import { NonVegIcon, VegIcon } from "../utils/clientSideData/SvgVariable"
 import { currencies } from "../utils/clientSideData/setupVariables";
 import { BiPlus } from "react-icons/bi";
+import { useRef, useState } from "react";
+import { useOutsideClick } from "../utils/coustomHook/useOutsideClick";
 
 
 
 
-function OrderFoodCard({ data, isLoading }) {
+function OrderFoodCard({ data, isLoading,setOpenCustomize ,setCustomizeData}) {
     const {activeResData} = useSelector(state=>state.auth);
     const currency= currencies.find(c=>c.key==activeResData?.currency)?.symbol||'₹';
+    const detailRef = useRef(null);
+    const clickRef = useRef(null);
+    useOutsideClick()
     let lowest
     let highest 
 
@@ -44,14 +49,20 @@ function OrderFoodCard({ data, isLoading }) {
                 
                 </div>
                 <div className="w-full flex justify-center">
-                    <button className="w-[120px] py-1 bg-linear-0 text-white font-[500] text-[13px] sm:text-[15px] rounded-lg flex items-center justify-center gap-0.5
+                    <button ref={clickRef} onClick={()=>{
+                        setOpenCustomize(true);
+                        setCustomizeData(data);
+                    }} 
+                    className="w-[120px] py-1 bg-linear-0 text-white font-[500] text-[13px] sm:text-[15px] rounded-lg flex items-center justify-center gap-0.5
                 to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99">
                     Add <BiPlus color="white" />
                 </button>
                 </div>
                 
+                
 
             </div>
+            
         </div>
     )
 }

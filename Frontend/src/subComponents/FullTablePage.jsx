@@ -6,6 +6,8 @@ import { BiFoodMenu } from "react-icons/bi";
 import { FaHistory } from "react-icons/fa";
 import TableRecentOrders from "./TableRecentOrders";
 import TableOrderFood from "./TableOrderFood";
+import { useOutsideClick } from "../utils/coustomHook/useOutsideClick";
+import CustomizeDetailBox from "./CustomizeDetailBox";
 
 const options = [
     {
@@ -27,11 +29,15 @@ const tableStatusColor = {
     'occupied': 'bg-red-500'
 }
 export default function FullTablePage({ onClose, tableData = {} }) {
-    const [activeOption,setActiveOption] = useState(options[0])
+    const [activeOption, setActiveOption] = useState(options[0]);
+    const [openCustomize, setOpenCustomize] = useState(false);
+    const [customizeData, setCustomizeData] = useState({})
+
+
     return (
         <div
             className="w-[100dvw] h-[100dvh] sm:w-[500px] sm:h-[98dvh]   bg-card-bg sm:rounded-2xl
-        flex flex-col gap-0 ">
+        flex flex-col gap-0 relative overflow-hidden">
             <div className="flex flex-row justify-start gap-2 sm:justify-between items-start sm:items-center p-3 border-b-1 border-divider">
 
                 <button onClick={onClose}
@@ -54,16 +60,26 @@ export default function FullTablePage({ onClose, tableData = {} }) {
                     <IoClose />
                 </button>
             </div>
-            <div className="flex flex-col gap-2 border-b-1 border-divider p-4 min-h-0 flex-1 overflow-y-auto show-custom-scrollbar">
-                <SegmentOptions options={options} activeOption={activeOption} setActiveOption={setActiveOption}/>
+            <div className="flex flex-col gap-2  p-4 min-h-0 flex-1 overflow-y-auto show-custom-scrollbar">
+                <SegmentOptions options={options} activeOption={activeOption} setActiveOption={setActiveOption} />
                 {
-                    activeOption?.page=='recent-orders'&& <TableRecentOrders />
+                    activeOption?.page == 'recent-orders' && <TableRecentOrders />
                 }
                 {
-                    activeOption?.page=='order-food'&& <TableOrderFood />
+                    activeOption?.page == 'order-food' && <TableOrderFood setOpenCustomize={setOpenCustomize} setCustomizeData={setCustomizeData} />
                 }
             </div>
-            <div className="w-full p-4 flex justify-end">
+            <div onClick={() => {
+                setOpenCustomize(false);
+                setCustomizeData({});
+            }} className={`absolute w-full h-full
+                ${openCustomize ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} flex flex-col justify-end bg-main-text/10 `}>
+
+                <CustomizeDetailBox onClose={() => {
+                    setOpenCustomize(false);
+                    setCustomizeData({});
+                }} openCustomize={openCustomize} data={customizeData} />
+
 
 
             </div>
