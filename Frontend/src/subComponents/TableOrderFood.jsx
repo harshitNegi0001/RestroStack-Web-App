@@ -14,7 +14,7 @@ export default function TableOrderFood({ setOpenCustomize,setCustomizeData}) {
 
     return (
         <div className="w-full flex flex-col gap-2">
-            <div className={`w-full flex flex-row flex-wrap items-center gap-2 pt-2`}>
+            <div className={`w-full flex flex-row overflow-x-auto show-custom-scrollbar items-center gap-2 pt-2`}>
                 {
                     isLoading ?
                         [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i =>
@@ -25,12 +25,13 @@ export default function TableOrderFood({ setOpenCustomize,setCustomizeData}) {
                                 onClick={() => setActiveCat(c.id)}
                                 className={`${activeCat != c.id ? 'border-divider text-low-text hover:text-sec-text' :
                                     'bg-active-border border-active-border text-white'}
-                                px-2 py-1 text-[12px] border-1  md:text-[14px] rounded-2xl cursor-pointer`}>
+                                px-2 py-1 flex text-nowrap text-[12px] border-1  md:text-[14px] rounded-2xl cursor-pointer`}>
                                 {c.category_name}
                             </div>
 
                         )
                 }
+                
             </div>
             <div className={`w-full flex flex-col relative gap-1 ${isLoading?'mask-bottom-fade':''}`}>
                 {

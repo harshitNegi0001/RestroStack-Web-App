@@ -8,6 +8,8 @@ import TableRecentOrders from "./TableRecentOrders";
 import TableOrderFood from "./TableOrderFood";
 import { useOutsideClick } from "../utils/coustomHook/useOutsideClick";
 import CustomizeDetailBox from "./CustomizeDetailBox";
+import PendingCartView from "./PendingCartView";
+import FullViewLineup from "./FullViewLineup";
 
 const options = [
     {
@@ -32,8 +34,15 @@ export default function FullTablePage({ onClose, tableData = {} }) {
     const [activeOption, setActiveOption] = useState(options[0]);
     const [openCustomize, setOpenCustomize] = useState(false);
     const [customizeData, setCustomizeData] = useState({})
+    const [pendingOrder,setPendingOrder] = useState([]);
+    const [openFullView,setOpenFullView] = useState(false);
 
 
+    const handleAddToOrder = (item)=>{
+         setPendingOrder(prev=>[...prev,item]);
+         setOpenCustomize(false);
+         setCustomizeData({});
+    }
     return (
         <div
             className="w-[100dvw] h-[100dvh] sm:w-[500px] sm:h-[98dvh]   bg-card-bg sm:rounded-2xl
@@ -78,10 +87,30 @@ export default function FullTablePage({ onClose, tableData = {} }) {
                 <CustomizeDetailBox onClose={() => {
                     setOpenCustomize(false);
                     setCustomizeData({});
-                }} openCustomize={openCustomize} data={customizeData} />
+                }} openCustomize={openCustomize} data={customizeData} 
+                handleAddToOrder={handleAddToOrder}/>
 
 
 
+            </div>
+            <div onClick={() => {
+                setOpenFullView(false)
+            }} className={`absolute w-full h-full
+                ${openFullView ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} flex flex-col justify-end bg-main-text/10 `}>
+
+                <FullViewLineup onClose={() => {
+                    setOpenFullView(false)
+                }} 
+                pendingOrder={pendingOrder} 
+                setPendingOrder={setPendingOrder} 
+                openFullView={openFullView} />
+
+
+
+            </div>
+            <div className={`${pendingOrder?.length>0?'flex':'hidden'} items-center p-2 border-t-1 border-divider`}>
+                <PendingCartView pendingOrder={pendingOrder} setPendingOrder={setPendingOrder} 
+                openFullView={openFullView} setOpenFullView={setOpenFullView}/>
             </div>
         </div>
     )
