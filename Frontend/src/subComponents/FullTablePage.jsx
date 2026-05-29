@@ -10,6 +10,7 @@ import { useOutsideClick } from "../utils/coustomHook/useOutsideClick";
 import CustomizeDetailBox from "./CustomizeDetailBox";
 import PendingCartView from "./PendingCartView";
 import FullViewLineup from "./FullViewLineup";
+import { sendKOT } from "../Apis/ordersApi";
 
 const options = [
     {
@@ -34,14 +35,29 @@ export default function FullTablePage({ onClose, tableData = {} }) {
     const [activeOption, setActiveOption] = useState(options[0]);
     const [openCustomize, setOpenCustomize] = useState(false);
     const [customizeData, setCustomizeData] = useState({})
-    const [pendingOrder,setPendingOrder] = useState([]);
-    const [openFullView,setOpenFullView] = useState(false);
+    const [pendingOrder, setPendingOrder] = useState([]);
+    const [openFullView, setOpenFullView] = useState(false);
+    const [loadingKOTbtn, setLoadingKOTbtn] = useState(false);
 
+    const handleAddToOrder = (item) => {
+        setPendingOrder(prev => [...prev, item]);
+        setOpenCustomize(false);
+        setCustomizeData({});
+    }
 
-    const handleAddToOrder = (item)=>{
-         setPendingOrder(prev=>[...prev,item]);
-         setOpenCustomize(false);
-         setCustomizeData({});
+    const handleSendKOT = async () => {
+        function successFunction() {
+            setOpenFullView(false);
+            setPendingOrder([]);
+        }
+
+        const orderData = {
+            table_id: tableData?.id,
+            items: pendingOrder
+        }
+        setLoadingKOTbtn(true);
+        await sendKOT(orderData, successFunction);
+        setLoadingKOTbtn(false);
     }
     return (
         <div
@@ -87,8 +103,8 @@ export default function FullTablePage({ onClose, tableData = {} }) {
                 <CustomizeDetailBox onClose={() => {
                     setOpenCustomize(false);
                     setCustomizeData({});
-                }} openCustomize={openCustomize} data={customizeData} 
-                handleAddToOrder={handleAddToOrder}/>
+                }} openCustomize={openCustomize} data={customizeData}
+                    handleAddToOrder={handleAddToOrder} />
 
 
 
@@ -100,17 +116,19 @@ export default function FullTablePage({ onClose, tableData = {} }) {
 
                 <FullViewLineup onClose={() => {
                     setOpenFullView(false)
-                }} 
-                pendingOrder={pendingOrder} 
-                setPendingOrder={setPendingOrder} 
-                openFullView={openFullView} />
+                }}
+                    pendingOrder={pendingOrder}
+                    setPendingOrder={setPendingOrder}
+                    openFullView={openFullView} handleSendKOT={handleSendKOT}
+                    loadingKOTbtn={loadingKOTbtn}/>
 
 
 
             </div>
-            <div className={`${pendingOrder?.length>0?'flex':'hidden'} items-center p-2 border-t-1 border-divider`}>
-                <PendingCartView pendingOrder={pendingOrder} setPendingOrder={setPendingOrder} 
-                openFullView={openFullView} setOpenFullView={setOpenFullView}/>
+            <div className={`${pendingOrder?.length > 0 ? 'flex' : 'hidden'} items-center p-2 border-t-1 border-divider`}>
+                <PendingCartView pendingOrder={pendingOrder} setPendingOrder={setPendingOrder}
+                    openFullView={openFullView} setOpenFullView={setOpenFullView}
+                    loadingKOTbtn={loadingKOTbtn} handleSendKOT={handleSendKOT} />
             </div>
         </div>
     )

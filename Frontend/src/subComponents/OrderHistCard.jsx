@@ -13,12 +13,12 @@ const OrderHistCard = ({ data, type = 'lineup',onClose }) => {
       <div className='flex-1 min-w-0 flex flex-col'>
         <span className='text-[12px] w-full truncate font-[500] sm:text-[13px] text-sec-text'>{data?.item_name}</span>
         <span className='text-low-text/70 text-[8px] sm:text-[9px]'>{data?.activeVariation?.variant_name}</span>
-        <span className='text-active-border text-[9px] sm:text-[10px] font-[500]'>{`${currency} ${data?.activeVariation?.price} * ${data?.quantity}`}</span>
+        <span className='text-active-border text-[9px] sm:text-[10px] font-[500]'>{`${currency} ${data?.activeVariation?.price} * ${data?.quantity} = ${currency} ${data?.activeVariation?.price * data?.quantity}`}</span>
       </div>
       <div>
         {
           type=='lineup'&&
-          <div onClick={onClose} className='hover:bg-red-600/10 active:bg-red-600/20 text-red-600 size-[40px] rounded-full flex justify-center items-center'>
+          <div onClick={onClose} title='remove' className='hover:bg-red-600/10 active:bg-red-600/20 text-red-600 size-[40px] rounded-full flex justify-center items-center'>
             <BiTrash />
             </div>
         }

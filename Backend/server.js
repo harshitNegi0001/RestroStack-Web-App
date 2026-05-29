@@ -6,6 +6,7 @@ import http from 'http';
 import authRoute from './routes/authRoute.js';
 import restaurantRoute from './routes/restaurantRoutes.js';
 import staffRoute from './routes/staffRoutes.js';
+import orderRoute from './routes/orderRoutes.js';
 import tableRoute from './routes/tableRoutes.js';
 import menuRoute from './routes/menuRoutes.js';
 import { setupTable } from './config/setupTables.js';
@@ -30,6 +31,8 @@ app.use('/res', restaurantRoute);
 app.use('/staff', staffRoute);
 app.use('/table', tableRoute);
 app.use('/menu', menuRoute);
+app.use('/order', orderRoute);
+
 
 app.get('/', (req, res) => {
     res.sendFile('public/index.html', { root: import.meta.dirname });

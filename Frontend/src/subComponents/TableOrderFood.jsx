@@ -40,7 +40,7 @@ export default function TableOrderFood({ setOpenCustomize,setCustomizeData}) {
                             <OrderFoodCard key={i} isLoading={true} />
                         ) :
                         menu?.find(c => c.id == activeCat)?.items?.map(i =>
-                            <OrderFoodCard key={i} data={i} isLoading={false} setOpenCustomize={setOpenCustomize} setCustomizeData={setCustomizeData} />
+                            <OrderFoodCard key={i.id} data={i} isLoading={false} setOpenCustomize={setOpenCustomize} setCustomizeData={setCustomizeData} />
                         )
                 }
             </div>

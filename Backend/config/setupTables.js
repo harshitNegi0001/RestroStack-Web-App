@@ -2,6 +2,8 @@ import { createTokenTable } from "../schema/inviteTokenTable.js";
 import { createItemPriceTable } from "../schema/itemPriceTable.js";
 import { createMenuCategoryTable } from "../schema/menuCategoryTable.js";
 import { createMenuItemTable } from "../schema/menuItemTable.js";
+import { createOrderItemsTable } from "../schema/orderItems.js";
+import { createOrdersTable } from "../schema/ordersTable.js";
 import { createOTPTable } from "../schema/otpTable.js";
 import { createRateLimitTable } from "../schema/rateLimitTable.js";
 import { createResConnectReqTable } from "../schema/resConnectReqTable.js";
@@ -26,6 +28,9 @@ export const setupTable = async()=>{
         await createMenuItemTable(pool);
         await createItemPriceTable(pool);
         await createResConnectReqTable(pool);
+        await createOrdersTable(pool);
+        await createOrderItemsTable(pool);
+        
     } catch (err) {
         console.log(err);
         throw err;
