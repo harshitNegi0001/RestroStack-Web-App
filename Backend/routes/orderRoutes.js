@@ -6,5 +6,6 @@ import Orders from '../controllers/ordersController.js';
 
 const router  = e.Router();
 
-router.post('/send-kot',tokenOpener,permissionInjector,Orders.sendKOT)
+router.post('/send-kot',tokenOpener,permissionInjector,Orders.sendKOT);
+router.get('/get-recent-orders',tokenOpener,permissionInjector,Orders.getOldOrders);
 export default router;

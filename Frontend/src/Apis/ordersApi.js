@@ -23,3 +23,18 @@ export const sendKOT = async (orderData,successFunction)=>{
         toast.error(err?.response?.data?.message || 'Sending KOT failed!')
     }
 }
+
+export const getRecentOrders =async (tableNo,successFunction)=>{
+    try {
+        const result = await axios.get(
+            `${backend_url}/order/get-recent-orders?table_id=${tableNo}`,
+            {
+                withCredentials:true
+            }
+        );
+        successFunction(result?.data?.items_list);
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Getting Recent Orders Failed!')
+    }
+}

@@ -79,7 +79,7 @@ class Orders {
                 const currItem = items[i];
                 const variant_id = currItem?.activeVariation.id
                 const realPriceData = priceResult.rows.find(p => p.id == variant_id);
-                const realPrice = realPriceData ? realPriceData.price : 0; 
+                const realPrice = realPriceData ? realPriceData.price : 0;
 
                 placeholders.push(`($${count++}, $${count++}, $${count++}, $${count++}, $${count++})`);
 
@@ -87,7 +87,7 @@ class Orders {
                     order_id,
                     variant_id,
                     currItem.quantity,
-                    realPrice, 
+                    realPrice,
                     currItem.extraDetail
                 );
             }
@@ -113,6 +113,59 @@ class Orders {
         }
         finally {
             client.release();
+        }
+    }
+    getOldOrders = async (req, res) => {
+        const {table_id} = req.query;
+        const permissions = req.permissions;
+        const {res_id,id,role} = req.user; 
+
+        if(role!='owner' && !permissions?.['can_manage_table']){
+            return returnRes(res, 403, {
+                success: false,
+                error: 'ACCESS_DENIED',
+                message: 'You do not have permission to access Orders.'
+            });
+        }
+        try {
+            const ordersResult = await db.query(
+                `SELECT 
+                    oi.id as id,
+                    oi.order_id AS order_id,
+                    o.staff_id AS staff_id,
+                    i.item_name AS item_name,
+                    i.image AS image,
+                    oi.price AS price,
+                    pi.variant_name AS variant_name,
+                    oi.quantity AS quantity,
+                    oi.special_instruction,
+                    oi.status AS item_status,
+                    oi.created_at as created_at
+                FROM orders AS o
+                JOIN order_items AS oi
+                ON o.id = oi.order_id
+                JOIN item_prices AS pi
+                ON oi.item_varity_id = pi.id
+                JOIN menu_items AS i
+                ON i.id = pi.item_id
+                WHERE o.status = 'running'
+                    AND o.res_id =$1
+                    AND o.table_id= $2
+                ORDER BY oi.created_at DESC
+                `,
+                [res_id,table_id]
+            );
+            return returnRes(res,200,{
+                success:true,
+                items_list : ordersResult?.rows
+            });
+        } catch (err) {
+            console.log('Sending KOT error: ', err.message);
+            return returnRes(res, 500, {
+                message: 'Internal Server Error!',
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR'
+            });
         }
     }
 }
