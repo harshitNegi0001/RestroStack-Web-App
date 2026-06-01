@@ -337,7 +337,9 @@ class Table {
                                 'table_name',t.table_name,
                                 'capacity',t.capacity,
                                 'status',t.status,
-                                'created_at',t.created_at
+                                'created_at',t.created_at,
+                                'occupied_since',o.created_at,
+                                'hourly_charge',z.hourly_charge
                             )ORDER BY t.id ASC
                         )FILTER (WHERE t.id IS NOT NULL),'[]'::json
                     ) AS tables_array
@@ -345,6 +347,9 @@ class Table {
                 LEFT JOIN tables AS t
                 ON t.zone_id=z.id 
                     AND t.is_active = TRUE
+                LEFT JOIN orders AS o
+                    ON o.table_id = t.id
+                    AND o.status = 'running'
                 WHERE z.res_id = $1
                     AND z.is_active = TRUE
                 GROUP BY z.id

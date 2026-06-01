@@ -14,7 +14,8 @@ export const getRoles = async (userId) => {
                     'res_logo',r.res_logo,
                     'full_address',r.full_address,
                     'res_status',r.res_status,
-                    'currency',r.currency
+                    'currency',r.currency,
+                    'tax',r.gst_tax
                 ) as res_data
 
                 FROM roles AS rl

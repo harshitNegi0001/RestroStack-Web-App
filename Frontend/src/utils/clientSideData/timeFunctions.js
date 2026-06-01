@@ -23,6 +23,14 @@ export const formatDate = (dateStr) => {
         year: 'numeric',
     });
 };
+export const count_minutes= (createdAt)=>{
+    if (!createdAt) return '';
+    const postDate = new Date(createdAt);
+    const now = new Date();
+    const diffMs = now - postDate;
+    const minute = 60 * 1000;
+     return Math.floor(diffMs / minute);
+}
 export const formatTime = (dateStr) => {
     if (!dateStr) return '';
 

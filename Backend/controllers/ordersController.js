@@ -140,7 +140,8 @@ class Orders {
                     oi.quantity AS quantity,
                     oi.special_instruction,
                     oi.status AS item_status,
-                    oi.created_at as created_at
+                    oi.created_at as created_at,
+                    o.created_at AS occupied_since
                 FROM orders AS o
                 JOIN order_items AS oi
                 ON o.id = oi.order_id

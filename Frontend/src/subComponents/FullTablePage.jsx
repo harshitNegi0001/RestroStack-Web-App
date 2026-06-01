@@ -88,7 +88,7 @@ export default function FullTablePage({ onClose, tableData = {} }) {
             <div className="flex flex-col gap-2  p-4 min-h-0 flex-1 overflow-y-auto show-custom-scrollbar">
                 <SegmentOptions options={options} activeOption={activeOption} setActiveOption={setActiveOption} />
                 {
-                    activeOption?.page == 'recent-orders' && <TableRecentOrders tableId={tableData?.id} />
+                    activeOption?.page == 'recent-orders' && <TableRecentOrders tableId={tableData?.id} charges={tableData?.hourly_charge} />
                 }
                 {
                     activeOption?.page == 'order-food' && <TableOrderFood setOpenCustomize={setOpenCustomize} setCustomizeData={setCustomizeData} />
