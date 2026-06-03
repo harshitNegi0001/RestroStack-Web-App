@@ -49,7 +49,7 @@
     --scrollbar-clr: #69b962a9;
     --skeleton: #44504350;
     --skeleton-wave: #4b615c80;
-    
+
 }
 
 .dark {
@@ -71,6 +71,7 @@
 
 
 }
+
 .dark input[type="time"]::-webkit-calendar-picker-indicator {
     filter: invert(100%) sepia(13%) saturate(320%) hue-rotate(130deg) brightness(80%) contrast(70%);
 }
@@ -135,6 +136,7 @@
     /* Chrome mein wapas on karega */
     width: 6px;
 }
+
 /* Targets Chrome, Edge, and Safari */
 
 .show-custom-scrollbar::-webkit-scrollbar-track {
@@ -152,4 +154,21 @@
 input::-ms-reveal,
 input::-ms-clear {
     display: none;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    #printable-receipt,
+    #printable-receipt * {
+        visibility: visible;
+    }
+
+    #printable-receipt {
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
 }

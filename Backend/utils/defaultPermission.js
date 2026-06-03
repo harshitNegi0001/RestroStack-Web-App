@@ -8,6 +8,7 @@ export const defaultPermisson = {
         "manage_menu":true,
         "can_manage_staff": true,
         "can_post_jobs": true,
+        "can_generate_bill":true,
         "view_billings": true,
         "buy_subscription": true,
         "manage_settings": true
@@ -21,6 +22,7 @@ export const defaultPermisson = {
         "manage_menu":true,
         "can_manage_staff": true,
         "can_post_jobs": true,
+        "can_generate_bill":true,
         "view_billings": true,
         "buy_subscription": false,
         "manage_settings": false
@@ -34,6 +36,7 @@ export const defaultPermisson = {
         "manage_menu":false,
         "can_manage_staff": false,
         "can_post_jobs": false,
+        "can_generate_bill":false,
         "view_billings": false,
         "buy_subscription": false,
         "manage_settings": false
@@ -47,7 +50,8 @@ export const defaultPermisson = {
         "manage_menu":false,
         "can_manage_staff": false,
         "can_post_jobs": false,
-        "view_billings": false,
+        "view_billings": true,
+        "can_generate_bill":true,
         "buy_subscription": false,
         "manage_settings": false
     },
@@ -58,9 +62,10 @@ export const defaultPermisson = {
         "can_manage_table": true,
         "view_inventory": false,
         "manage_menu":false,
+        "can_generate_bill":true,
         "can_manage_staff": false,
         "can_post_jobs": false,
-        "view_billings": false,
+        "view_billings": true,
         "buy_subscription": false,
         "manage_settings": false
     }

@@ -6,35 +6,70 @@ const backend_url = import.meta.env.VITE_BACKEND_URL;
 
 
 
-export const sendKOT = async (orderData,successFunction)=>{
+export const sendKOT = async (orderData, successFunction) => {
     try {
-        const result =await axios.post(
+        const result = await axios.post(
             `${backend_url}/order/send-kot`,
             orderData,
             {
-                withCredentials:true
+                withCredentials: true
             }
         );
         successFunction();
         toast.success('KOT sent.')
-        
+
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Sending KOT failed!')
     }
 }
 
-export const getRecentOrders =async (tableNo,successFunction)=>{
+export const getRecentOrders = async (tableNo, successFunction) => {
     try {
         const result = await axios.get(
             `${backend_url}/order/get-recent-orders?table_id=${tableNo}`,
             {
-                withCredentials:true
+                withCredentials: true
             }
         );
         successFunction(result?.data?.items_list);
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Getting Recent Orders Failed!')
+    }
+}
+
+export const cancelOrder = async (order_item_id, successFunction) => {
+    try {
+        const result = await axios.post(
+            `${backend_url}/order/cancel-order`,
+            {
+                order_item_id
+            }, {
+            withCredentials: true
+        }
+        )
+        successFunction();
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Canceling Order Failed!');
+    }
+}
+
+
+export const generateBill = async (table_id, successFunction) => {
+    try {
+        const result =await axios.post(
+            `${backend_url}/order/generate-bill`,{
+                table_id
+            },
+            {
+                withCredentials:true
+            }
+        )
+        successFunction(result?.data?.bill_data);
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Canceling Order Failed!');
     }
 }

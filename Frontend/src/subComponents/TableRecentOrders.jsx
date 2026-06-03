@@ -1,5 +1,5 @@
 import { useEffect } from "react"
-import { getRecentOrders } from "../Apis/ordersApi"
+import { generateBill, getRecentOrders } from "../Apis/ordersApi"
 import { useState } from "react"
 import { FiClock } from "react-icons/fi";
 import OrderHistCard from "./OrderHistCard";
@@ -7,18 +7,20 @@ import { count_minutes, timeCount } from "../utils/clientSideData/timeFunctions"
 import NoRecentOrders from "../utils/illustrations/NoRecentOrders";
 import { useSelector } from "react-redux";
 import { currencies } from "../utils/clientSideData/setupVariables";
-
-
+import { IoReceiptOutline } from "react-icons/io5";
+import BillReceiptModal from "./BillReceiptModal";
 
 
 
 export default function TableRecentOrders({ tableId, charges }) {
     const [isLoading, setIsLoading] = useState(true);
+    const [loadingBtn,setLoadingBtn] = useState(false);
     const [items_list, setItems_list] = useState([]);
+    const [generatedBillData, setGeneratedBillData] = useState(null);
     const { activeResData } = useSelector(state => state.auth);
     const currency = currencies.find(c => c.key == activeResData?.currency)?.symbol || '₹';
-    const subtotal = items_list?.reduce((sum, i) => sum + parseFloat(i.price), 0);
-    const tax = activeResData?.tax;
+    const subtotal = items_list?.reduce((sum, i) =>(i.item_status!='cancelled')? sum + parseFloat(i.price):sum, 0);
+    const tax = activeResData?.tax ||0;
     const total_tax = parseFloat(subtotal) * tax / 100;
     const min_count = count_minutes(items_list[0]?.occupied_since);
     const table_charges = (charges / 60) * min_count;
@@ -34,6 +36,16 @@ export default function TableRecentOrders({ tableId, charges }) {
         setIsLoading(true);
         await getRecentOrders(tableId, successFunction);
         setIsLoading(false);
+    }
+    const handlePrintBill = async () => {
+        function successFunction(data) {
+            // Backend se aayi hui bill details state me save karo
+            setGeneratedBillData(data); 
+        }
+
+        setLoadingBtn(true);
+        await generateBill(tableId, successFunction);
+        setLoadingBtn(false);
     }
     return (
         <div className="w-full h-full flex flex-col items-center gap-2 ">
@@ -89,7 +101,9 @@ export default function TableRecentOrders({ tableId, charges }) {
                         <div className="w-full flex flex-col gap-2 mt-2 ">
                             {
                                 items_list?.map(i =>
-                                    <OrderHistCard key={i.id} data={i} type="recent" />
+                                    <OrderHistCard key={i.id} data={i} type="recent" onCancel={() => {
+                                        setItems_list(prev => (prev.map(item => item.id == i.id ? { ...item, item_status: 'cancelled' } : item)))
+                                    }} />
                                 )
                             }
                         </div>
@@ -112,13 +126,24 @@ export default function TableRecentOrders({ tableId, charges }) {
                                 <span className="text-sec-text font-[500]"> {currency} {parseFloat(subtotal) + parseFloat(table_charges) + parseFloat(total_tax)}</span>
                             </div>
                         </div>
+                        <div className="w-full border-t-1 border-divider h-0"></div>
+                        <div className="w-full flex justify-end">
+                            
+                            <button onClick={handlePrintBill} className="w-[120px] py-1 bg-linear-0 text-white font-[500] text-[13px] sm:text-[15px] rounded-lg flex items-center justify-center gap-0.5
+                                            to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99">
+                                <IoReceiptOutline /> Print Bill
+                            </button>
+                        </div>
                     </div>}
-            {/* {
-                !isLoading && items_list?.length>0 &&
-                <div className="w-full border-t-1 border-divider p-2">
+                    {generatedBillData && (
+                <BillReceiptModal 
+                    billData={generatedBillData} 
+                    restaurantData={activeResData}
+                    currency={currency}
+                    onClose={() => setGeneratedBillData(null)} 
+                />
+            )}
 
-                </div>
-            } */}
         </div>
     )
 }

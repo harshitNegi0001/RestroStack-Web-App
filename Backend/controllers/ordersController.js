@@ -11,14 +11,14 @@ class Orders {
             return returnRes(res, 400, {
                 success: false,
                 error: 'EMPTY_ORDER',
-                message: 'No items in the cart to order.'
+                message: 'The order is empty. Please add items to the cart before sending.'
             });
         }
 
         if (role != 'owner' && !permissions?.['can_manage_table']) {
             return returnRes(res, 403, {
                 success: false,
-                error: 'ACCESS_DENIED',
+                error: 'UNAUTHORIZED_ACTION',
                 message: 'You do not have permission to send KOT.'
             });
         }
@@ -26,8 +26,8 @@ class Orders {
         if (!table_id) {
             return returnRes(res, 400, {
                 success: false,
-                error: 'REQUIRED_FIELD_MISSING',
-                message: 'Missing required field.'
+                error: 'MISSING_TABLE_ID',
+                message: 'Table ID is required to process this order.'
             });
         }
         const client = await db.connect();
@@ -116,14 +116,14 @@ class Orders {
         }
     }
     getOldOrders = async (req, res) => {
-        const {table_id} = req.query;
+        const { table_id } = req.query;
         const permissions = req.permissions;
-        const {res_id,id,role} = req.user; 
+        const { res_id, id, role } = req.user;
 
-        if(role!='owner' && !permissions?.['can_manage_table']){
+        if (role != 'owner' && !permissions?.['can_manage_table']) {
             return returnRes(res, 403, {
                 success: false,
-                error: 'ACCESS_DENIED',
+                error: 'UNAUTHORIZED_ACTION',
                 message: 'You do not have permission to access Orders.'
             });
         }
@@ -154,11 +154,11 @@ class Orders {
                     AND o.table_id= $2
                 ORDER BY oi.created_at DESC
                 `,
-                [res_id,table_id]
+                [res_id, table_id]
             );
-            return returnRes(res,200,{
-                success:true,
-                items_list : ordersResult?.rows
+            return returnRes(res, 200, {
+                success: true,
+                items_list: ordersResult?.rows
             });
         } catch (err) {
             console.log('Sending KOT error: ', err.message);
@@ -167,6 +167,193 @@ class Orders {
                 success: false,
                 error: 'INTERNAL_SERVER_ERROR'
             });
+        }
+    }
+
+    cancelOrder = async (req, res) => {
+        const { order_item_id } = req.body;
+        const { id, res_id, role } = req.user;
+        const permissions = req.permissions;
+        if (role != 'owner' && !permissions?.['can_manage_table'] && !permissions?.['view_live_orders']) {
+            return returnRes(res, 403, {
+                success: false,
+                error: 'UNAUTHORIZED_ACTION',
+                message: 'You do not have permission to manage Orders.'
+            });
+        }
+        try {
+            const order_item_status = await db.query(
+                `SELECT status
+                FROM order_items
+                WHERE id =$1`,
+                [order_item_id]
+            );
+            if (order_item_status?.rows?.length == 0) {
+                return returnRes(res, 404, {
+                    error: 'ORDER_ITEM_NOT_FOUND',
+                    message: "The requested order item does not exist or may have been removed.",
+                    success: false
+                });
+            }
+            const order_status = order_item_status.rows[0]?.status;
+            if (order_status == 'settled') {
+                return returnRes(res, 403, {
+                    success: false,
+                    error: 'ORDER_IN_PROGRESS',
+                    message: 'The kitchen is already preparing this order. Please contact the kitchen lead for changes.'
+                });
+            }
+            if (role == 'waiter' && order_status != 'running') {
+                return returnRes(res, 403, {
+                    success: false,
+                    error: 'REQUEST_DENIED',
+                    message: 'Kitchen working on this, now you can not cancel.'
+                });
+            }
+
+            await db.query(
+                `UPDATE order_items
+                    SET status = 'cancelled'
+                WHERE id = $1`,
+                [order_item_id]
+            );
+
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                message: 'Order cancelled!'
+            });
+        } catch (err) {
+            console.log('Canceling order error: ', err.message);
+            return returnRes(res, 500, {
+                message: 'Internal Server Error!',
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR'
+            });
+        }
+    }
+
+    generateBill = async (req, res) => {
+        const { table_id } = req.body;
+        const { id, res_id, role } = req.user;
+        const permissions = req.permissions;
+
+        if (role != 'owner' && !permissions?.['can_generate_bill']) {
+            return returnRes(res, 403, {
+                success: false,
+                error: 'UNAUTHORIZED_ACTION',
+                message: 'You do not have permission to generate bills.'
+            });
+        }
+
+        if (!table_id) {
+            return returnRes(res, 400, { success: false, message: 'Table ID is required' });
+        }
+
+        const client = await db.connect();
+
+        try {
+            await client.query('BEGIN');
+
+            const orderQuery = await client.query(
+                `SELECT 
+                o.id AS order_id, 
+                o.created_at, 
+                z.hourly_charge, 
+                r.gst_tax AS tax
+            FROM orders AS o
+            JOIN tables AS t ON o.table_id = t.id
+            JOIN table_zone AS z ON t.zone_id = z.id
+            JOIN restaurants AS r ON o.res_id = r.id
+            WHERE o.table_id = $1 AND o.res_id = $2 AND o.status = 'running'`,
+                [table_id, res_id]
+            );
+
+            if (orderQuery.rows.length === 0) {
+                await client.query('ROLLBACK');
+                return returnRes(res, 404, {
+                    success: false,
+                    message: 'No running order found on this table.'
+                });
+            }
+
+            const { order_id, created_at, hourly_charge, tax } = orderQuery.rows[0];
+
+            const itemsQuery = await client.query(
+                `SELECT 
+                oi.id, oi.quantity, oi.price, oi.special_instruction,
+                i.item_name, pi.variant_name
+            FROM order_items oi
+            JOIN item_prices pi ON oi.item_varity_id = pi.id
+            JOIN menu_items i ON pi.item_id = i.id
+            WHERE oi.order_id = $1 AND oi.status != 'cancelled'`,
+                [order_id]
+            );
+
+            const items = itemsQuery.rows;
+
+            const subtotal = items.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
+
+            const occupiedSince = new Date(created_at).getTime();
+            const now = Date.now();
+            const diffInMinutes = Math.max(0, Math.floor((now - occupiedSince) / 60000));
+
+            const safe_hourly_charge = parseFloat(hourly_charge) || 0;
+            const table_charges = (safe_hourly_charge / 60) * diffInMinutes;
+
+            const safe_tax = parseFloat(tax) || 0;
+            const tax_amount = (subtotal * safe_tax) / 100;
+
+            const grand_total = subtotal + table_charges + tax_amount;
+
+            const insertBillQuery = await client.query(
+                `INSERT INTO bills (
+                table_id, res_id, order_id, invoice_no, 
+                subtotal, tax_amount, table_charges, grand_total
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
+                [table_id, res_id, order_id, `TEMP-ORD-${order_id}`, subtotal, tax_amount, table_charges, grand_total]
+            );
+
+            const newBillId = insertBillQuery.rows[0].id;
+
+            const invoice_no = `INV-${res_id}-${newBillId}`;
+            await client.query(
+                `UPDATE bills SET invoice_no = $1 WHERE id = $2`,
+                [invoice_no, newBillId]
+            );
+
+            await client.query(
+                `UPDATE orders SET status = 'billed' WHERE id = $1`,
+                [order_id]
+            );
+
+            await client.query('COMMIT');
+
+            return returnRes(res, 200, {
+                success: true,
+                message: 'Bill generated successfully.',
+                bill_data: {
+                    id: newBillId,
+                    invoice_no,
+                    subtotal: subtotal.toFixed(2),
+                    tax_amount: tax_amount.toFixed(2),
+                    table_charges: table_charges.toFixed(2),
+                    grand_total: grand_total.toFixed(2),
+                    items: items,
+                    billed_at: new Date()
+                }
+            });
+
+        } catch (err) {
+            await client.query('ROLLBACK');
+            console.log('Generating Bill Error: ', err.message);
+            return returnRes(res, 500, {
+                message: 'Internal Server Error!',
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR'
+            });
+        } finally {
+            client.release();
         }
     }
 }

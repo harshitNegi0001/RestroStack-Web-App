@@ -1,3 +1,4 @@
+import { createBillTable } from "../schema/billsTable.js";
 import { createTokenTable } from "../schema/inviteTokenTable.js";
 import { createItemPriceTable } from "../schema/itemPriceTable.js";
 import { createMenuCategoryTable } from "../schema/menuCategoryTable.js";
@@ -30,6 +31,7 @@ export const setupTable = async()=>{
         await createResConnectReqTable(pool);
         await createOrdersTable(pool);
         await createOrderItemsTable(pool);
+        await createBillTable(pool);
         
     } catch (err) {
         console.log(err);

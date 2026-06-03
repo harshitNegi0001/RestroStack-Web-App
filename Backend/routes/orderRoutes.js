@@ -8,4 +8,6 @@ const router  = e.Router();
 
 router.post('/send-kot',tokenOpener,permissionInjector,Orders.sendKOT);
 router.get('/get-recent-orders',tokenOpener,permissionInjector,Orders.getOldOrders);
+router.post('/cancel-order',tokenOpener,permissionInjector,Orders.cancelOrder);
+router.post('/generate-bill',tokenOpener,permissionInjector,Orders.generateBill)
 export default router;
