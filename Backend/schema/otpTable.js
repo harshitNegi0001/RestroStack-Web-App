@@ -4,10 +4,10 @@ export const createOTPTable = async(pool)=>{
             `CREATE TABLE IF NOT EXISTS otp_table(
                 id BIGSERIAL PRIMARY KEY,
                 identifier TEXT NOT NULL, 
-                identifier_type VARCHAR(30) NOT NULL DEFAULT 'email',
+                identifier_type VARCHAR(50) NOT NULL DEFAULT 'email',
                 hashed_otp TEXT NOT NULL,
-                otp_type VARCHAR(20) NOT NULL DEFAULT 'verification',
-                status VARCHAR(15) NOT NULL DEFAULT 'pending',
+                otp_type VARCHAR(50) NOT NULL DEFAULT 'verification',
+                status VARCHAR(30) NOT NULL DEFAULT 'pending',
 
                 expires_at TIMESTAMPTZ NOT NULL DEFAULT now()+INTERVAL '10 minutes',
                 created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
