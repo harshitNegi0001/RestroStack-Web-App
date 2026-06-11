@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function NoDataIcon(props) {
     return (
-        <svg {...props} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 500 500">
+        <svg {...props} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 500 400">
             <defs>
                 <clipPath id="freepik--clip-path--inject-33">
                     <rect x="55.67" y="159" width="230" height="228" fill="none"></rect>
@@ -27,8 +27,8 @@ export default function NoDataIcon(props) {
                 </clipPath>
             </defs>
             <g id="freepik--background-simple--inject-33">
-                <path d="M429.84,253.51c-3.39-27-11.87-53.07-22-71.76-24.47-44.91-92.64-74.95-144-67.18-43.81,6.62-64.86,46.59-104.36,60.46-36.34,12.76-69.06,22.61-86.19,56.28C37,302.43,125.71,380.18,201.74,374.12c24-1.92,45.44-11.15,70.07-6.82,50,8.79,66.6,18.24,110.76.66C426.08,350.63,435.77,300.74,429.84,253.51Z" fill="#44D76D"></path>
-                <path d="M429.84,253.51c-3.39-27-11.87-53.07-22-71.76-24.47-44.91-92.64-74.95-144-67.18-43.81,6.62-64.86,46.59-104.36,60.46-36.34,12.76-69.06,22.61-86.19,56.28C37,302.43,125.71,380.18,201.74,374.12c24-1.92,45.44-11.15,70.07-6.82,50,8.79,66.6,18.24,110.76.66C426.08,350.63,435.77,300.74,429.84,253.51Z" fill="#fff" opacity="0.8"></path>
+                <path d="M429.84,253.51c-3.39-27-11.87-53.07-22-71.76-24.47-44.91-92.64-74.95-144-67.18-43.81,6.62-64.86,46.59-104.36,60.46-36.34,12.76-69.06,22.61-86.19,56.28C37,302.43,125.71,380.18,201.74,374.12c24-1.92,45.44-11.15,70.07-6.82,50,8.79,66.6,18.24,110.76.66C426.08,350.63,435.77,300.74,429.84,253.51Z" fill="#44D76D2f"></path>
+                <path d="M429.84,253.51c-3.39-27-11.87-53.07-22-71.76-24.47-44.91-92.64-74.95-144-67.18-43.81,6.62-64.86,46.59-104.36,60.46-36.34,12.76-69.06,22.61-86.19,56.28C37,302.43,125.71,380.18,201.74,374.12c24-1.92,45.44-11.15,70.07-6.82,50,8.79,66.6,18.24,110.76.66C426.08,350.63,435.77,300.74,429.84,253.51Z" fill="#ffffff6f" opacity="0.8"></path>
             </g>
             <g id="freepik--Device--inject-33">
                 <polyline points="254.91 389.43 212.26 293.93 315.61 293.93 443.06 378" fill="#fff" stroke="#263238" strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.75px"></polyline>
@@ -108,7 +108,7 @@ export default function NoDataIcon(props) {
                 <rect x="360.48" y="203.89" width="6.67" height="134.03" fill="#263238" stroke="#263238" strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.75px"></rect>
                 <polygon points="302.58 208.14 302.88 273.32 349.26 299.69 349.26 218.98 317.43 214.16 315.31 209.65 302.58 208.14" fill="#fff" stroke="#263238" strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.75px"></polygon>
                 <polygon points="305.61 216.02 305.61 271.5 346.54 293.33 346.54 223.3 305.61 216.02" fill="#44D76D" stroke="#263238" strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.75px"></polygon>
-                <ellipse cx="324.72" cy="255.73" rx="11.03" ry="15.2" transform="translate(-64.52 116.69) rotate(-18.56)" fill="#263238"></ellipse>
+                <ellipse cx="324.72" cy="255.73" rx="11.03" ry="15.2" transform="translate(-64.52 116.69) rotate(-18.56)" fill="#266f38"></ellipse>
                 <path d="M325.92,256.67l3.89-4.31a2.21,2.21,0,0,0-.07-2.59c-.58-.83-1.49-1-2-.41L324,253.51l-3.75-6c-.54-.87-1.45-1.14-2-.6a2.11,2.11,0,0,0-.08,2.55l3.89,6.25L318.1,260a2.2,2.2,0,0,0,.08,2.59,1.68,1.68,0,0,0,1,.73,1,1,0,0,0,1-.32l3.75-4.15,3.74,6a1.79,1.79,0,0,0,1.06.84,1,1,0,0,0,1-.24,2.12,2.12,0,0,0,.07-2.55Z" fill="#fff"></path>
                 <line x1="312.88" y1="234.82" x2="335.8" y2="241.55" fill="none" stroke="#263238" strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.75px"></line>
                 <line x1="311.97" y1="228.45" x2="341.68" y2="236.74" fill="none" stroke="#263238" strokeLinecap="round" strokeLinejoin="round" strokeWidth="0.75px"></line>

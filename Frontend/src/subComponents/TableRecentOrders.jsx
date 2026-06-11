@@ -9,26 +9,27 @@ import { useSelector } from "react-redux";
 import { currencies } from "../utils/clientSideData/setupVariables";
 import { IoReceiptOutline } from "react-icons/io5";
 import BillReceiptModal from "./BillReceiptModal";
+import { MdOutlinePayments } from "react-icons/md";
 
 
-
-export default function TableRecentOrders({ tableId, charges }) {
+export default function TableRecentOrders({ tableId, charges,openPayScreen,setOpenPayScreen,setGeneratedBillData,generatedBillData }) {
     const [isLoading, setIsLoading] = useState(true);
-    const [loadingBtn,setLoadingBtn] = useState(false);
+    const [loadingBtn, setLoadingBtn] = useState(false);
     const [items_list, setItems_list] = useState([]);
-    const [generatedBillData, setGeneratedBillData] = useState(null);
+    const [openBill, setOpenBill] = useState(false);
     const { activeResData } = useSelector(state => state.auth);
     const currency = currencies.find(c => c.key == activeResData?.currency)?.symbol || '₹';
-    const subtotal = items_list?.reduce((sum, i) =>(i.item_status!='cancelled')? sum + parseFloat(i.price):sum, 0);
-    const tax = activeResData?.tax ||0;
+    const subtotal = items_list?.reduce((sum, i) => (i.item_status != 'cancelled') ? sum + parseFloat(i.price) * parseFloat(i.quantity) : sum, 0);
+    const tax = activeResData?.tax || 0;
     const total_tax = parseFloat(subtotal) * tax / 100;
     const min_count = count_minutes(items_list[0]?.occupied_since);
     const table_charges = (charges / 60) * min_count;
     useEffect(() => {
         getInitialValues();
-    }, [])
+    }, []);
 
     const getInitialValues = async () => {
+
         function successFunction(data) {
             setItems_list(data);
         }
@@ -38,15 +39,22 @@ export default function TableRecentOrders({ tableId, charges }) {
         setIsLoading(false);
     }
     const handlePrintBill = async () => {
+        if (generatedBillData) {
+            setOpenBill(true);
+            return;
+        }
         function successFunction(data) {
             // Backend se aayi hui bill details state me save karo
-            setGeneratedBillData(data); 
+            setGeneratedBillData(data);
+            setOpenBill(true);
+
         }
 
         setLoadingBtn(true);
         await generateBill(tableId, successFunction);
         setLoadingBtn(false);
     }
+    
     return (
         <div className="w-full h-full flex flex-col items-center gap-2 ">
             {isLoading ?
@@ -127,20 +135,46 @@ export default function TableRecentOrders({ tableId, charges }) {
                             </div>
                         </div>
                         <div className="w-full border-t-1 border-divider h-0"></div>
-                        <div className="w-full flex justify-end">
-                            
-                            <button onClick={handlePrintBill} className="w-[120px] py-1 bg-linear-0 text-white font-[500] text-[13px] sm:text-[15px] rounded-lg flex items-center justify-center gap-0.5
+                        <div className="w-full flex justify-end gap-2">
+                            {
+                                generatedBillData ?
+                                    <>
+                                        <button onClick={handlePrintBill} className="w-fit mt-3 px-3 py-2 rounded-lg bg-linear-0 text-white font-[500] text-[12px] sm:text-[13px] flex items-center justify-center gap-1
                                             to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99">
-                                <IoReceiptOutline /> Print Bill
-                            </button>
+                                            <IoReceiptOutline /> Print Bill
+                                        </button>
+                                         <button onClick={()=>setOpenPayScreen(true)} className="w-fit mt-3 px-3 py-2 rounded-lg bg-linear-0 text-white font-[500] text-[12px] sm:text-[13px]  flex items-center justify-center gap-1
+                                            to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99">
+                                            <MdOutlinePayments /> Handle Payment
+                                        </button>
+                                    </> :
+                                    <button disabled={loadingBtn}
+                                    onClick={handlePrintBill}
+                                        className={`w-fit mt-3 px-3 py-2 rounded-lg bg-linear-0 text-white text-[11px] sm:text-[13px] font-[500] flex items-center justify-center                        
+                                            ${loadingBtn ? 'bg-disabled-btn/60 cursor-not-allowed' : 'to-green-500  hover:from-green-700 active:to-green-600 active:from-green-800 from-green-600 shadow shadow-md shadow-black/20 hover:shadow-lg active:shadow-sm active:scale-99'}`}
+                                    >
+                                        {loadingBtn ? <svg className="animate-spin -ml-1 mr-1 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        </svg> : null}
+                                        {
+                                            loadingBtn ? <span className='text-white/80'>Processing...</span> : 'Generate Bill'
+                                        }
+
+                                    </button>
+                            }
+
+
                         </div>
                     </div>}
-                    {generatedBillData && (
-                <BillReceiptModal 
-                    billData={generatedBillData} 
-                    restaurantData={activeResData}
+                    {
+                        openPayScreen
+                    }
+            {generatedBillData && openBill && (
+                <BillReceiptModal
+                    billData={generatedBillData}
                     currency={currency}
-                    onClose={() => setGeneratedBillData(null)} 
+                    onClose={() => setOpenBill(false)}
                 />
             )}
 

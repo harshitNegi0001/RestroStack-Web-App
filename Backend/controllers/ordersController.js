@@ -128,6 +128,7 @@ class Orders {
             });
         }
         try {
+
             const ordersResult = await db.query(
                 `SELECT 
                     oi.id as id,
@@ -149,7 +150,8 @@ class Orders {
                 ON oi.item_varity_id = pi.id
                 JOIN menu_items AS i
                 ON i.id = pi.item_id
-                WHERE o.status = 'running'
+                WHERE (o.status = 'running'
+                    OR o.status = 'billed')
                     AND o.res_id =$1
                     AND o.table_id= $2
                 ORDER BY oi.created_at DESC
@@ -253,8 +255,9 @@ class Orders {
         const client = await db.connect();
 
         try {
-            await client.query('BEGIN');
 
+            await client.query('BEGIN');
+           
             const orderQuery = await client.query(
                 `SELECT 
                 o.id AS order_id, 
@@ -265,7 +268,9 @@ class Orders {
             JOIN tables AS t ON o.table_id = t.id
             JOIN table_zone AS z ON t.zone_id = z.id
             JOIN restaurants AS r ON o.res_id = r.id
-            WHERE o.table_id = $1 AND o.res_id = $2 AND o.status = 'running'`,
+            WHERE o.table_id = $1 AND o.res_id = $2 AND (o.status = 'running' OR o.status ='billed' )  
+            ORDER BY o.created_at DESC 
+            LIMIT 1`,
                 [table_id, res_id]
             );
 
@@ -278,7 +283,50 @@ class Orders {
             }
 
             const { order_id, created_at, hourly_charge, tax } = orderQuery.rows[0];
-
+            const exists_check = await client.query(
+                `SELECT
+                    b.*,
+                    json_agg(
+                        json_build_object(
+                            'id',oi.id, 
+                            'quantity',oi.quantity, 
+                            'price',oi.price, 
+                            'special_instruction',oi.special_instruction,
+                            'item_name',i.item_name, 
+                            'variant_name',pi.variant_name
+                        )
+                    ) AS items
+                FROM bills AS b
+                JOIN orders AS o
+                ON b.order_id = o.id
+                JOIN order_items AS oi
+                ON o.id = oi.order_id
+                JOIN item_prices AS pi
+                ON oi.item_varity_id = pi.id
+                JOIN menu_items i 
+                ON pi.item_id = i.id
+                WHERE b.order_id = $1
+                GROUP BY b.id
+                `, [order_id]
+            )
+            if (exists_check.rows.length > 0) {
+                const data = exists_check.rows[0];
+                return returnRes(res, 200, {
+                    success: true,
+                    error: false,
+                    message: 'Bill already generated for this order.',
+                    bill_data: {
+                        id: data?.id,
+                        invoice_no: data?.invoice_no,
+                        subtotal: data?.subtotal,
+                        tax_amount: data?.tax_amount,
+                        table_charges: data?.table_charges,
+                        grand_total: data?.grand_total,
+                        items: data?.items,
+                        billed_at: data?.created_at
+                    }
+                })
+            }
             const itemsQuery = await client.query(
                 `SELECT 
                 oi.id, oi.quantity, oi.price, oi.special_instruction,
@@ -308,10 +356,10 @@ class Orders {
 
             const insertBillQuery = await client.query(
                 `INSERT INTO bills (
-                table_id, res_id, order_id, invoice_no, 
+                table_id, res_id, order_id, invoice_no, created_by,
                 subtotal, tax_amount, table_charges, grand_total
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`,
-                [table_id, res_id, order_id, `TEMP-ORD-${order_id}`, subtotal, tax_amount, table_charges, grand_total]
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8,$9) RETURNING id`,
+                [table_id, res_id, order_id, `TEMP-ORD-${order_id}`, id, subtotal, tax_amount, table_charges, grand_total]
             );
 
             const newBillId = insertBillQuery.rows[0].id;
@@ -353,6 +401,75 @@ class Orders {
                 error: 'INTERNAL_SERVER_ERROR'
             });
         } finally {
+            client.release();
+        }
+    }
+    confirmCashPayment = async (req, res) => {
+        const { bill_id } = req.body;
+        const { id, role, res_id } = req.user;
+        const permissions = req.permissions;
+
+        if (role != 'owner' && !permissions?.['can_generate_bill']) {
+            return returnRes(res, 403, {
+                success: false,
+                error: 'UNAUTHORIZED_ACTION',
+                message: 'You do not have permission to accept payment.'
+            });
+        }
+
+        if (!bill_id) {
+            return returnRes(res, 400, { success: false, message: 'Bill ID is required.', error: 'REQUIRED_INFO_MISSING' });
+        }
+        const client = await db.connect();
+        try {
+            await client.query('BEGIN');
+            const bill_update_res = await client.query(
+                `UPDATE bills 
+                SET payment_status = 'paid',
+                    created_by = $1,
+                    payment_method='cash',
+                    payment_time=now()
+                WHERE id =$2
+                RETURNING table_id, order_id`,
+                [id,bill_id]
+            );
+            if(bill_update_res?.rows.length==0){
+                return returnRes(res,400,{
+                    success:false,
+                    error:'BILL_NOT_FOUND',
+                    message:"Bill ID didn't matched!"
+                })
+            }
+            await client.query(
+                `UPDATE tables
+                SET status = 'available'
+                WHERE id = $1
+                `,[bill_update_res?.rows[0]?.table_id]
+            )
+
+            await client.query(
+                `UPDATE orders 
+                SET status = 'settled'
+                WHERE id =$1`,
+                [bill_update_res?.rows[0]?.order_id]
+            );
+
+            await client.query('COMMIT');
+            return returnRes(res,200,{
+                success:true,
+                error:false,
+                message:'Bill marked as paid.'
+            })
+        } catch (err) {
+            await client.query('ROLLBACK');
+            console.log('Confirming Cash Payment Error: ', err);
+            return returnRes(res, 500, {
+                message: 'Internal Server Error!',
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR'
+            });
+        }
+        finally {
             client.release();
         }
     }

@@ -9,7 +9,7 @@ const FullViewLineup = ({ pendingOrder, onClose, setPendingOrder, openFullView, 
         ${openFullView ? 'translate-y-0' : 'translate-y-full'} transition-all duration-300`}>
             <div className='w-full  flex justify-between items-center border-b-1 border-divider'>
                 <span className='text-[14px] sm:text-[15px] font-[500] text-low-text/70'>Lineup Orders</span>
-                <div onClick={onClose} className='size-[40px] hover:bg-divider/10 active:bg-divider/20 rounded-full flex justify-center items-center'>
+                <div onClick={onClose} className='size-[40px] hover:bg-divider/10 active:bg-divider/20 rounded-full flex justify-center text-sec-text items-center'>
                     <IoClose />
                 </div>
             </div>

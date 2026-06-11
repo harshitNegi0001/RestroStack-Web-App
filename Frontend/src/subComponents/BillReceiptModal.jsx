@@ -1,9 +1,13 @@
 import React from 'react';
 import { IoClose, IoPrintOutline } from "react-icons/io5";
+import { LuBuilding2 } from 'react-icons/lu';
+import { useSelector } from 'react-redux';
+import { IoRestaurantOutline } from "react-icons/io5";
+export default function BillReceiptModal({ billData, currency, onClose }) {
 
-export default function BillReceiptModal({ billData, restaurantData, currency, onClose }) {
-    
     // Print function
+    const { activeResData } = useSelector(state => state.auth);
+    const res_name = activeResData?.res_name;
     const handlePrint = () => {
         window.print();
     };
@@ -11,11 +15,10 @@ export default function BillReceiptModal({ billData, restaurantData, currency, o
     if (!billData) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 print:bg-white print:p-0">
-            
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-[2px] p-4 print:bg-white print:p-0">
+
             {/* Receipt Container - Set to approx 80mm width for thermal printers */}
-            <div className="bg-white w-full max-w-[320px] rounded-lg shadow-xl overflow-hidden print:w-[80mm] print:shadow-none print:rounded-none">
-                
+            <div className="bg-white w-full max-w-[320px] rounded-lg shadow-xl flex flex-col max-h-[85vh] print:w-[80mm] print:max-h-none print:shadow-none print:rounded-none">
                 {/* Header Actions (Hidden during print) */}
                 <div className="flex justify-between items-center p-3 bg-gray-100 border-b print:hidden">
                     <h3 className="font-semibold text-gray-700 text-sm">Bill Generated</h3>
@@ -26,11 +29,18 @@ export default function BillReceiptModal({ billData, restaurantData, currency, o
 
                 {/* --- ACTUAL RECEIPT START --- */}
                 {/* font-mono makes it look like a typewriter/receipt */}
-                <div id="printable-receipt" className="p-5 font-mono text-[12px] text-black bg-white">
-                    
+                <div id="printable-receipt" className="p-5 font-mono text-[12px] text-black bg-white overflow-y-auto show-custom-scrollbar print:overflow-visible">
                     {/* Restaurant Info */}
-                    <div className="text-center mb-4 flex flex-col gap-1">
-                        <h2 className="font-bold text-[18px]">{restaurantData?.restaurant_name || "BillnChill Restro"}</h2>
+                    <div className="text-center items-center mb-4 flex flex-col gap-1">
+                        {
+                            !activeResData?.res_logo ?
+                                <img src={activeResData?.res_logo} alt=""
+                                    className='size-[40px] object-center object-contain rounded-lg saturate-0'  />
+                                :
+                                <IoRestaurantOutline size={'30px'} />
+                        }
+                       
+                        <h2 className="font-bold text-[18px]">{res_name || "BillnChill Restro"}</h2>
                         <p className="text-[11px] uppercase border-b-2 border-dashed border-black pb-2">
                             Cash Memo / Bill
                         </p>
@@ -55,7 +65,7 @@ export default function BillReceiptModal({ billData, restaurantData, currency, o
                             <span className="w-[15%] text-center">Qty</span>
                             <span className="w-[25%] text-right">Price</span>
                         </div>
-                        
+
                         {/* Map over items sent by backend */}
                         {billData.items?.map((item, index) => (
                             <div key={index} className="flex justify-between mb-1 items-start">
@@ -90,17 +100,17 @@ export default function BillReceiptModal({ billData, restaurantData, currency, o
 
                     <div className="text-center mt-6 mb-2 border-t border-dashed border-black pt-2 text-[10px]">
                         <p>Thank you for visiting!</p>
-                        <p>Powered by BillnChill</p>
+                        <p>Powered by RestroStack</p>
                     </div>
                 </div>
                 {/* --- ACTUAL RECEIPT END --- */}
 
                 {/* Action Buttons (Hidden during print) */}
                 <div className="p-4 bg-gray-50 flex gap-2 print:hidden">
-                    <button 
+                    <button
                         onClick={handlePrint}
                         className="flex-1 bg-black text-white py-2.5 rounded-lg flex justify-center items-center gap-2 font-medium hover:bg-gray-800 transition-all">
-                        <IoPrintOutline size={18}/> Print
+                        <IoPrintOutline size={18} /> Print
                     </button>
                 </div>
             </div>

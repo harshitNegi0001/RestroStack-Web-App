@@ -73,3 +73,24 @@ export const generateBill = async (table_id, successFunction) => {
         toast.error(err?.response?.data?.message || 'Canceling Order Failed!');
     }
 }
+
+export const confirmCashPayment = async(bill_id, successFunction)=>{
+    try {
+        const result =await axios.post(
+            `${backend_url}/order/confirm/cash-payment`,
+            {
+                bill_id
+            },
+            {
+                withCredentials:true
+            }
+
+            
+        )
+        successFunction();
+        toast.success('Payment Confirmed');
+    } catch (error) {
+         console.log(err);
+        toast.error(err?.response?.data?.message || 'Confirming Cash Payment Failed!');
+    }
+}

@@ -2,7 +2,7 @@ import React from 'react';
 
 const NoRecentOrders = (props) => {
     return (
-        <svg {...props} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 500 500">
+        <svg {...props} xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 500 450">
             <defs>
                 <clipPath id="freepik--clip-path--inject-1">
                     <path d="M207.85,279.79c.43,9.86-15.13,32.65,4.08,45.86,2.26,19.91,5.09,39.51,10.4,72.16H322.57c-4.12-28.24-3.22-60.42,10-124a25.33,25.33,0,0,0-22.26-30.39c-4-.4-8.24-.74-12.58-1-16.86-.81-30.69-1.35-45.52,0-4.91.45-10,1.07-14.84,1.75A34.41,34.41,0,0,0,207.85,279.79Z" fill="none"></path>

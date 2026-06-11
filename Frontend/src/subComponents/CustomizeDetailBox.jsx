@@ -100,7 +100,7 @@ export default function CustomizeDetailBox({ data, openCustomize, onClose,handle
             </div>
             <div className="w-full border-b-1 border-divider/60"></div>
             <div className="w-full flex justify-center">
-                <button onClick={()=>
+                <button disabled={!activeVariation} onClick={()=>
                     handleAddToOrder({
                         id:Date.now(),
                         extraDetail,

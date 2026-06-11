@@ -11,6 +11,7 @@ import CustomizeDetailBox from "./CustomizeDetailBox";
 import PendingCartView from "./PendingCartView";
 import FullViewLineup from "./FullViewLineup";
 import { sendKOT } from "../Apis/ordersApi";
+import TablePayScreen from "./TablePayScreen";
 
 const options = [
     {
@@ -38,6 +39,8 @@ export default function FullTablePage({ onClose, tableData = {} }) {
     const [pendingOrder, setPendingOrder] = useState([]);
     const [openFullView, setOpenFullView] = useState(false);
     const [loadingKOTbtn, setLoadingKOTbtn] = useState(false);
+    const [openPayScreen, setOpenPayScreen] = useState(false);
+    const [generatedBillData, setGeneratedBillData] = useState(null);
 
     const handleAddToOrder = (item) => {
         setPendingOrder(prev => [...prev, item]);
@@ -88,7 +91,7 @@ export default function FullTablePage({ onClose, tableData = {} }) {
             <div className="flex flex-col gap-2  p-4 min-h-0 flex-1 overflow-y-auto show-custom-scrollbar">
                 <SegmentOptions options={options} activeOption={activeOption} setActiveOption={setActiveOption} />
                 {
-                    activeOption?.page == 'recent-orders' && <TableRecentOrders tableId={tableData?.id} charges={tableData?.hourly_charge} />
+                    activeOption?.page == 'recent-orders' && <TableRecentOrders generatedBillData={generatedBillData} setGeneratedBillData={setGeneratedBillData} tableId={tableData?.id} charges={tableData?.hourly_charge} openPayScreen={openPayScreen} setOpenPayScreen={setOpenPayScreen} />
                 }
                 {
                     activeOption?.page == 'order-food' && <TableOrderFood setOpenCustomize={setOpenCustomize} setCustomizeData={setCustomizeData} />
@@ -120,7 +123,26 @@ export default function FullTablePage({ onClose, tableData = {} }) {
                     pendingOrder={pendingOrder}
                     setPendingOrder={setPendingOrder}
                     openFullView={openFullView} handleSendKOT={handleSendKOT}
-                    loadingKOTbtn={loadingKOTbtn}/>
+                    loadingKOTbtn={loadingKOTbtn} 
+                    />
+
+
+
+            </div>
+            <div onClick={() => {
+                setOpenPayScreen(false)
+            }} className={`absolute w-full h-full
+                ${openPayScreen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'} flex flex-col justify-end bg-main-text/10 `}>
+
+                <TablePayScreen
+                    onClose={() => {
+                        setOpenPayScreen(false)
+                    }}
+                    generatedBillData={generatedBillData}
+                    openPayScreen={openPayScreen}
+                    data={null}
+                    closeTable={onClose}
+                />
 
 
 

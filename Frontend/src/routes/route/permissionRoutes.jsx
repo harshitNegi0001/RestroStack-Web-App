@@ -1,6 +1,5 @@
 import { lazy } from "react";
 import ComingSoon from "../../Pages/view/ComingSoon";
-import LiveTable from "../../Pages/view/LiveTable";
 
 
 const Dashboard = lazy(()=>import("../../Pages/view/Dashboard"));
@@ -8,6 +7,9 @@ const StaffPage = lazy(()=>import("../../Pages/view/StaffPage"));
 const JobPosts = lazy(()=>import("../../Pages/view/JobPosts"));
 const RestaurantManagementPage = lazy(()=>import("../../Pages/view/RestaurantManagementPage"));
 const MenuBuilder = lazy(()=>import("../../Pages/view/MenuBuilder"));
+const LiveOrders = lazy(()=>import("../../Pages/view/LiveOrders"));
+const LiveTable = lazy(()=>import("../../Pages/view/LiveTable"));
+
 
 
 
@@ -16,7 +18,7 @@ export const permissionBasedRoutes = [
         id:1,
         path:'/dashboard',
         permission:'',
-        element:<Dashboard />
+        element:<ComingSoon />
     },
     {
         id:2,
@@ -58,7 +60,7 @@ export const permissionBasedRoutes = [
         id:8,
         path:'/live-orders',
         permission:'',
-        element:<ComingSoon/>
+        element:<LiveOrders/>
     },
     {
         id:9,

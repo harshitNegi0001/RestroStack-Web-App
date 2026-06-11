@@ -5,6 +5,8 @@ export const createBillTable = async(pool)=>{
             `CREATE TABLE IF NOT EXISTS bills(
                 id SERIAL PRIMARY KEY,
                 table_id BIGINT NOT NULL,
+                created_by BIGINT NOT NULL,
+
                 res_id BIGINT NOT NULL,
                 order_id BIGINT NOT NULL,
                 invoice_no VARCHAR(50) NOT NULL UNIQUE,
@@ -14,7 +16,6 @@ export const createBillTable = async(pool)=>{
                 tax_amount DECIMAL(10,2) NOT NULL,
                 table_charges DECIMAL(10,2) NOT NULL,
                 grand_total DECIMAL(10,2) NOT NULL,
-                
 
                 payment_time TIMESTAMPTZ ,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -27,7 +28,10 @@ export const createBillTable = async(pool)=>{
                     REFERENCES orders(id),
                 CONSTRAINT bill_res_id_fk
                     FOREIGN KEY (res_id)
-                    REFERENCES restaurants(id)
+                    REFERENCES restaurants(id),
+                CONSTRAINT bill_created_by_user_id_fk
+                    FOREIGN KEY (created_by)
+                    REFERENCES users(id)
             )`
         )
 
