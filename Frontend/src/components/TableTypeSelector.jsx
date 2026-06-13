@@ -20,7 +20,7 @@ export default function TableTypeSelector({ zonesList=[], activeZone, setActiveZ
                     <div key={z.id} onClick={()=>setActiveZone(z.id)}
                     className={`${activeZone!=z.id?'border-divider text-low-text hover:text-sec-text':
                     'bg-active-border border-active-border text-white'}
-                    px-2 py-1 text-[12px] border-1  md:text-[14px] rounded-2xl cursor-pointer`}>
+                    px-2 py-1 text-[12px] border-1  md:text-[14px] rounded-2xl cursor-pointer capitalize`}>
                         {z.zone_name}
                     </div>)
             }

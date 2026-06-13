@@ -8,7 +8,7 @@ export const createOrderItemsTable = async(pool)=>{
                 quantity INT NOT NULL DEFAULT 1,
                 price DECIMAL(10,2) NOT NULL,
                 special_instruction TEXT ,
-                status VARCHAR(30) NOT NULL DEFAULT 'running',
+                status VARCHAR(30) NOT NULL DEFAULT 'pending',
 
                 created_at TIMESTAMPTZ DEFAULT now(),
                 updated_at TIMESTAMPTZ DEFAULT now(),

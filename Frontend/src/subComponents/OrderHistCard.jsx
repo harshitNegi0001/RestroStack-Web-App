@@ -36,13 +36,13 @@ const OrderHistCard = ({ data, type = 'lineup', onClose, onCancel }) => {
               <div onClick={onClose} title='remove' className='hover:bg-red-600/10 active:bg-red-600/20 text-red-600 size-[40px] rounded-full flex justify-center items-center'>
                 <BiTrash />
               </div> :
-              data?.item_status == 'running' ?
+              data?.item_status == 'pending' ?
                 <button title='Cancel Order' onClick={() => setShowConfirm(true)}
                   className='w-fit px-2 py-1 rounded-md text-red-600 hover:bg-red-600/10 active:bg-red-600/20 text-[10px] sm:text-[12px]'>
                   Cancel
                 </button> :
-                <div className={`w-fit px-2 py-0.5  rounded-xl text-[10px] sm:text-[12px]
-              ${data?.item_status == 'cancelled' ? 'border-red-600 bg-red-600/10 text-red-600' : data?.item_status == 'settled' ? 'border-green-600 bg-green-600/10 text-green-600' : 'border-orange-600 bg-orange-600/10 text-orange-600'}`}>
+                <div className={`capitalize w-fit px-2 py-0.5  rounded-xl text-[10px] sm:text-[12px]
+              ${(data?.item_status == 'cancelled'|| data?.item_status =='rejected' )? 'border-red-600 bg-red-600/10 text-red-600' : data?.item_status == 'ready' ? 'border-green-600 bg-green-600/10 text-green-600' :(data?.item_status == 'pending' || data?.item_status == 'prepairing')? 'border-orange-600 bg-orange-600/10 text-orange-600':'border-blue-600 bg-blue-600/10 text-blue-600'}`}>
                   {data?.item_status}
                 </div>
           }

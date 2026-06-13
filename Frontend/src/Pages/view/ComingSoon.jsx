@@ -1,3 +1,4 @@
+import ComingSoonSvg from "../../utils/illustrations/ComingSoonSvg";
 
 
 
@@ -5,15 +6,17 @@
 export default function ({ customStyle }) {
     return (
         <div className={`flex-1 w-full min-h-0 flex flex-col overflow-y-auto show-custom-scrollbar items-center gap-2 text-center justify-center ${customStyle} `}>
-            <img src="https://res.cloudinary.com/dns5lxuvy/image/upload/v1777531095/s5jyarggmjiac04tsaif.png" alt=""
-                className="w-[100%] max-w-[450px] object-contain mb-3" />
-            <div className="w-full flex flex-col items-center text-center gap-1">
-                <div className="w-full text-[24px] md:text-[27px] font-[600] uppercase text-main-text">
-                    Coming soon
-                </div>
-                <div className="w-full text-[11px] sm:text-[13px] text-low-text/70">
+            
+            <div className="w-full max-w-[380px] px-3">
+                <ComingSoonSvg className="w-full" />
+            </div>
+            <div className="text-center mt-0 flex flex-col gap-1.5">
+                <h3 className="text-[17px] sm:text-[24px] font-semibold text-main-text">
+                    Coming soon!
+                </h3>
+                <p className="text-[12px] sm:text-[13px] font-medium text-low-text/70 max-w-[430px] leading-snug">
                     This Feature/Page is queued for next update. Stay tuned with us.
-                </div>
+                </p>
             </div>
 
         </div>

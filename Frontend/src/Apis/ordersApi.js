@@ -90,7 +90,42 @@ export const confirmCashPayment = async(bill_id, successFunction)=>{
         successFunction();
         toast.success('Payment Confirmed');
     } catch (error) {
-         console.log(err);
+        console.log(err);
         toast.error(err?.response?.data?.message || 'Confirming Cash Payment Failed!');
+    }
+}
+
+
+export const getKOT = async(successFunction)=>{
+    try {
+        const result = await axios.get(
+            `${backend_url}/order/get-kot`,
+            {
+                withCredentials:true
+            }
+        )
+        successFunction(result?.data?.orders_list);
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Fetching KOT failed!');
+    }
+}
+
+export const changeOrderStatus =async(orderItemId,newStatus,successFunction)=>{
+    try {
+        const result =await axios.post(
+            `${backend_url}/order/change-status`,
+            {
+                orderItemId,
+                newStatus
+            },
+            {
+                withCredentials:true
+            }
+        );
+        successFunction();
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Updating order status Failed!');
     }
 }

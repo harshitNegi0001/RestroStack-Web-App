@@ -257,7 +257,7 @@ class Orders {
         try {
 
             await client.query('BEGIN');
-           
+
             const orderQuery = await client.query(
                 `SELECT 
                 o.id AS order_id, 
@@ -431,20 +431,20 @@ class Orders {
                     payment_time=now()
                 WHERE id =$2
                 RETURNING table_id, order_id`,
-                [id,bill_id]
+                [id, bill_id]
             );
-            if(bill_update_res?.rows.length==0){
-                return returnRes(res,400,{
-                    success:false,
-                    error:'BILL_NOT_FOUND',
-                    message:"Bill ID didn't matched!"
+            if (bill_update_res?.rows.length == 0) {
+                return returnRes(res, 400, {
+                    success: false,
+                    error: 'BILL_NOT_FOUND',
+                    message: "Bill ID didn't matched!"
                 })
             }
             await client.query(
                 `UPDATE tables
                 SET status = 'available'
                 WHERE id = $1
-                `,[bill_update_res?.rows[0]?.table_id]
+                `, [bill_update_res?.rows[0]?.table_id]
             )
 
             await client.query(
@@ -455,10 +455,10 @@ class Orders {
             );
 
             await client.query('COMMIT');
-            return returnRes(res,200,{
-                success:true,
-                error:false,
-                message:'Bill marked as paid.'
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                message: 'Bill marked as paid.'
             })
         } catch (err) {
             await client.query('ROLLBACK');
@@ -471,6 +471,156 @@ class Orders {
         }
         finally {
             client.release();
+        }
+    }
+
+    getKOT = async (req, res) => {
+        const { id, res_id, role } = req.user;
+        const permissions = req.permissions;
+
+        if (role != 'owner' && !permissions?.['view_live_orders']) {
+            return returnRes(res, 403, {
+                success: false,
+                error: 'UNAUTHORIZED_ACTION',
+                message: 'You do not have permission to view live orders.'
+            });
+        }
+
+        try {
+            const result = await db.query(
+                `SELECT
+                    oi.id AS id,
+                    oi.order_id AS order_id,
+                    i.item_name as item_name,
+                    pi.variant_name AS variant_name,
+                    oi.quantity AS quantity,
+                    oi.special_instruction AS instruction,
+                    oi.status AS status,
+                    o.table_id AS table_id,
+                    t.table_name AS table_name,
+                    z.zone_name AS zone_name,
+                    oi.created_at AS ordered_at
+                FROM order_items AS oi
+                JOIN orders AS o
+                ON oi.order_id = o.id
+                JOIN item_prices AS pi
+                ON oi.item_varity_id = pi.id
+                JOIN menu_items AS i
+                ON pi.item_id =i.id
+                JOIN tables AS t
+                ON o.table_id = t.id
+                JOIN table_zone AS z
+                ON t.zone_id = z.id
+                WHERE o.res_id = $1 
+                    AND oi.status != 'cancelled'
+                ORDER BY oi.created_at DESC
+                    `, [res_id]
+            );
+
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                message: 'Live orders fetched.',
+                orders_list: result?.rows
+            });
+        } catch (err) {
+            console.log('Viewing KOT Error: ', err);
+            return returnRes(res, 500, {
+                message: 'Internal Server Error!',
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR'
+            });
+        }
+    }
+    updateOrderStatus = async (req, res) => {
+        const { id, res_id, role } = req.user;
+        const permissions = req.permissions;
+        const { orderItemId, newStatus } = req.body;
+
+        if (role != 'owner' && !permissions?.['view_live_orders'] && !permissions?.['can_manage_table']) {
+            return returnRes(res, 403, {
+                success: false,
+                error: 'UNAUTHORIZED_ACTION',
+                message: 'You do not have permission to manage orders.'
+            });
+        }
+        // check for specific order they have permission
+        if ((newStatus == 'preparing' || newStatus == 'ready' || newStatus == 'rejected') && !permissions?.['view_live_orders'] && role != 'owner') {
+            return returnRes(res, 403, {
+                success: false,
+                error: 'UNAUTHORIZED_ACTION',
+                message: 'You do not have permission to perform this action.'
+            });
+        }
+        if ((newStatus == 'cancelled' || newStatus == 'served') && !permissions?.['can_manage_table'] && role != 'owner') {
+            return returnRes(res, 403, {
+                success: false,
+                error: 'UNAUTHORIZED_ACTION',
+                message: 'You do not have permission to prepair order'
+            });
+        }
+        // check order item exists?
+        // check if order status is already cancelled.
+
+
+        try {
+            const orderCheck = await db.query(
+                `SELECT 
+                    oi.status
+                FROM order_items AS oi
+                JOIN orders AS o
+                ON oi.order_id = o.id
+                WHERE oi.id = $1
+                    AND o.res_id =$2
+                    AND o.status = 'running'`,
+                [orderItemId, res_id]
+            );
+            if (orderCheck.rows.length == 0) {
+                return returnRes(res, 404, {
+                    success: false,
+                    error: 'ORDER_NOT_FOUND',
+                    message: 'Order you want to update, not found!'
+                });
+            }
+            const order_status = orderCheck?.rows[0].status;
+            if (order_status == 'cancel' || order_status == 'rejected') {
+                return returnRes(res, 400, {
+                    success: false,
+                    error: 'ORDER_CANCELLED_OR_REJECTED',
+                    message: 'Order has been rejected or cancelled, Could not modify.'
+                });
+            }
+            if ((order_status == 'preparing' && (newStatus == 'ready' || newStatus == 'rejected')) ||
+                (order_status == 'ready' && newStatus == 'served') ||
+                (order_status == 'pending' && (newStatus == 'preparing' || newStatus == 'cancelled' || newStatus == 'cancelled'))) {
+                await db.query(
+                    `UPDATE order_items
+                SET status =$1
+                WHERE id = $2`,
+                    [newStatus, orderItemId]
+                );
+
+                return returnRes(res, 200, {
+                    message: 'Successfully updated order status',
+                    success: true,
+                    error: false
+                });
+            }
+            else{
+                return returnRes(res,400,{
+                    success:false,
+                    error:'',
+                    message:'Action not allowed!'
+                });
+            }
+
+        } catch (err) {
+            console.log('Updating KOT Status Error: ', err);
+            return returnRes(res, 500, {
+                message: 'Internal Server Error!',
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR'
+            });
         }
     }
 }

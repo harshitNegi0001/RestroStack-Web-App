@@ -137,7 +137,6 @@ class Auth {
             const message = createOtpMail(otp, subject, cstmMsg);
             await sendEmail(email, subject, message);
 
-
             await db.query(
                 `INSERT INTO 
                     rate_limit_count

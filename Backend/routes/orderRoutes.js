@@ -11,4 +11,6 @@ router.get('/get-recent-orders',tokenOpener,permissionInjector,Orders.getOldOrde
 router.post('/cancel-order',tokenOpener,permissionInjector,Orders.cancelOrder);
 router.post('/generate-bill',tokenOpener,permissionInjector,Orders.generateBill);
 router.post('/confirm/cash-payment',tokenOpener,permissionInjector,Orders.confirmCashPayment);
+router.get('/get-kot',tokenOpener,permissionInjector,Orders.getKOT);
+router.post('/change-status',tokenOpener,permissionInjector,Orders.updateOrderStatus);
 export default router;

@@ -30,6 +30,9 @@ export default function TableCard({ isLoading, data = {} }) {
                 <div title="Seats" className="w-full flex gap-0.5 items-center text-low-text text-[10px] sm:text-[10px] lg:text-[11px]">
                     <LuArmchair />{data?.capacity}
                 </div>
+                <div className={`text-[10px] sm:text-[11px] capitalize text-sec-text flex gap-1 items-center w-full truncate`}>
+                    <span className={`p-1 w-fit h-fit rounded-full ${data?.status=='available'?'bg-green-600':data?.status=='occupied'?'bg-red-600':data?.status=='reserved'?'bg-purple-600':'bg-sec-text'}`}></span>{data?.status}
+                </div>
             </div>
         </>
 
