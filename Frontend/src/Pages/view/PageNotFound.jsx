@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom"
+import PageNotFoundSvg from "../../utils/illustrations/PageNotFoundSvg";
 
 
 
@@ -11,19 +12,16 @@ export default function PageNotFound() {
             className="w-dvw min-h-dvh p-2 md:py-4 flex justify-center items-center ">
             <div
                 className="w-full  flex flex-col items-center gap-2 ">
-                <div 
-                className="w-[100%] max-w-[500px]">
-                    <img src="https://res.cloudinary.com/dns5lxuvy/image/upload/v1773224748/bpqjla7vww3zo0adcmom.png" 
-                    alt="" 
-                    className="w-full object-contain "/>
+                <div className="w-full max-w-[450px] px-3">
+                    <PageNotFoundSvg className="w-full" />
                 </div>
                 <div 
                 className="w-full max-w-[550px] flex flex-col items-center text-center">
                     <span 
                     className="text-sec-text/90 text-[13px] md:text-[15px] lg:text-[17px]">Error 404</span>
                     <h3
-                        className="text-[30px] md:text-[34px] lg:text-[38px] 
-                    text-main-text font-[600]">Page not found!</h3>
+                        className="text-[26px] md:text-[28px] lg:text-[30px] 
+                    text-main-text font-[600]">Page Not Found!</h3>
                     <span
                     className="text-low-text/70  text-[11px]  md:text-[12px] lg:text-[14px]">
                         The page your'e trying to access doesn't exist or has been removed.

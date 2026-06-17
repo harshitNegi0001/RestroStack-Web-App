@@ -595,7 +595,6 @@ class Orders {
                     message: "Once cancelled or rejected can't be modify."
                 });
             }
-            console.log(order_status,newStatus,orderItemId);
             if ((order_status == 'preparing' && (newStatus == 'ready' || newStatus == 'rejected')) ||
                 (order_status == 'ready' && newStatus == 'served') ||
                 (order_status == 'pending' && (newStatus == 'preparing' || newStatus == 'cancelled' || newStatus == 'rejected'))) {
