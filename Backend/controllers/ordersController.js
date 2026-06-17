@@ -215,7 +215,8 @@ class Orders {
 
             await db.query(
                 `UPDATE order_items
-                    SET status = 'cancelled'
+                    SET status = 'cancelled',
+                    updated_at = now()
                 WHERE id = $1`,
                 [order_item_id]
             );
@@ -516,6 +517,7 @@ class Orders {
                 ORDER BY oi.created_at DESC
                     `, [res_id]
             );
+            
 
             return returnRes(res, 200, {
                 success: true,
@@ -535,8 +537,7 @@ class Orders {
     updateOrderStatus = async (req, res) => {
         const { id, res_id, role } = req.user;
         const permissions = req.permissions;
-        const { orderItemId, newStatus } = req.body;
-
+        const { orderItemId, newStatus, reason, customReason } = req.body;
         if (role != 'owner' && !permissions?.['view_live_orders'] && !permissions?.['can_manage_table']) {
             return returnRes(res, 403, {
                 success: false,
@@ -559,8 +560,6 @@ class Orders {
                 message: 'You do not have permission to prepair order'
             });
         }
-        // check order item exists?
-        // check if order status is already cancelled.
 
 
         try {
@@ -572,9 +571,15 @@ class Orders {
                 ON oi.order_id = o.id
                 WHERE oi.id = $1
                     AND o.res_id =$2
-                    AND o.status = 'running'`,
+                    AND (o.status = 'running' OR o.status='billed')`,
                 [orderItemId, res_id]
             );
+            if (newStatus == 'ready') {
+                // notify waiter! with  sockets
+            }
+            if(newStatus=='served'){
+
+            }
             if (orderCheck.rows.length == 0) {
                 return returnRes(res, 404, {
                     success: false,
@@ -587,15 +592,17 @@ class Orders {
                 return returnRes(res, 400, {
                     success: false,
                     error: 'ORDER_CANCELLED_OR_REJECTED',
-                    message: 'Order has been rejected or cancelled, Could not modify.'
+                    message: "Once cancelled or rejected can't be modify."
                 });
             }
+            console.log(order_status,newStatus,orderItemId);
             if ((order_status == 'preparing' && (newStatus == 'ready' || newStatus == 'rejected')) ||
                 (order_status == 'ready' && newStatus == 'served') ||
-                (order_status == 'pending' && (newStatus == 'preparing' || newStatus == 'cancelled' || newStatus == 'cancelled'))) {
+                (order_status == 'pending' && (newStatus == 'preparing' || newStatus == 'cancelled' || newStatus == 'rejected'))) {
                 await db.query(
                     `UPDATE order_items
-                SET status =$1
+                SET status =$1,
+                    updated_at = now()
                 WHERE id = $2`,
                     [newStatus, orderItemId]
                 );
@@ -606,16 +613,74 @@ class Orders {
                     error: false
                 });
             }
-            else{
-                return returnRes(res,400,{
-                    success:false,
-                    error:'',
-                    message:'Action not allowed!'
+            else {
+                return returnRes(res, 400, {
+                    success: false,
+                    error: '',
+                    message: 'Action not allowed!'
                 });
             }
 
         } catch (err) {
             console.log('Updating KOT Status Error: ', err);
+            return returnRes(res, 500, {
+                message: 'Internal Server Error!',
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR'
+            });
+        }
+    }
+
+    getWaiterOrders = async (req, res) => {
+        const { id, res_id, role } = req.user;
+        const permissions = req.permissions;
+        if (role != 'owner' && !permissions?.['can_manage_table']) {
+            return returnRes(res, 403, {
+                success: false,
+                error: 'UNAUTHORIZED_ACTION',
+                message: 'You do not have permission to manage orders.'
+            });
+        }
+        try {
+            const result = await db.query(
+                `SELECT 
+                    oi.id AS id,
+                    oi.order_id,
+                    t.table_name,
+                    i.item_name,
+                    pi.variant_name,
+                    oi.quantity,
+                    oi.status AS status,
+                    o.table_id ,
+                    z.zone_name AS zone_name,
+                    oi.created_at AS ordered_at,
+                    oi.updated_at AS updated_at
+                FROM orders AS o
+                JOIN order_items AS oi
+                ON oi.order_id = o.id
+                JOIN item_prices AS pi
+                ON oi.item_varity_id = pi.id
+                JOIN menu_items AS i
+                ON pi.item_id =i.id
+                JOIN tables AS t
+                ON o.table_id = t.id
+                JOIN table_zone AS z
+                ON t.zone_id = z.id
+                WHERE o.res_id =$2 
+                    AND o.staff_id =$1
+                    AND (o.status ='running' OR o.status = 'billed' )
+                ORDER BY oi.updated_at DESC`,
+                [id, res_id]
+            )
+
+            return returnRes(res,200,{
+                success:true,
+                error:false,
+                message:'Order fetched successfully.',
+                orders_list:result?.rows||[]
+            });
+        } catch (err) {
+            console.log('Getting Orders List Error: ', err);
             return returnRes(res, 500, {
                 message: 'Internal Server Error!',
                 success: false,

@@ -1,7 +1,7 @@
 
 
 
-export const createStaffInvitationMain = ({ token, owner_name,restaurant_name,role_name }) => {
+export const createStaffInvitationMail = ({ token, owner_name,restaurant_name,role_name }) => {
     const join_link = `https://restro-stack.vercel.app/invite?token=${token}`
     const mail = `
     <!DOCTYPE html>

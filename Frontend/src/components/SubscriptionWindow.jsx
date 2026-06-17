@@ -44,12 +44,12 @@ export default function SubscriptionWindow() {
 
     return (
         <div
-            className="w-[100vw] min-h-[100dvh] flex flex-col justify-center items-center p-2">
-            <div className="w-full flex flex-col pt-5 items-center justify-center md:flex-row gap-3 md:gap-1">
+            className="w-full h-full p-2 md:p-4 flex flex-col gap-2 md:gap-4 items-center overflow-y-auto show-custom-scrollbar ">
+            <div className="mt-2 w-full flex flex-col pt-5 items-center justify-center md:flex-row gap-3 md:gap-1">
                 <div className="border-1 relative md:border-2 border-active-border/40 rounded-2xl
                 w-full max-w-[450px] md:w-[30%] p-3 md:p-5 flex flex-col h-[450px] md:h-[500px] lg:h-[450px] justify-center items-center gap-4 bg-card-bg">
                     {/* card1 */}
-                    <div className="py-2 px-4 rounded-2xl absolute top-[-15px] text-sec-text bg-active-border text-[14px] md:text-[15px]">
+                    <div className="py-2 px-4 rounded-2xl absolute top-[-15px] text-white bg-active-border text-[14px] md:text-[15px] font-[500]">
                         Current Active Plan
                     </div>
                     <div className="flex flex-col gap-1 items-center">

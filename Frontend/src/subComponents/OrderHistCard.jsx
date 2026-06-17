@@ -42,7 +42,7 @@ const OrderHistCard = ({ data, type = 'lineup', onClose, onCancel }) => {
                   Cancel
                 </button> :
                 <div className={`capitalize w-fit px-2 py-0.5  rounded-xl text-[10px] sm:text-[12px]
-              ${(data?.item_status == 'cancelled'|| data?.item_status =='rejected' )? 'border-red-600 bg-red-600/10 text-red-600' : data?.item_status == 'ready' ? 'border-green-600 bg-green-600/10 text-green-600' :(data?.item_status == 'pending' || data?.item_status == 'prepairing')? 'border-orange-600 bg-orange-600/10 text-orange-600':'border-blue-600 bg-blue-600/10 text-blue-600'}`}>
+              ${(data?.item_status == 'cancelled'|| data?.item_status =='rejected' )? 'border-red-600 bg-red-600/10 text-red-600' : data?.item_status == 'ready' ? 'border-green-600 bg-green-600/10 text-green-600' :(data?.item_status == 'pending' || data?.item_status == 'preparing')? 'border-orange-600 bg-orange-600/10 text-orange-600':'border-blue-600 bg-blue-600/10 text-blue-600'}`}>
                   {data?.item_status}
                 </div>
           }

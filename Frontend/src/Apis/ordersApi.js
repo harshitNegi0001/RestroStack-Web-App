@@ -111,13 +111,15 @@ export const getKOT = async(successFunction)=>{
     }
 }
 
-export const changeOrderStatus =async(orderItemId,newStatus,successFunction)=>{
+export const changeOrderStatus =async(orderItemId,newStatus,successFunction,reason=null,customReason=null)=>{
     try {
         const result =await axios.post(
             `${backend_url}/order/change-status`,
             {
                 orderItemId,
-                newStatus
+                newStatus,
+                reason,
+                customReason
             },
             {
                 withCredentials:true
@@ -127,5 +129,20 @@ export const changeOrderStatus =async(orderItemId,newStatus,successFunction)=>{
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Updating order status Failed!');
+    }
+}
+
+export const getWaiterOrders =async (successFunction)=>{
+    try {
+        const result =await axios.get(
+            `${backend_url}/order/get-waiter-orders`,
+            {
+                withCredentials:true
+            }
+        );
+        successFunction(result?.data?.orders_list||[]);
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Getting orders Failed!');
     }
 }

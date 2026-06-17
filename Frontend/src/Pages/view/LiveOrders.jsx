@@ -64,11 +64,11 @@ const LiveOrders = () => {
                     px-3 py-1 rounded-2xl cursor-pointer text-[12px] sm:text-[14px] font-[500] flex items-center gap-1`}>
                         <span className='p-1 sm:p-1.5 rounded-full bg-blue-600'></span>Served ({allOrders?.reduce((count, o) => (o.status == 'served') ? count + 1 : count, 0) || 0})
                     </div>
-                    {/* <div onClick={()=>setActiveOrderType('served')} className={`${activeOrderType=='served'?'bg-active-border text-white border-0':
+                    <div onClick={()=>setActiveOrderType('rejected')} className={`${activeOrderType=='rejected'?'bg-active-border text-white border-0':
                     'border-1 border-sec-text/80 text-sec-text/80 hover:border-sec-text hover:text-sec-text'}
                     px-3 py-1 rounded-2xl cursor-pointer text-[12px] sm:text-[14px] font-[500] flex items-center gap-1`}>
-                    <span className='p-1 sm:p-1.5 rounded-full bg-blue-600'></span>Served ({1})
-                </div> */}
+                    <span className='p-1 sm:p-1.5 rounded-full bg-red-600'></span>Rejected ({allOrders?.reduce((count, o) => (o.status == 'rejected') ? count + 1 : count, 0) || 0})
+                </div>
                 </div>
             }
             {isLoading ?

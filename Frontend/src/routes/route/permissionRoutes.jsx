@@ -1,5 +1,6 @@
 import { lazy } from "react";
 import ComingSoon from "../../Pages/view/ComingSoon";
+import SubscriptionWindow from "../../components/SubscriptionWindow";
 
 
 const Dashboard = lazy(()=>import("../../Pages/view/Dashboard"));
@@ -72,6 +73,6 @@ export const permissionBasedRoutes = [
         id:10,
         path:'/subscription',
         permission:'',
-        element:<ComingSoon/>
+        element:<SubscriptionWindow/>
     }
 ]

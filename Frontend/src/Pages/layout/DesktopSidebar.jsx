@@ -35,19 +35,19 @@ export default function DesktopSideabr({ openSidebar ,setOpenSidebar}) {
     
     return (
         <div
-            className={`${openSidebar ? 'w-[280px]' : 'w-[73px]'} h-full hidden lg:flex flex-col bg-card-bg border-r-1 border-divider  z-10 gap-3
+            className={`${openSidebar ? 'w-[280px]' : 'w-[73px]'} h-full hidden lg:flex flex-col bg-card-bg border-r-1 border-divider  z-10 
             transition-all duration-[500ms] `}>
                 <BackdropPage isOpen={openConfirm} onClose={()=>setOpenConfirm(false)} >
                     <AlertBox onCancel={()=>setOpenConfirm(false)} confirmFunction={logoutBtnHandler} loadingBtn={loadingBtn}
                         title={'Logout'} desc={'Are you sure to log out?'} type={'error'}/>
                 </BackdropPage>
             <div
-                className="h-[65px] w-full p-3 border-b-1 border-divider mb-2">
+                className="h-[65px] w-full p-3 border-b-1 border-divider ">
 
                 <RestaurantSelectComponent openSidebar={openSidebar} />
             </div>
 
-            <div className="flex flex-col gap-3 flex-1 overflow-y-auto show-custom-scrollbar ">
+            <div className="flex flex-col gap-3 flex-1 overflow-y-auto show-custom-scrollbar py-3">
                 {sidebarNavs.map(nav => <div key={`section-${nav.id}`}
                     className="flex flex-col gap-2 px-2 w-full ">
                     {openSidebar && <span className={`${openSidebar ? 'opacity-100' : 'opacity-0'} w-full text-[14px] font-[500] font-[Rubik] flex-1 min-w-0 truncate  text-sec-text uppercase `}>

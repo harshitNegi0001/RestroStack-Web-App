@@ -135,7 +135,7 @@ export default function TableRecentOrders({ tableId, charges,openPayScreen,setOp
                             </div>
                         </div>
                         <div className="w-full border-t-1 border-divider h-0"></div>
-                        <div className="w-full flex justify-end gap-2">
+                        <div className="w-full flex justify-end gap-2 pb-3">
                             {
                                 generatedBillData ?
                                     <>

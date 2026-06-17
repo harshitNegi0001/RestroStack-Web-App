@@ -13,4 +13,5 @@ router.post('/generate-bill',tokenOpener,permissionInjector,Orders.generateBill)
 router.post('/confirm/cash-payment',tokenOpener,permissionInjector,Orders.confirmCashPayment);
 router.get('/get-kot',tokenOpener,permissionInjector,Orders.getKOT);
 router.post('/change-status',tokenOpener,permissionInjector,Orders.updateOrderStatus);
+router.get('/get-waiter-orders',tokenOpener,permissionInjector,Orders.getWaiterOrders);
 export default router;

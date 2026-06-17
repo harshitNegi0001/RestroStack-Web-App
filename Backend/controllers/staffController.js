@@ -1,7 +1,7 @@
 import { returnRes } from "../utils/returnRes.js";
 import db from '../utils/db.js';
 import crypto from 'crypto';
-import { createStaffInvitationMain } from "../utils/inviteStaffMail.js";
+import { createStaffInvitationMail} from "../utils/inviteStaffMail.js";
 import { sendEmail } from "../config/sendMail.js";
 import { defaultPermisson } from "../utils/defaultPermission.js";
 import { getUserFullDetail } from "../utils/getUserFullDetail.js";
@@ -64,7 +64,7 @@ class Staff {
                         [id]
                     );
                     const sender_name = user.rows[0].name;
-                    const mail = createStaffInvitationMain({ token: modifiedToken, owner_name: sender_name, restaurant_name, role_name });
+                    const mail = createStaffInvitationMail({ token: modifiedToken, owner_name: sender_name, restaurant_name, role_name });
                     await sendEmail(email, `Invitation to join ${restaurant_name} as ${role_name}.`, mail);
 
                     return returnRes(res, 200, {

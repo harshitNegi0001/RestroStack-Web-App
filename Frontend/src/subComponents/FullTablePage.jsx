@@ -65,7 +65,7 @@ export default function FullTablePage({ onClose, tableData = {} }) {
     return (
         <div
             className="w-[100dvw] h-[100dvh] sm:w-[500px] sm:h-[98dvh]   bg-card-bg sm:rounded-2xl
-        flex flex-col gap-0 relative overflow-hidden">
+        flex flex-col gap-0 relative overflow-hidden ">
             <div className="flex flex-row justify-start gap-2 sm:justify-between items-start sm:items-center p-3 border-b-1 border-divider">
 
                 <button onClick={onClose}

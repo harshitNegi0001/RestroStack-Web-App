@@ -1,57 +1,73 @@
 import { useState } from "react";
 import { IoClose } from "react-icons/io5";
 import { changeOrderStatus } from "../Apis/ordersApi";
+import BackdropPage from "./BackdropPage";
+import ConfirmCancel from "./ConfirmCancel";
 
 const statusColor = {
   'pending': 'bg-yellow-600/10 hover:bg-yellow-600/20 active:bg-yellow-600/30 text-yellow-600/70 hover:text-yellow-600/80 active:text-yellow-600',
   'preparing': 'bg-green-600/10 hover:bg-green-600/20 active:bg-green-600/30 text-green-600/70 hover:text-green-600/80 active:text-green-600',
 }
 const borderTagColor = {
-  'pending':'border-orange-600',
-  'preparing':'border-yellow-600',
-  'ready':'border-green-600',
-  'served':'border-blue-600',
-  'rejected':'border-red-600'
+  'pending': 'border-orange-600',
+  'preparing': 'border-yellow-600',
+  'ready': 'border-green-600',
+  'served': 'border-blue-600',
+  'rejected': 'border-red-600'
 }
 
 const KitchenOrderCard = ({ data, setAllOrders, isLoading }) => {
 
   const [loadingBtn, setLoadingBtn] = useState(false);
+  const [openRejectReason, setOpenRejectReason] = useState(false)
   const handleStatusChange = async () => {
-    const newStatus = data?.status == 'pending'?'preparing':'ready' ;
+    const newStatus = data?.status == 'pending' ? 'preparing' : 'ready';
     function successFunction() {
-        setAllOrders(prev => (prev.map(o => o.id == data?.id ? { ...o, status: newStatus } : o)));
+      setAllOrders(prev => (prev.map(o => o.id == data?.id ? { ...o, status: newStatus } : o)));
     }
     setLoadingBtn(true);
-    await changeOrderStatus(data?.id,newStatus,successFunction);
+    await changeOrderStatus(data?.id, newStatus, successFunction);
     setLoadingBtn(false);
 
   }
+  const handleRejectItem = async(reason,customReason)=>{
+    function successFunction(){
+      setAllOrders(prev => (prev.map(o => o.id == data?.id ? { ...o, status: 'rejected' } : o)));
+      setOpenRejectReason(false);
+    }
+    await changeOrderStatus(data?.id, 'rejected', successFunction,reason,customReason);
+  }
   return (
     <div className={`${isLoading ? 'animate-pulse h-[120px] bg-toast-bg' : 'bg-card-bg '} 
-    w-full rounded-xl shadow-black/30 shadow-md p-3 flex flex-col gap-1 items-center border-t-4 h-fit ${borderTagColor[data?.status]}`}>
-      <div className="w-full text-[13px]/3 sm:text-[15px]/3 text-main-text  font-[500]">
-        {data?.item_name}
-      </div>
-      <div className="w-full text-[11px] sm:text-[13px] text-low-text font-[500]">
-        {data?.variant_name}
-      </div>
-      
-      <div className="w-full flex items-center justify-between gap-1 text-[11px] sm:text-[12px]">
-        <span className="text-low-text/70">Quantity :</span>
-        <span className="flex-1 min-w-0 truncate text-low-text font-[500]">{data?.quantity}</span>
-      </div>
-      <div className="w-full flex items-center justify-between gap-1 text-[11px] sm:text-[12px]">
-        <span className="text-low-text/70">Table :</span>
-        <span className="flex-1 min-w-0 truncate text-low-text font-[500]">{data?.table_name}</span>
+    w-full rounded-xl shadow-black/30 shadow-md p-3 flex flex-col gap-1 items-center justify-between border-t-4  ${borderTagColor[data?.status]}`}>
+      <BackdropPage isOpen={openRejectReason} onClose={() => setOpenRejectReason(false)}>
+        <ConfirmCancel onClose={()=>setOpenRejectReason(false)} handleRejectItem={handleRejectItem}/>
+      </BackdropPage>
+      <div className="w-full flex flex-col ">
+        <div className="w-full text-[13px]/3.5 sm:text-[15px]/3.5 text-main-text  font-[500]">
+          {data?.item_name}
+        </div>
+        <div className="w-full text-[11px] sm:text-[13px] text-low-text font-[500]">
+          {data?.variant_name}
+        </div>
+
+        <div className="w-full flex items-center justify-between gap-1 text-[11px] sm:text-[12px]">
+          <span className="text-low-text/70">Quantity :</span>
+          <span className="flex-1 min-w-0 truncate text-low-text font-[500]">{data?.quantity}</span>
+        </div>
+        <div className="w-full flex items-center justify-between gap-1 text-[11px] sm:text-[12px]">
+          <span className="text-low-text/70">Table :</span>
+          <span className="flex-1 min-w-0 truncate text-low-text font-[500]">{data?.table_name}</span>
+        </div>
+
+        {data?.instruction && <div className="w-full mt-1 flex flex-col text-[11px] sm:text-[12px] text-low-text/70">
+          Customer Demand :
+          <div className="w-full line-clamp-3 bg-divider/40 px-2 py-1 rounded-md  text-sec-text font-[500]">
+            {data?.instruction}
+          </div></div>
+        }
       </div>
 
-      {data?.instruction&&<div className="w-full mt-1 flex flex-col text-[11px] sm:text-[12px] text-low-text/70">
-        Customer Demand :
-        <div className="w-full line-clamp-3 bg-divider/40 px-2 py-1 rounded-md  text-sec-text font-[500]">
-         {data?.instruction}
-      </div></div>
-        }
       {
         (data?.status == 'pending' || data?.status == 'preparing') &&
         <div className='w-full flex items-center gap-2 mt-3'>
@@ -63,7 +79,7 @@ const KitchenOrderCard = ({ data, setAllOrders, isLoading }) => {
               </svg> :
               data?.status == 'pending' ? 'Mark as preparing' : 'Mark as Ready'}
           </button>
-          <button title="Reject" className="w-fit h-fit p-2 rounded-full text-[14px] sm:text-[16px]
+          <button onClick={() => setOpenRejectReason(true)} title="Reject" className="w-fit h-fit p-2 rounded-full text-[14px] sm:text-[16px]
            text-red-600/60 hover:text-red-600/70 active:text-red-600 bg-red-600/10 hover:bg-red-600/20 active:bg-red-600/30">
             <IoClose />
           </button>
