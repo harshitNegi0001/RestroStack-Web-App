@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { IoArrowBack, IoClose } from 'react-icons/io5'
-import { rejectionOption } from '../utils/clientSideData/RejectionReasons';
+import { rejectionOption } from '../utils/clientSideData/rejectionReasons';
 import { FaRegCircle, FaRegDotCircle } from 'react-icons/fa';
 const ConfirmCancel = ({ onClose,handleRejectItem}) => {
   const [rejectionReason, setRejectionReason] = useState('');

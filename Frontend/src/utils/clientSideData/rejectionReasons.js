@@ -20,7 +20,7 @@ export const rejectionOption=[
         value:'ingrediant_unavailable'
     },
     {
-        id:0,
+        id:5,
         label:'Other',
         value:'other'
     }
