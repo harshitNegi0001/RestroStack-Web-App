@@ -1,7 +1,7 @@
 
 
 
-export default function SubStatsCard({ data }) {
+export default function SubStatsCard({ data,isLoading }) {
     const colorStyleMap = {
         'green': 'border-green-700/30 text-green-700/70 ',
         'gray': 'border-gray-700/30 text-gray-700/70 ',
@@ -17,14 +17,14 @@ export default function SubStatsCard({ data }) {
 
     return (
         <div key={data.id}
-            className={` w-full p-4 rounded-2xl border-1 ${colorStyleMap[data.color]} flex gap-2 justify-between bg-card-bg items-center`}>
-            <div className="flex flex-col ">
+            className={` w-full p-4 rounded-2xl ${isLoading?'animate-wave h-[80px] border-0':' border-1'} ${colorStyleMap[data.color]} flex gap-2 justify-between bg-card-bg items-center`}>
+            {!isLoading&&<><div className="flex flex-col ">
                 <span className="text-[11px] md:text-[12px] text-low-text font-[Rubik] uppercase font-[500]">{data.title}</span>
                 <span className="text-2xl font-bold">{data.value}</span>
             </div>
             <div className="bg-low-text/10 text-[15px] p-2 md:p-3 rounded-2xl">
             {data.icon}
-            </div>
+            </div></>}
         </div>
     )
 }

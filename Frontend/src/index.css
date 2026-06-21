@@ -32,6 +32,70 @@
     }
 }
 
+@layer components {
+
+    /* 1. Calendar Dropdown */
+    .react-datepicker {
+        @apply !bg-toast-bg !border !border-divider !rounded-2xl !shadow-lg !shadow-black/20 !font-sans;
+    }
+
+    /* 2. Header */
+    .react-datepicker__header {
+        @apply !bg-active-border/80 !border-b !border-divider !rounded-t-2xl !pt-5;
+    }
+
+    .react-datepicker__current-month,
+    .react-datepicker__day-name {
+        @apply !text-sec-text;
+    }
+
+    /* 3. Normal Dates */
+    .react-datepicker__day {
+        @apply !text-sec-text !rounded-lg !transition-colors !duration-150;
+    }
+
+    .react-datepicker__day--today {
+        /* Example: Aaj ki date par ek clear border dikhane ke liye */
+        @apply !border !border-active-border !bg-toast-bg !font-[500]  !text-sec-text;
+    }
+
+    .react-datepicker__day--today.react-datepicker__day--selected {
+        @apply !border-transparent !text-white !font-[500] ;
+    }
+
+    .react-datepicker__day--outside-month {
+        @apply !text-low-text/70;
+    }
+
+    /* 4. HOVER State */
+    .react-datepicker__day:hover {
+        @apply !bg-active-border/30 !text-white ;
+    }
+
+    /* 5. SELECTED Date */
+    .react-datepicker__day--selected {
+        @apply !bg-active-border/70 !text-white  !rounded-lg;
+    }
+
+    .react-datepicker__day--selected:hover {
+        @apply !bg-active-border/50 !text-white;
+    }
+
+    /* Navigation Arrows */
+    .react-datepicker__navigation-icon::before {
+        @apply !border-sec-text;
+    }
+}
+@media (max-width: 640px) {
+    .react-datepicker-popper {
+      /* Choti screen par positioning ko responsive force karne ke liye */
+      @apply !left-1/2 !-translate-x-1/2 !translate-y-1/4 !transform z-[9999];
+    }
+    
+    .react-datepicker {
+      @apply !mx-auto !shadow-xl;
+    }
+  }
 :root {
     --bg-primary: #F0FDF4;
     --text-primary: #000;

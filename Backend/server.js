@@ -9,6 +9,7 @@ import staffRoute from './routes/staffRoutes.js';
 import orderRoute from './routes/orderRoutes.js';
 import tableRoute from './routes/tableRoutes.js';
 import menuRoute from './routes/menuRoutes.js';
+import billsRoute from './routes/billsRoute.js';
 import { setupTable } from './config/setupTables.js';
 
 
@@ -32,6 +33,7 @@ app.use('/staff', staffRoute);
 app.use('/table', tableRoute);
 app.use('/menu', menuRoute);
 app.use('/order', orderRoute);
+app.use('/bill', billsRoute);
 
 
 app.get('/', (req, res) => {

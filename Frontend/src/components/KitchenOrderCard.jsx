@@ -43,7 +43,7 @@ const KitchenOrderCard = ({ data, setAllOrders, isLoading }) => {
       <BackdropPage isOpen={openRejectReason} onClose={() => setOpenRejectReason(false)}>
         <ConfirmCancel onClose={()=>setOpenRejectReason(false)} handleRejectItem={handleRejectItem}/>
       </BackdropPage>
-      <div className="w-full flex flex-col ">
+      {!isLoading&&<div className="w-full flex flex-col ">
         <div className="w-full text-[13px]/3.5 sm:text-[15px]/3.5 text-main-text  font-[500]">
           {data?.item_name}
         </div>
@@ -66,7 +66,7 @@ const KitchenOrderCard = ({ data, setAllOrders, isLoading }) => {
             {data?.instruction}
           </div></div>
         }
-      </div>
+      </div>}
 
       {
         (data?.status == 'pending' || data?.status == 'preparing') &&

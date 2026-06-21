@@ -17,9 +17,9 @@ export default function EmployeeFilter({ searchValue, setSearchValue, roles, rol
                 </label>
                 <input id='search-input'
                     value={searchValue} onChange={(e) => setSearchValue(e.target.value)}
-                    placeholder='Search by name or email...' required
-                    className='border-divider bg-toast-bg/60
-                                    border-1 focus:outline-1 pl-9  focus:outline-active-border focus:border-active-border outline-0 
+                    placeholder='Search by name or email...'
+                    className='outline-divider bg-toast-bg/60
+                                    border-0 focus:outline-2 pl-9  focus:outline-active-border outline-1
                                     rounded-lg p-1.5  text-main-text text-[16px] ' />
             </div>
             <div className="flex flex-row flex-wrap gap-2">
@@ -33,8 +33,8 @@ export default function EmployeeFilter({ searchValue, setSearchValue, roles, rol
                     </label>
                     <select id="role-input"
                         value={role} onChange={(e) => setRole(e.target.value)}
-                        className='border-divider bg-toast-bg/60
-                                                border-1 focus:outline-1 pl-9 focus:outline-active-border focus:border-active-border outline-0 
+                        className='outline-divider bg-toast-bg/60
+                                                border-0 focus:outline-2 pl-9 focus:outline-active-border  outline-1 
                                                 rounded-lg p-1.5 text-main-text text-[16px] '>
                         {roles.map(r =>
                             <option key={r.id} value={r.value}

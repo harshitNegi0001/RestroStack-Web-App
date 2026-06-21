@@ -10,6 +10,8 @@ const RestaurantManagementPage = lazy(()=>import("../../Pages/view/RestaurantMan
 const MenuBuilder = lazy(()=>import("../../Pages/view/MenuBuilder"));
 const LiveOrders = lazy(()=>import("../../Pages/view/LiveOrders"));
 const LiveTable = lazy(()=>import("../../Pages/view/LiveTable"));
+const TransactionHistoryPage = lazy(()=>import("../../Pages/view/TransactionHistoryPage"));
+
 
 
 
@@ -67,7 +69,7 @@ export const permissionBasedRoutes = [
         id:9,
         path:'/transactions',
         permission:'',
-        element:<ComingSoon/>
+        element:<TransactionHistoryPage/>
     },
     {
         id:10,
