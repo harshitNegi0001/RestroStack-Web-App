@@ -415,7 +415,7 @@ class Auth {
                             redirectTo: (userInfo.is_onboarded) ? 'setup-user' : 'job-portal'
                         });
                     }
-
+                    
                     return returnRes(res, 200, {
                         success: true,
                         error: false,
@@ -424,6 +424,7 @@ class Auth {
                         userInfo: userInfo,
                         role: activeRole,
                         rolesList: roles,
+                        activeResId,
                         permissions,
                         redirectTo: 'dashboard'
                     });

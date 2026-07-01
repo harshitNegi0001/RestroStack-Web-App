@@ -33,7 +33,7 @@ export default function BillReceiptModal({ billData, currency, onClose }) {
                     {/* Restaurant Info */}
                     <div className="text-center items-center mb-4 flex flex-col gap-1">
                         {
-                            !activeResData?.res_logo ?
+                            activeResData?.res_logo ?
                                 <img src={activeResData?.res_logo} alt=""
                                     className='size-[40px] object-center object-contain rounded-lg saturate-0'  />
                                 :

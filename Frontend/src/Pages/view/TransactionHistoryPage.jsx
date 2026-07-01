@@ -15,6 +15,7 @@ import { useSelector } from 'react-redux';
 import { currencies } from '../../utils/clientSideData/setupVariables';
 import MobileScreenBillHistView from '../../components/MobileScreenBillHistView';
 import NoTransactions from '../../utils/illustrations/NoTransactions';
+import Pagination from '../../components/Pagination';
 
 
 const filterTimeline = [
@@ -93,21 +94,24 @@ const TransactionHistoryPage = () => {
             clearTimeout(bouncingTimer);
         }
     }, [searchValue]);
+    useEffect(()=>{
+        setActivePage(1)
+    },[perPage])
     useEffect(() => {
         if (timeline == 'custom' && (!customTimeline?.from || !customTimeline?.to)) {
             return;
         }
         getTableData();
-    }, [bounceSearch, timeline, customTimeline])
+    }, [bounceSearch, timeline, customTimeline,perPage,activePage])
 
     const getTableData = async () => {
         function successFunction(tableData, statsData) {
             setTableData(tableData);
-            setSubStatsData(statsData)
+            setSubStatsData(statsData);
         }
 
         setIsLoading(true);
-        await getFilteredOrderHist({ timeline, customTimeline, searchQuery: bounceSearch }, successFunction);
+        await getFilteredOrderHist({ timeline, customTimeline, searchQuery: bounceSearch,perPage,activePage}, successFunction);
         setIsLoading(false);
     }
     return (
@@ -141,6 +145,16 @@ const TransactionHistoryPage = () => {
                                                      focus:outline-2 pl-9  focus:outline-active-border outline-1 border-0
                                                     rounded-lg p-1.5  text-main-text text-[13px] sm:text-[14px] ' />
                 </div>
+                <div className="w-[55px] ">
+                    <select  id="" value={perPage} onChange={(e)=>setPerPage(e.target.value)}
+                        className="outline-1 text-sec-text w-full outline-divider p-1 rounded-lg focus:outline-2 focus:outline-active-border">
+                        {
+                            [1,2,3,4,5].map(i=>
+                                <option value={5*i} className="bg-main-bg ">{5*i}</option>
+                            )
+                        }
+                    </select>
+                </div>
                 <div className="flex flex-row flex-wrap gap-2 mr-4">
                     <div
                         className='w-[200px] flex flex-col gap-1 relative'>
@@ -162,12 +176,6 @@ const TransactionHistoryPage = () => {
                 </div>
                 {timeline == 'custom' && <div className='flex flex-row gap-2 items-center flex-wrap'>
                     <div className='sm:w-[160px] w-[120px]'>
-                        {/* <input type="date" name="" id=""
-                            value={formatDateForInput(customTimeline?.from)}
-                            onChange={(e) => setCustomTimeline(prev => ({ ...prev, from: e.target.value }))}
-
-                            className='w-full p-1 border-0 outline-1 outline-divider rounded-lg bg-toast-bg/60
-                                focus:outline-2 focus:outline-active-border text-main-text text-[13px] sm:text-[14px]' /> */}
                         <DatePicker
                             selected={customTimeline?.from}
                             onChange={(date) => setCustomTimeline(prev => ({ ...prev, from: date }))}
@@ -216,9 +224,14 @@ const TransactionHistoryPage = () => {
                     </div>
                 </div>
                 :
-                <div className='w-full flex items-center justify-center'>
+                <div className='w-full flex flex-col items-center justify-center'>
+                    
                     <TransactionHistTableCard isLoading={isLoading} tableData={tableData} type={'default'} />
                     <MobileScreenBillHistView isLoading={isLoading} tableData={tableData} type={'default'} />
+                    {
+                        !isLoading&&
+                        <Pagination totalItems={subStatsData?.total_orders} perPage={perPage} activePage={activePage} onPageChange={setActivePage}/>
+                    }
                 </div>}
 
         </div>

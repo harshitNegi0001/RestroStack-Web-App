@@ -22,7 +22,7 @@ const PendingCartView = ({ pendingOrder, setOpenFullView,loadingKOTbtn,handleSen
                         {pendingOrder?.length} Items | Subtotal
                     </span>
                     <span className='text-[16px] sm:text-[18px] font-[600] text-sec-text '>
-                        {`${currency} ${totalPrice.toFixed(2)}`}
+                        {`${currency} ${totalPrice?.toFixed(2)}`}
                     </span>
                     <span className='text-low-text/70 text-[8px] sm:text-[9px] '>
                         +tax +Table Charge

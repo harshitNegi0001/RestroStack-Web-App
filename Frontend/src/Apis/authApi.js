@@ -112,12 +112,16 @@ export const loginUser = async (e, state, setIsLoadingBtn, successFunction) => {
         const permissions = result?.data?.permissions;
         const role = result?.data?.role;
         const navigateTo = result?.data?.redirectTo;
+        const activeResId = result?.data?.activeResId
+
+
 
         successFunction({
             userInfo,
             rolesList,
             permissions,
-            role
+            role,
+            activeResId
         }, navigateTo);
     } catch (err) {
         setIsLoadingBtn(false);

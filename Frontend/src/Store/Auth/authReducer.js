@@ -79,6 +79,7 @@ const authReducer = createSlice({
                 state.userInfo = action.payload.userInfo
             }
             if (action.payload.activeResId) {
+                
                 state.activeResId = action.payload.activeResId
             }
             if (action.payload.role) {
@@ -111,6 +112,7 @@ const authReducer = createSlice({
                 state.isLoading = false
             })
             .addCase(getInitialState.fulfilled, (state, action) => {
+                
                 state.isLoading = false,
                     state.userInfo = action.payload.userInfo,
                     state.role = action.payload.role,

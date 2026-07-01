@@ -19,7 +19,7 @@ export default function TableRecentOrders({ tableId, charges,openPayScreen,setOp
     const [openBill, setOpenBill] = useState(false);
     const { activeResData } = useSelector(state => state.auth);
     const currency = currencies.find(c => c.key == activeResData?.currency)?.symbol || '₹';
-    const subtotal = items_list?.reduce((sum, i) => (i.item_status != 'cancelled') ? sum + parseFloat(i.price) * parseFloat(i.quantity) : sum, 0);
+    const subtotal = items_list?.reduce((sum, i) => (i.item_status != 'cancelled' && i.item_status != 'rejected') ? sum + parseFloat(i.price) * parseFloat(i.quantity) : sum, 0);
     const tax = activeResData?.tax || 0;
     const total_tax = parseFloat(subtotal) * tax / 100;
     const min_count = count_minutes(items_list[0]?.occupied_since);

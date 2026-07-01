@@ -6,7 +6,7 @@ import { Toaster } from "react-hot-toast";
 import { getAllRoutes } from './routes/route';
 import { getInitialState } from './Store/Auth/authReducer';
 import { getPrivateRoutes } from './routes/route/privateRoutes';
-import { getMenu } from './Store/Menu/menuReducer';
+import { clearMenu, getMenu } from './Store/Menu/menuReducer';
 
 
 function App() {
@@ -25,6 +25,9 @@ function App() {
   useEffect(()=>{
     if(activeResId){
       dispatch(getMenu());
+    }
+    else{
+      dispatch(clearMenu())
     }
   },[activeResId])
 

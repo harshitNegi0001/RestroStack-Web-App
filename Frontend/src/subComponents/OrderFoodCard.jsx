@@ -4,6 +4,7 @@ import { currencies } from "../utils/clientSideData/setupVariables";
 import { BiPlus } from "react-icons/bi";
 import { useRef, useState } from "react";
 import { useOutsideClick } from "../utils/coustomHook/useOutsideClick";
+import { IoFastFoodOutline } from "react-icons/io5";
 
 
 
@@ -11,7 +12,7 @@ import { useOutsideClick } from "../utils/coustomHook/useOutsideClick";
 function OrderFoodCard({ data, isLoading, setOpenCustomize, setCustomizeData }) {
     const { activeResData } = useSelector(state => state.auth);
     const currency = currencies.find(c => c.key == activeResData?.currency)?.symbol || '₹';
-    
+
     let lowest
     let highest
 
@@ -24,7 +25,13 @@ function OrderFoodCard({ data, isLoading, setOpenCustomize, setCustomizeData }) 
         border-divider border-1 rounded-lg shadow-md shadow-black/30
         p-1 sm:p-2  flex flex-row items-start gap-1 sm:gap-2`}>
             <div className={`size-[80px] sm:size-[100px] ${isLoading ? 'animate-wave rounded-lg' : ''}`}>
-                {!isLoading && <img src={data?.image} alt="" className="size-[80px] object-cover rounded-lg sm:size-[100px]" />}
+                {!isLoading && <>{
+                    data?.image?
+                    <img src={data?.image} alt="" className="size-[80px] object-cover rounded-lg sm:size-[100px]" />:
+                    <div className="w-full h-full bg-active-border/20 rounded-2xl flex justify-center items-center text-active-border text-[20px] sm:text-[24px]">
+<IoFastFoodOutline/>
+                    </div>
+                }</>}
             </div>
             {isLoading ?
                 <div className="flex-1 min-w-0 flex flex-col gap-2">
@@ -54,12 +61,12 @@ function OrderFoodCard({ data, isLoading, setOpenCustomize, setCustomizeData }) 
                     </div>
                     <div className="w-full flex items-center gap-1">
                         <div className="w-full truncate text-[14px] sm:text-[15px] font-[500] text-sec-text ">
-                            {(lowest<highest)?`${currency}${lowest || 0}-${currency}${highest || 0}`:`${currency}${lowest || 0}`}
+                            {(lowest < highest) ? `${currency}${lowest || 0}-${currency}${highest || 0}` : `${currency}${lowest || 0}`}
                         </div>
 
                     </div>
                     <div className="w-full flex justify-center">
-                        <button  onClick={() => {
+                        <button onClick={() => {
                             setOpenCustomize(true);
                             setCustomizeData(data);
                         }}

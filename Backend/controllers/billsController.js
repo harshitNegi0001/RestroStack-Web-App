@@ -56,15 +56,22 @@ class Bills {
                 message: `You didn't have permissions to see the bills history.`
             })
         }
-        const { timeline = 'week', customTimeline, pageNo, limit, advanceFilter = 'default', searchQuery = '' } = req.body;
+        const { timeline = 'week', customTimeline, activePage, perPage, advanceFilter = 'default', searchQuery = '' } = req.body;
         try {
-            let queryParams = [res_id];
-            let paramCount = 2;
+            const limit = parseInt(perPage) || 5;
+            const page = parseInt(activePage) || 1;
+            const offset = limit * (page - 1);
+            let queryParams = [res_id,offset,limit];
+            let summaryQueryParams = [res_id];
+            let paramCount = 4;
             let dateCondition = "";
+            let summaryDateCondition = "";
             const { start, end } = this.getStartAndEndOfDate(timeline, customTimeline?.from, customTimeline?.to)
             if (start && end) {
                 dateCondition = ` AND b.created_at >= $${paramCount++} AND b.created_at <= $${paramCount++} `;
                 queryParams.push(start.toISOString(), end.toISOString());
+                summaryDateCondition = ` AND b.created_at >= $2 AND b.created_at <= $3 `;
+                summaryQueryParams.push(start.toISOString(), end.toISOString());
             }
 
             let searchCondition = "";
@@ -95,6 +102,8 @@ class Bills {
                     LEFT JOIN table_zone z ON t.zone_id = z.id
                     WHERE b.res_id = $1 ${dateCondition} ${searchCondition}
                     ORDER BY b.created_at DESC
+                    offset $2::int
+                    limit $3::int
                 `;
                     break;
 
@@ -114,6 +123,8 @@ class Bills {
                     WHERE b.res_id = $1 ${dateCondition} ${searchCondition}
                     GROUP BY i.item_name, c.name
                     ORDER BY total_revenue DESC
+                    offset $2::int
+                    limit $3::int
                 `;
                     break;
 
@@ -132,6 +143,8 @@ class Bills {
                     WHERE b.res_id = $1 ${dateCondition} ${searchCondition}
                     GROUP BY c.name
                     ORDER BY total_revenue DESC
+                    offset $2::int
+                    limit $3::int
                 `;
                     break;
 
@@ -145,6 +158,8 @@ class Bills {
                     WHERE b.res_id = $1 ${dateCondition}
                     GROUP BY DATE(b.created_at AT TIME ZONE 'Asia/Kolkata')
                     ORDER BY sales_date DESC
+                    offset $2::int
+                    limit $3::int
                 `;
                     break;
 
@@ -161,6 +176,8 @@ class Bills {
                     WHERE b.res_id = $1 ${dateCondition}
                     GROUP BY t.name, z.name
                     ORDER BY total_revenue DESC
+                    offset $2::int
+                    limit $3::int
                 `;
                     break;
 
@@ -176,6 +193,8 @@ class Bills {
                     WHERE b.res_id = $1 ${dateCondition}
                     GROUP BY z.name
                     ORDER BY total_revenue DESC
+                    offset $2::int
+                    limit $3::int
                 `;
                     break;
 
@@ -188,12 +207,12 @@ class Bills {
                 COUNT(b.id) AS total_orders,
                 COALESCE(SUM(b.grand_total), 0) AS total_revenue
             FROM bills b
-            WHERE b.res_id = $1 ${dateCondition}
+            WHERE b.res_id = $1 ${summaryDateCondition}
         `;
             const [tableResults, summaryResults] = await Promise.all([
                 db.query(finalQuery, queryParams),
                 // Date condition same hai, isliye params array mein sirf res_id, start, end bhej rahe hain
-                db.query(summaryQuery, start && end ? [res_id, start.toISOString(), end.toISOString()] : [res_id])
+                db.query(summaryQuery,summaryQueryParams)
             ]);
             return returnRes(res, 200, {
                 success: true,

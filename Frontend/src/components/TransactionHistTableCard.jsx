@@ -24,7 +24,7 @@ const TransactionHistTableCard = ({ isLoading = false, type = 'default', tableDa
   }
   return (
     <div className='bg-card-bg hidden sm:flex p-3 w-full border-divider/60 border-1 rounded-2xl'>
-      <div className='w-full text-[12px]/4 sm:text-[13px]/4 rounded-xl border-1 border-divider overflow-hidden'>
+      {!isLoading?<div className='w-full text-[12px]/4 sm:text-[13px]/4 rounded-xl border-1 border-divider overflow-hidden'>
         <table className='w-full '>
           <thead className='border-b-1 border-divider bg-active-border/70'>
             <tr className=''>
@@ -40,7 +40,35 @@ const TransactionHistTableCard = ({ isLoading = false, type = 'default', tableDa
             {tableData.map(d => <tr key={d.id} className='border-t-1 border-divider/60'>
               {
                 viewTypeRows[type]?.dataRows?.map((t, i) =>
-                  <td className='p-2 text-sec-text/80 capitalize' key={i}>{d?.[t]}</td>
+                  <td className='p-2 text-sec-text/80 capitalize' key={i}>{d?.[t] ?? '-'}</td>
+                )
+              }
+            </tr>)}
+          </tbody>
+        </table>
+        
+      </div>:
+      <div className='w-full text-[12px]/4 sm:text-[13px]/4 rounded-xl border-1 border-divider overflow-hidden'>
+        <table className='w-full flex flex-col'>
+          <thead className='border-b-1 w-full border-divider bg-active-border/50 animate-pulse'>
+            <tr className='w-full flex justify-evenly'>
+              {
+                [1,2,3,4,5].map((i) =>
+                  <th key={i} className='w-full p-2 flex items-center justify-start'>
+                    <span className='p-2 w-[50%] animate-wave rounded-2xl' ></span>
+                  </th>
+                )
+              }
+            </tr>
+          </thead>
+
+          <tbody>
+            {[1,2,3,4,5,6,7,8].map(i=> <tr key={i} className='border-t-1 border-divider w-full flex justify-evenly'>
+              {
+                [1,2,3,4,5].map((i) =>
+                  <th key={i} className='w-full p-2 flex items-center justify-start'>
+                    <span className='p-1.5 w-[75%] animate-wave rounded-2xl' ></span>
+                  </th>
                 )
               }
             </tr>)}
@@ -48,6 +76,7 @@ const TransactionHistTableCard = ({ isLoading = false, type = 'default', tableDa
         </table>
         
       </div>
+    }
 
     </div>
   )

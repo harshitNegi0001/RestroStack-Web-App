@@ -10,14 +10,14 @@ const MobileScreenBillHistView = ({ isLoading = false, type = 'default', tableDa
     'default': {
       headerKey: 'Invoice No',
       headerValue: 'invoice_no',
-      fullDataKey: [ 'Table','Zone', 'Payment Method', 'Payment Status','Staff Name', `Revenue (${currency})`],
-      fullDataValue: [ 'table_name','zone_name', 'payment_method', 'payment_status','created_by', 'grand_total']
+      fullDataKey: ['Table', 'Zone', 'Payment Method', 'Payment Status', 'Staff Name', `Revenue (${currency})`],
+      fullDataValue: ['table_name', 'zone_name', 'payment_method', 'payment_status', 'created_by', 'grand_total']
     }
   }
 
   return (
-    <div className='w-full flex sm:hidden flex-col gap-2 py-2 px-3'>
-      {tableData?.map(d => <div key={d.id} className='w-full rounded-2xl bg-card-bg border-1 border-divider/60 overflow-hidden shadow-black/30 shadow-md'>
+    <div className='w-full flex sm:hidden flex-col gap-3 py-2 px-3'>
+      {!isLoading && tableData?.map(d => <div key={d.id} className='w-full rounded-2xl bg-card-bg border-1 border-divider/60 overflow-hidden shadow-black/30 shadow-md'>
         <div className='w-full bg-active-border/70 py-2 gap-1 flex flex-row justify-between text-[12px] px-2 border-b-1 border-divider/60'>
           <span className='text-white/70 font-[500]'>
             {mobileViewCol[type]?.headerKey}
@@ -37,6 +37,16 @@ const MobileScreenBillHistView = ({ isLoading = false, type = 'default', tableDa
           )}
         </div>
       </div>)}
+      {
+        isLoading &&
+        [1, 2, 3, 4, 5, 6].map(i =>
+          <div key={i} className='w-full animate-pulse rounded-2xl bg-card-bg border-1 border-divider/60 overflow-hidden shadow-black/30 shadow-md'>
+            <div className='w-full bg-active-border/60 py-3.5 border-b-1 border-divider/60'></div>
+            <div className='p-2 h-[120px]'></div>
+          </div>
+        )
+
+      }
     </div>
   )
 }

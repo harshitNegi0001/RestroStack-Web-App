@@ -31,6 +31,10 @@ const menuReducer = createSlice({
     reducers:{
         setMenu:(state,action)=>{
             state.menu=action.payload
+        },
+        clearMenu:(state)=>{
+            state.menu=[]
+            state.isLoading=false
         }
     },
     extraReducers:(builder)=>{
@@ -48,5 +52,5 @@ const menuReducer = createSlice({
     }
 });
 
-export const {setMenu} = menuReducer.actions;
+export const {setMenu,clearMenu} = menuReducer.actions;
 export default menuReducer.reducer;

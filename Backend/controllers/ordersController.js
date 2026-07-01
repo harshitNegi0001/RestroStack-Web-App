@@ -335,7 +335,7 @@ class Orders {
             FROM order_items oi
             JOIN item_prices pi ON oi.item_varity_id = pi.id
             JOIN menu_items i ON pi.item_id = i.id
-            WHERE oi.order_id = $1 AND oi.status != 'cancelled'`,
+            WHERE oi.order_id = $1 AND oi.status != 'cancelled' AND oi.status != 'rejected'`,
                 [order_id]
             );
 
@@ -570,8 +570,7 @@ class Orders {
                 JOIN orders AS o
                 ON oi.order_id = o.id
                 WHERE oi.id = $1
-                    AND o.res_id =$2
-                    AND (o.status = 'running' OR o.status='billed')`,
+                    AND o.res_id =$2`,
                 [orderItemId, res_id]
             );
             if (newStatus == 'ready') {
@@ -667,7 +666,6 @@ class Orders {
                 ON t.zone_id = z.id
                 WHERE o.res_id =$2 
                     AND o.staff_id =$1
-                    AND (o.status ='running' OR o.status = 'billed' )
                 ORDER BY oi.updated_at DESC`,
                 [id, res_id]
             )
