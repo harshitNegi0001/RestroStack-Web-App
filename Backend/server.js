@@ -10,6 +10,7 @@ import orderRoute from './routes/orderRoutes.js';
 import tableRoute from './routes/tableRoutes.js';
 import menuRoute from './routes/menuRoutes.js';
 import billsRoute from './routes/billsRoute.js';
+import dashboard from './routes/dashboardRoute.js';
 import { setupTable } from './config/setupTables.js';
 
 
@@ -34,7 +35,7 @@ app.use('/table', tableRoute);
 app.use('/menu', menuRoute);
 app.use('/order', orderRoute);
 app.use('/bill', billsRoute);
-
+app.use('/dashboard', dashboard);
 
 app.get('/', (req, res) => {
     res.sendFile('public/index.html', { root: import.meta.dirname });

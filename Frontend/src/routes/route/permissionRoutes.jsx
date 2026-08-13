@@ -21,7 +21,7 @@ export const permissionBasedRoutes = [
         id:1,
         path:'/dashboard',
         permission:'',
-        element:<ComingSoon />
+        element:<Dashboard />
     },
     {
         id:2,

@@ -517,7 +517,7 @@ class Orders {
                 ORDER BY oi.created_at DESC
                     `, [res_id]
             );
-            
+
 
             return returnRes(res, 200, {
                 success: true,
@@ -573,12 +573,7 @@ class Orders {
                     AND o.res_id =$2`,
                 [orderItemId, res_id]
             );
-            if (newStatus == 'ready') {
-                // notify waiter! with  sockets
-            }
-            if(newStatus=='served'){
 
-            }
             if (orderCheck.rows.length == 0) {
                 return returnRes(res, 404, {
                     success: false,
@@ -605,6 +600,12 @@ class Orders {
                     [newStatus, orderItemId]
                 );
 
+                if (newStatus == 'ready') {
+                    // notify waiter! with  sockets
+                }
+                if (newStatus == 'served') {
+                    // change status from frontend for cheif view.
+                }
                 return returnRes(res, 200, {
                     message: 'Successfully updated order status',
                     success: true,
@@ -670,11 +671,11 @@ class Orders {
                 [id, res_id]
             )
 
-            return returnRes(res,200,{
-                success:true,
-                error:false,
-                message:'Order fetched successfully.',
-                orders_list:result?.rows||[]
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                message: 'Order fetched successfully.',
+                orders_list: result?.rows || []
             });
         } catch (err) {
             console.log('Getting Orders List Error: ', err);
