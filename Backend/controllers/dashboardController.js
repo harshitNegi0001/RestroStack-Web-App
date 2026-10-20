@@ -73,7 +73,7 @@ class Dashboard {
                 // 3. top 3 selling items data
                 const mostSoldItemsResult = await db.query(
                     `SELECT 
-                        i.item_name,
+                        i.item_name AS name,
                         SUM(oi.quantity) AS total_sold,
                         i.image 
                     FROM order_items AS oi

@@ -67,9 +67,9 @@ export default function Dashboard() {
                     icon={sampleStatsData?.['time']?.icon || <MdAccessTime />}
                     value={'18.2 '} />
                 <StatsCard color={sampleStatsData?.['table']?.color || 'border-t-divider'}
-                    heading={'Table Occupancy'} subHeading={`1 free 2 reserved`} isLoading={isLoading}
+                    heading={'Table Occupancy'} subHeading={`${table_occupied_stats?.available||0} free ${table_occupied_stats?.reserved||0} reserved`} isLoading={isLoading}
                     icon={sampleStatsData?.['table']?.icon || <MdAccessTime />}
-                    value={'9/12 '} />
+                    value={`${table_occupied_stats?.occupied||0}/${table_occupied_stats?.total_tables||0}`} />
             </div>
             <div className="w-full flex items-start flex-col md:flex-row gap-3 mt-3">
                 <div className={`w-full h-fit md:w-[60%] bg-card-bg shadow-black/30 shadow-lg  rounded-2xl`}>
@@ -98,32 +98,33 @@ export default function Dashboard() {
                     <div className="w-full uppercase font-[Rubik] text-sec-text/80 font-[600] text-[11px] sm:text-[13px]">
                         today's top sold
                     </div>
-                    {true ? <div className="flex w-full p-2 flex-col bg-toast-bg rounded-lg gap-4">
+                    {most_sold_items.length>0 ? 
+                    <div className="flex w-full p-2 flex-col bg-toast-bg rounded-lg gap-4">
                         <div className="flex items-center gap-1.5 ">
                             <span className="text-[16px] sm:text-[18px]">🥇</span>
                             <div className="size-[35px] md:size-[45px] ">
-                                <img src="https://res.cloudinary.com/dohmxhobo/image/upload/v1778237055/RestroStack/res_logo/l3z25w3woqzlqalkn1ff.jpg" alt=""
+                                <img src={most_sold_items[0]?.image} alt=""
                                     className="size-full rounded-lg object-cover" />
                             </div>
-                            <span className="flex-1 min-w-0 truncate text-[13px] sm:text-[14px] font-[500] text-main-text">{'Honey Chili Potato'}</span>
-                            <span className="text-[10px] md:text-[11px] font-[600] text-low-text/70">+10 orders</span>
+                            <span className="flex-1 min-w-0 truncate text-[13px] sm:text-[14px] font-[500] text-main-text">{most_sold_items[0]?.name}</span>
+                            <span className="text-[10px] md:text-[11px] font-[600] text-low-text/70">+{most_sold_items?.[0]?.total_sold||0} orders</span>
                         </div>
-                        <div className="flex items-center gap-1.5 ">
+                        {most_sold_items.length>1&&<div className="flex items-center gap-1.5 ">
                             <span className="text-[16px] sm:text-[18px]">🥈</span>
                             <div className="size-[35px] md:size-[45px] ">
-                                <img src="https://res.cloudinary.com/dohmxhobo/image/upload/v1778298011/RestroStack/res_logo/xu4btm0sp2px1oh82nck.jpg" alt="" className="size-full rounded-lg object-cover" />
+                                <img src={most_sold_items[1]?.image} alt="" className="size-full rounded-lg object-cover" />
                             </div>
-                            <span className="flex-1 min-w-0 truncate text-[13px] sm:text-[14px] font-[500] text-main-text">{'Caramel Cookie Crunch Chocolate IceCream'}</span>
-                            <span className="text-[10px] md:text-[11px] font-[600] text-low-text/70">+10 orders</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 ">
+                            <span className="flex-1 min-w-0 truncate text-[13px] sm:text-[14px] font-[500] text-main-text">{most_sold_items[1]?.name}</span>
+                            <span className="text-[10px] md:text-[11px] font-[600] text-low-text/70">+{most_sold_items?.[1]?.total_sold||0} orders</span>
+                        </div>}
+                        {most_sold_items.length>2&&<div className="flex items-center gap-1.5 ">
                             <span className="text-[16px] sm:text-[18px]">🥉</span>
                             <div className="size-[35px] md:size-[45px] ">
-                                <img src="https://res.cloudinary.com/dohmxhobo/image/upload/v1778297504/RestroStack/res_logo/fqmg6b433satgtszsmdj.jpg" alt="" className="size-full rounded-lg object-cover" />
+                                <img src={most_sold_items[2]?.image} alt="" className="size-full rounded-lg object-cover" />
                             </div>
-                            <span className="flex-1 min-w-0 truncate text-[13px] sm:text-[14px] font-[500] text-main-text">{'Honey Chili Potato'}</span>
-                            <span className="text-[10px] md:text-[11px] font-[600] text-low-text/70">+10 orders</span>
-                        </div>
+                            <span className="flex-1 min-w-0 truncate text-[13px] sm:text-[14px] font-[500] text-main-text">{most_sold_items[2]?.name}</span>
+                            <span className="text-[10px] md:text-[11px] font-[600] text-low-text/70">+{most_sold_items?.[2]?.total_sold||0} orders</span>
+                        </div>}
                     </div> :
                         <div className='w-full flex flex-col items-center text-center gap-2 py-3'>
                     <div className="w-[70%] max-w-[380px] px-3">
