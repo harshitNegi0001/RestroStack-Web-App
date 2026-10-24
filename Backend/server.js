@@ -12,13 +12,13 @@ import menuRoute from './routes/menuRoutes.js';
 import billsRoute from './routes/billsRoute.js';
 import dashboard from './routes/dashboardRoute.js';
 import { setupTable } from './config/setupTables.js';
-
+import { configSocket } from './config/socket.js';
 
 dotenv.config();
 export const app = express();
 export const server = http.createServer(app);
 
-
+configSocket(server)
 const port = process.env.PORT || 5000;
 const frontend_url = process.env.FRONTEND_URL || 'http://localhost:5173';
 

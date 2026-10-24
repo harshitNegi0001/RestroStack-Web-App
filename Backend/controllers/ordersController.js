@@ -1,10 +1,10 @@
 import { returnRes } from "../utils/returnRes.js";
 import db from '../utils/db.js';
-
+import { io, resEmpMap } from "../config/socket.js";
 class Orders {
 
     sendKOT = async (req, res) => {
-        const { table_id, items = [] } = req.body;
+        const { table_id, zone_id, items = [] } = req.body;
         const { id, res_id, role } = req.user;
         const permissions = req.permissions;
         if (!items || items.length === 0) {
@@ -53,6 +53,15 @@ class Orders {
 
                 await client.query(`UPDATE tables SET status = 'occupied' WHERE id = $1`, [table_id]);
                 // socket.emit notify all connector that table occupied.
+                const resEmployees = resEmpMap.get(res_id);
+
+                // spam notify all emp.
+                if (resEmployees) {
+                    resEmployees.forEach((socketId) => {
+                        io.to(socketId).emit('table_status_change', { zone_id, table_id, new_status: 'occupied' });
+
+                    })
+                }
 
             }
 
@@ -441,11 +450,12 @@ class Orders {
                     message: "Bill ID didn't matched!"
                 })
             }
+            const table_id = bill_update_res?.rows[0]?.table_id
             await client.query(
                 `UPDATE tables
                 SET status = 'available'
                 WHERE id = $1
-                `, [bill_update_res?.rows[0]?.table_id]
+                `, [table_id]
             )
 
             await client.query(
@@ -454,8 +464,24 @@ class Orders {
                 WHERE id =$1`,
                 [bill_update_res?.rows[0]?.order_id]
             );
-
+            const table_detail =await client.query(
+                `SELECT zone_id 
+                FROM tables
+                WHERE id = $1`,
+                [table_id]
+            )
             await client.query('COMMIT');
+
+
+            const resEmployees = resEmpMap.get(res_id);
+
+            // spam notify all emp.
+            if (resEmployees) {
+                resEmployees.forEach((socketId) => {
+                    io.to(socketId).emit('table_status_change', { zone_id:table_detail?.rows?.[0]?.zone_id, table_id, new_status: 'available' });
+                })
+            }
+            io.emit('', {})
             return returnRes(res, 200, {
                 success: true,
                 error: false,

@@ -7,7 +7,7 @@ import { getAllRoutes } from './routes/route';
 import { getInitialState } from './Store/Auth/authReducer';
 import { getPrivateRoutes } from './routes/route/privateRoutes';
 import { clearMenu, getMenu } from './Store/Menu/menuReducer';
-
+import socket from './utils/websocket/socket ';
 
 function App() {
   const allRoutes = [
@@ -15,21 +15,38 @@ function App() {
     getAllRoutes(),
     ...getPrivateRoutes()
   ];
-  const { theme, userInfo,activeResId } = useSelector(state => state.auth);
-  
+  const { theme, userInfo, activeResId } = useSelector(state => state.auth);
+
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getInitialState());
   }, []);
 
-  useEffect(()=>{
-    if(activeResId){
+  useEffect(() => {
+    if (userInfo?.id) {
+
+      socket.auth = {
+        userId: userInfo.id,
+        resId:activeResId,
+      }
+      socket.connect();
+
+      return () => {
+        socket.disconnect();
+
+      }
+    }
+
+  }, [userInfo])
+
+  useEffect(() => {
+    if (activeResId) {
       dispatch(getMenu());
     }
-    else{
+    else {
       dispatch(clearMenu())
     }
-  },[activeResId])
+  }, [activeResId])
 
   useEffect(() => {
     if (theme == 'dark') {

@@ -6,7 +6,7 @@ import TableCard from "../subComponents/TableCard";
 
 
 
-export default function TableView ({isLoading=false,tablesList=[]}){
+export default function TableView ({isLoading=false,tablesList=[],zone_id}){
     
     return(
         <div className={`w-full ${isLoading?'mask-bottom-fade':''} grid grid-cols-4 sm:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 p-2 gap-2 md:gap-4`}>
@@ -16,7 +16,7 @@ export default function TableView ({isLoading=false,tablesList=[]}){
                     <TableCard isLoading={true} key={i} />
                 ):
                 tablesList?.map((t)=>
-                    <TableCard isLoading={false} key={t.id} data={t} />
+                    <TableCard isLoading={false} key={t.id} data={t} zone_id={zone_id} />
                 )
             }
             

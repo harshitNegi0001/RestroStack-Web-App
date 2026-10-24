@@ -32,7 +32,7 @@ const tableStatusColor = {
     'reserved': 'bg-purple-500',
     'occupied': 'bg-red-500'
 }
-export default function FullTablePage({ onClose, tableData = {} }) {
+export default function FullTablePage({ onClose, tableData = {},zone_id }) {
     const [activeOption, setActiveOption] = useState(options[1]);
     const [openCustomize, setOpenCustomize] = useState(false);
     const [customizeData, setCustomizeData] = useState({})
@@ -41,6 +41,7 @@ export default function FullTablePage({ onClose, tableData = {} }) {
     const [loadingKOTbtn, setLoadingKOTbtn] = useState(false);
     const [openPayScreen, setOpenPayScreen] = useState(false);
     const [generatedBillData, setGeneratedBillData] = useState(null);
+
 
     const handleAddToOrder = (item) => {
         setPendingOrder(prev => [...prev, item]);
@@ -56,6 +57,7 @@ export default function FullTablePage({ onClose, tableData = {} }) {
 
         const orderData = {
             table_id: tableData?.id,
+            zone_id,
             items: pendingOrder
         }
         setLoadingKOTbtn(true);

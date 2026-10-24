@@ -10,7 +10,7 @@ const tableStatusColor = {
     'occupied': 'bg-red-500/10 border-red-500/70 hover:bg-red-500/20 border-2 '
 }
 
-export default function TableCard({ isLoading, data = {} }) {
+export default function TableCard({ isLoading, data = {}, zone_id }) {
     const [openfullTable, setOpenFullTable] = useState(false);
 
     return (
@@ -19,7 +19,7 @@ export default function TableCard({ isLoading, data = {} }) {
                 e.stopPropagation();
                 setOpenFullTable(false);
             }} isOpen={openfullTable} >
-                <FullTablePage onClose={() => setOpenFullTable(false)} tableData={data} />
+                <FullTablePage onClose={() => setOpenFullTable(false)} tableData={data} zone_id={zone_id}/>
             </BackdropPage>
             <div onClick={() => setOpenFullTable(true)}
                 className={`${isLoading ? 'animate-wave' : tableStatusColor?.[data?.status]} 

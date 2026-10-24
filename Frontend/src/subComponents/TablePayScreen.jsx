@@ -47,6 +47,7 @@ const TablePayScreen = ({ onClose, openPayScreen, generatedBillData,closeTable }
                     {
                         payMethodOptions.map((option) =>
                             <div onClick={() => setPayMethod(option?.value)} title={option.label}
+                               key={option.id}
                                 className={`${payMethod == option.value ? 'border-active-border bg-active-border/20 text-active-border'
                                     : 'bg-divider/20 hover:bg-active-border/10 text-low-text/70 border-divider hover:text-active-border/70 hover:border-active-border/40'}
                                 px-2 py-2 sm:py-3 flex flex-col items-center border-1 rounded-lg w-[120px] sm:w-[150px] sm:text-[18px] cursor-pointer gap-0.5`}>
