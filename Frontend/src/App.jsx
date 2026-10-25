@@ -8,6 +8,8 @@ import { getInitialState } from './Store/Auth/authReducer';
 import { getPrivateRoutes } from './routes/route/privateRoutes';
 import { clearMenu, getMenu } from './Store/Menu/menuReducer';
 import socket from './utils/websocket/socket ';
+import { setDashState } from './Store/Dashboard/dashboard';
+import { getUpdatedTableStats } from './Apis/dashboardApi';
 
 function App() {
   const allRoutes = [
@@ -27,9 +29,13 @@ function App() {
 
       socket.auth = {
         userId: userInfo.id,
-        resId:activeResId,
+        resId: activeResId,
       }
       socket.connect();
+
+      socket.on('table_status_change', () => {
+        sendDashNotification();
+      })
 
       return () => {
         socket.disconnect();
@@ -57,6 +63,15 @@ function App() {
     }
   }, [theme]);
 
+  const sendDashNotification = async () => {
+    function successFunction(updatedTableStats) {
+      if (updatedTableStats) {
+        dispatch(setDashState({ table_occupied_stats: updatedTableStats }))
+      }
+    }
+    await getUpdatedTableStats(successFunction);
+
+  }
   return (
     <>
       <Toaster

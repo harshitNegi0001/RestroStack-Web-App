@@ -47,21 +47,8 @@ class Dashboard {
                 // average prepare time 
                 const avgPrpareResult = 12.5 // fix later 
                 // live table occupied
-                const occupiedTableResult = await db.query(
-                    `SELECT 
-                        *
-                    FROM tables
-                    WHERE res_id = $1
-                        AND is_active = TRUE
-                    `, [res_id]
-                )
-                const occupiedTableData = occupiedTableResult.rows ?? [];
-                const table_occupied_stats = {
-                    total_tables: occupiedTableData.length,
-                    occupied: occupiedTableData.filter(t => t.status == 'occupied')?.length,
-                    available: occupiedTableData.filter(t => t.status == 'available')?.length,
-                    reserved: occupiedTableData.filter(t => t.status == 'reserved')?.length
-                }
+
+                const table_occupied_stats = await this.getTableStatusStats(res_id);
                 // active staff no.
                 const activeStaffResult = {
                     total_staff: 10,
@@ -115,7 +102,48 @@ class Dashboard {
             });
         }
     }
+    // controller function to get updated table status after socket emit.
+    getUpdatedTableStatus = async(req,res)=>{
+        const {res_id} = req.user;
 
+        try {
+            const table_occupied_stats =await this.getTableStatusStats(res_id);
+            return returnRes(res,200,{
+                message:'Fatched successfully.',
+                error:false,
+                success:true,
+                table_occupied_stats
+            })
+        } catch (err) {
+            return returnRes(res,500,{
+                error:'INTERNAL_SERVER_ERROR',
+                success:false,
+                message:'Internal server error!'
+            })
+        }
+    }
+    // Helper function for getting tables status data on dashboard 
+    getTableStatusStats = async (res_id) => {
+
+
+        const occupiedTableResult = await db.query(
+            `SELECT 
+                        *
+                    FROM tables
+                    WHERE res_id = $1
+                        AND is_active = TRUE
+                    `, [res_id]
+        );
+
+        const occupiedTableData = occupiedTableResult.rows ?? [];
+        const table_occupied_stats = {
+            total_tables: occupiedTableData.length,
+            occupied: occupiedTableData.filter(t => t.status == 'occupied')?.length,
+            available: occupiedTableData.filter(t => t.status == 'available')?.length,
+            reserved: occupiedTableData.filter(t => t.status == 'reserved')?.length
+        }
+        return table_occupied_stats;
+    }
 
 }
 

@@ -36,7 +36,9 @@ const dashboardReducer = createSlice({
     initialState,
     reducers: {
         setDashState: (state, action) => {
-
+            if(action.payload?.table_occupied_stats){
+                state.table_occupied_stats= action.payload.table_occupied_stats;
+            }
         },
         clearDashState: (state) => {
             state.isLoading = true,
@@ -64,6 +66,9 @@ const dashboardReducer = createSlice({
         })
     }
 })
+
+
+
 
 
 export const {setDashState,clearDashState} = dashboardReducer.actions;

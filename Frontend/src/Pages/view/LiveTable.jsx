@@ -11,8 +11,6 @@ import WaiterOrdersPage from '../../subComponents/WaiterOrdersPage';
 import { LuHandPlatter } from "react-icons/lu";
 import socket from '../../utils/websocket/socket ';
 
-
-
 export default function LiveTable() {
 
     const { role, permissions } = useSelector(state => state.auth);
@@ -21,7 +19,6 @@ export default function LiveTable() {
     const [activeZone, setActiveZone] = useState();
     const [tablesList, setTablesList] = useState()
     const [openMyOrders, setOpenMyOrders] = useState(false);
-
     useEffect(() => {
         getZones();
 
@@ -32,31 +29,37 @@ export default function LiveTable() {
             setTablesList(active?.tables_array);
 
 
-            socket.on('table_status_change', ({ zone_id, table_id, new_status }) => {
+            socket.on('table_status_change', handleTableStatusChange)
 
-                if (zone_id && table_id && new_status) {
-
-                    const updatedList = zonesList.map(z => (z.id == zone_id) ? {
-                        ...z,
-                        tables_array: z?.tables_array?.map(t => (t.id == table_id) ? {
-                            ...t, status: new_status
-                        } :
-                            t
-                        )
-                    } :
-                        z)
-
-
-                    setZonesList(updatedList);
-                    if (activeZone == zone_id) {
-                        const active = updatedList?.find(z => z.id == activeZone);
-                        setTablesList(active?.tables_array);
-                    }
-                }
-
-            })
+            return () => {
+                socket.off('table_status_change', handleTableStatusChange);
+            };
         }
     }, [activeZone])
+
+    const handleTableStatusChange = ({ zone_id, table_id, new_status }) => {
+
+        if (zone_id && table_id && new_status) {
+
+            const updatedList = zonesList.map(z => (z.id == zone_id) ? {
+                ...z,
+                tables_array: z?.tables_array?.map(t => (t.id == table_id) ? {
+                    ...t, status: new_status
+                } :
+                    t
+                )
+            } :
+                z)
+
+
+            setZonesList(updatedList);
+            if (activeZone == zone_id) {
+                const active = updatedList?.find(z => z.id == activeZone);
+                setTablesList(active?.tables_array);
+            }
+        }
+
+    }
 
     const getZones = async () => {
         function successFunction(data) {
@@ -68,6 +71,7 @@ export default function LiveTable() {
         await getTables(successFunction);
         setIsLoading(false);
     }
+
 
     return (
         <div className="w-full h-full p-2 md:p-4 flex flex-col gap-2 md:gap-4 items-center overflow-y-auto show-custom-scrollbar">
