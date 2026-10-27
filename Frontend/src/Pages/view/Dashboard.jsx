@@ -38,10 +38,11 @@ const sampleStatsData = {
 
 export default function Dashboard() {
     const { userInfo,activeResData } = useSelector(state => state.auth);
-    const {isLoading, active_staff_stats,active_orders_stats,avg_prep_time, table_occupied_stats, most_sold_items} = useSelector(state=>state.dashboard)
+    const {isLoading, active_staff_stats,active_orders_stats,avg_prep_time, table_occupied_stats, most_sold_items,revenue_chart_data} = useSelector(state=>state.dashboard)
     const currency = currencies.find(c => c.key == activeResData?.currency)?.symbol || '₹';
     const currency_icon =currencies.find(c => c.key == activeResData?.currency)?.sign || <BiRupee />;
     const dispatch =useDispatch();
+    const total_revenue = revenue_chart_data?.reduce((sum,curr)=>parseFloat(curr.revenue)+sum,0)
     useEffect(()=>{
         dispatch(getInitialDashboardData());
     },[])
@@ -81,7 +82,7 @@ export default function Dashboard() {
                                     Today's Revenue
                                 </span>
                                 <div className="font-bold text-[26px] sm:text-[30px] text-main-text">
-                                    {currency} 199.5
+                                    {currency} {total_revenue??0}
                                 </div>
                             </div>
                             <div className="w-fit h-fit p-3 rounded-2xl border-1 border-green-600 bg-green-600/10 text-green-500 text-[16px] sm:text-[18px]">

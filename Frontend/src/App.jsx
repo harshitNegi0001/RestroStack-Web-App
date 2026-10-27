@@ -9,7 +9,7 @@ import { getPrivateRoutes } from './routes/route/privateRoutes';
 import { clearMenu, getMenu } from './Store/Menu/menuReducer';
 import socket from './utils/websocket/socket ';
 import { setDashState } from './Store/Dashboard/dashboard';
-import { getUpdatedTableStats } from './Apis/dashboardApi';
+import { getUpdatedOrderStats, getUpdatedTableStats } from './Apis/dashboardApi';
 
 function App() {
   const allRoutes = [
@@ -33,9 +33,8 @@ function App() {
       }
       socket.connect();
 
-      socket.on('table_status_change', () => {
-        sendDashNotification();
-      })
+      socket.on('table_status_change',sendDashNotification);
+      socket.on('order_status_change',sendOrderNotification);
 
       return () => {
         socket.disconnect();
@@ -71,6 +70,13 @@ function App() {
     }
     await getUpdatedTableStats(successFunction);
 
+  }
+  const sendOrderNotification =async()=>{
+    function successFunction (data){
+      dispatch(setDashState(data));
+    }
+
+    await getUpdatedOrderStats(successFunction);
   }
   return (
     <>

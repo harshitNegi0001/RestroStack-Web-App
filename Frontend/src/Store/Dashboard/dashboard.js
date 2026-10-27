@@ -7,7 +7,8 @@ const initialState = {
     active_orders_stats: null,
     avg_prep_time: null,
     table_occupied_stats: null,
-    most_sold_items: []
+    most_sold_items: [],
+    revenue_chart_data:[]
 }
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -23,7 +24,8 @@ export const getInitialDashboardData = createAsyncThunk(
             )
             const returnValue = {
                 ...result.data.subStats,
-                'most_sold_items':result.data.most_sold_items
+                'most_sold_items':result?.data?.most_sold_items,
+                'revenue_chart_data':result?.data?.revenue_chart_data
             }
             return returnValue;
         } catch (error) {
@@ -38,6 +40,15 @@ const dashboardReducer = createSlice({
         setDashState: (state, action) => {
             if(action.payload?.table_occupied_stats){
                 state.table_occupied_stats= action.payload.table_occupied_stats;
+            }
+            if(action.payload?.active_orders_stats){
+                state.active_orders_stats= action.payload.active_orders_stats;
+            }
+            if(action.payload?.most_sold_items){
+                state.most_sold_items= action.payload.most_sold_items;
+            }
+            if(action.payload?.revenue_chart_data){
+                state.revenue_chart_data= action.payload.revenue_chart_data;
             }
         },
         clearDashState: (state) => {
@@ -62,7 +73,8 @@ const dashboardReducer = createSlice({
             state.active_orders_stats = action.payload.active_orders_stats,
             state.avg_prep_time = action.payload.avg_prep_time,
             state.table_occupied_stats = action.payload.table_occupied_stats,
-            state.most_sold_items = action.payload.most_sold_items ?? []
+            state.most_sold_items = action.payload.most_sold_items ?? [],
+            state.revenue_chart_data = action.payload.revenue_chart_data??[]
         })
     }
 })

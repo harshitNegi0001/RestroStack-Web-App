@@ -8,24 +8,25 @@ import {
   Tooltip,
   ResponsiveContainer
 } from 'recharts';
+import { useSelector } from 'react-redux';
 
 
-const dummyData = [
-  { time: '10 AM', revenue: 0 },
-  { time: '11 AM', revenue: 1200 },
-  { time: '12 PM', revenue: 3500 },
-  { time: '1 PM',  revenue: 6800 }, // Lunch Peak
-  { time: '2 PM',  revenue: 5200 },
-  { time: '3 PM',  revenue: 2000 },
-  { time: '4 PM',  revenue: 1500 }, // Low period
-  { time: '5 PM',  revenue: 2800 },
-  { time: '6 PM',  revenue: 4500 },
-  { time: '7 PM',  revenue: 7500 },
-  { time: '8 PM',  revenue: 10500 }, // Dinner Peak
-  { time: '9 PM',  revenue: 9200 },
-  { time: '10 PM', revenue: 4000 },
-  { time: '11 PM', revenue: 1500 },
-];
+// const dummyData = [
+//   { time: '10 AM', revenue: 0 },
+//   { time: '11 AM', revenue: 1200 },
+//   { time: '12 PM', revenue: 3500 },
+//   { time: '1 PM',  revenue: 6800 }, // Lunch Peak
+//   { time: '2 PM',  revenue: 5200 },
+//   { time: '3 PM',  revenue: 2000 },
+//   { time: '4 PM',  revenue: 1500 }, // Low period
+//   { time: '5 PM',  revenue: 2800 },
+//   { time: '6 PM',  revenue: 4500 },
+//   { time: '7 PM',  revenue: 7500 },
+//   { time: '8 PM',  revenue: 10500 }, // Dinner Peak
+//   { time: '9 PM',  revenue: 9200 },
+//   { time: '10 PM', revenue: 4000 },
+//   { time: '11 PM', revenue: 1500 },
+// ];
 
 const CustomTooltip = ({ active, payload, label,currency }) => {
   if (active && payload && payload.length) {
@@ -42,10 +43,12 @@ const CustomTooltip = ({ active, payload, label,currency }) => {
   return null;
 };
 const DailyRevenueChart = ({currency}) => {
+  const {revenue_chart_data} = useSelector(state=>state.dashboard);
+
   return (
       <div className="w-full h-[250px] sm:h-[320px] text-low-text">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={dummyData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+          <AreaChart data={revenue_chart_data} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
             
             {/* The Glow Gradient - Green is usually safe for both modes, but can be changed */}
             <defs>
@@ -79,7 +82,7 @@ const DailyRevenueChart = ({currency}) => {
               axisLine={false} 
               tickLine={false} 
               tick={{ fill: 'currentColor', fontSize: 11, opacity: 0.6 }} 
-              tickFormatter={(value) => value === 0 ? '0' : `₹${value / 1000}k`} 
+              tickFormatter={(value) => value === 0 ? '0' : `${currency}${value / 1000}k`} 
               className="text-low-text" // Tailwind class for axis labels
             />
 

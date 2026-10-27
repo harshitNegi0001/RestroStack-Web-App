@@ -59,7 +59,7 @@ class Orders {
                 if (resEmployees) {
                     resEmployees.forEach((socketId) => {
                         io.to(socketId).emit('table_status_change', { zone_id, table_id, new_status: 'occupied' });
-
+                        io.to(socketId).emit('order_status_change',{});
                     })
                 }
 
@@ -479,9 +479,9 @@ class Orders {
             if (resEmployees) {
                 resEmployees.forEach((socketId) => {
                     io.to(socketId).emit('table_status_change', { zone_id:table_detail?.rows?.[0]?.zone_id, table_id, new_status: 'available' });
+                    io.to(socketId).emit('order_status_change',{});
                 })
             }
-            io.emit('', {})
             return returnRes(res, 200, {
                 success: true,
                 error: false,
