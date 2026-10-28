@@ -149,6 +149,15 @@ export const verifyOtp = async (e, email, otp, res_id, otp_type, setIsLoadingBtn
         );
         setIsLoadingBtn(false);
         toast.success(result?.data?.message);
+        if(otp_type=='reset_pass'){
+            const userInfo = result?.data?.userInfo;
+            const role = result?.data?.role;
+            const rolesList =result?.data?.rolesList??[]
+            const activeResId = result?.data?.activeResId;
+            const permissions = result?.data?.permissions;
+            successFunction({userInfo,role,rolesList,activeResId,permissions});
+            return;
+        }
         successFunction();
 
     } catch (err) {

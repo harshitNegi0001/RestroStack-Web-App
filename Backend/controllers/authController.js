@@ -300,7 +300,40 @@ class Auth {
                         [email, res_id]
                     );
                 }
+                else if (otp_type == 'reset_pass') {
+                    const user = await db.query(
+                        `SELECT 
+                            id
+                        FROM users
+                        WHERE email = $1`,
+                        [email]
+                    );
+                    const userId = user.rows[0]?.id;
+                    const userInfo = await getUserInfo(userId);
+                    const roles = await getRoles(userId);
+                    const activeRole = (roles.length == 0) ? null : (roles.length == 1) ? roles[0].role_name : roles.find(role => role.id == userInfo.last_role_id)?.role_name;
+                    const activeResId = (roles.length == 0) ? null : (roles.length == 1) ? roles[0].res_id : roles.find(role => role.id == userInfo.last_role_id)?.res_id;
+                    const permissions = (roles.length == 0) ? {} : (roles.length == 1) ? roles[0].permissions : roles.find(role => role.id == userInfo.last_role_id)?.permissions;
 
+                    const token = createToken({ id: userInfo.id, role: activeRole, res_id: activeResId, email: userInfo.email });
+                    res.cookie('authToken', token, {
+                        httpOnly: true,
+                        secure: isProduction,
+                        sameSite: isProduction ? 'none' : 'lax',
+                        maxAge: 1000 * 60 * 60 * 24 * 7
+                    });
+                    return returnRes(res, 200, {
+                        success: true,
+                        error: false,
+                        isVerified: true,
+                        message: 'Email verification successful.',
+                        userInfo: userInfo,
+                        role: activeRole,
+                        rolesList: roles,
+                        activeResId,
+                        permissions
+                    });
+                }
                 return returnRes(res, 200, { success: true, error: false, isVerified: true, message: 'Email verification successful. Your account is now active.' });
 
             }
@@ -415,7 +448,7 @@ class Auth {
                             redirectTo: (userInfo.is_onboarded) ? 'setup-user' : 'job-portal'
                         });
                     }
-                    
+
                     return returnRes(res, 200, {
                         success: true,
                         error: false,

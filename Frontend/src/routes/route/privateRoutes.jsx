@@ -4,6 +4,8 @@ import InviteTokenOpener from "../../Pages/auth/InviteTokenOpener";
 
 const SubscriptionWindow = lazy(()=>import('../../components/SubscriptionWindow'));
 const NewUserSetup = lazy(()=>import('../../Pages/auth/NewUserSetup'));
+const ResetPass = lazy(()=>import('../../Pages/auth/ResetPass'));
+
 
  const privateRoutes = [
     {
@@ -19,9 +21,15 @@ const NewUserSetup = lazy(()=>import('../../Pages/auth/NewUserSetup'));
         needAuth:true
     },
     {
-        id:7,
+        id:3,
         path:'/invite',
         element:<InviteTokenOpener/>,
+        needAuth:true
+    },
+    {
+        id:4,
+        path:'/reset-password',
+        element:<ResetPass/>,
         needAuth:true
     }
 ]

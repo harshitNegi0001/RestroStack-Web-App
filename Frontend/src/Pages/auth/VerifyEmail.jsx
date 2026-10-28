@@ -65,7 +65,6 @@ export default function VerifyEmail() {
         const successFunction = () => {
             setAskOtpGenerate(false);
         }
-
         await askForOtp({ email: email, otp_type: otp_type }, setGetOtpLoading, successFunction);
         setOtpCountdown(180);
     }
@@ -92,16 +91,17 @@ export default function VerifyEmail() {
             return;
         }
         const structuredOtp = `${otp?.[1]}${otp?.[2]}${otp?.[3]}${otp?.[4]}${otp?.[5]}${otp?.[6]}`;
-        const successFunction = () => {
-
+        const successFunction = (data) => {
+            if(prev=='/forgot-password'|| otp_type == 'reset_pass'){
+                dispatch(setState(data));
+                navigate(`/reset-password?redirectTo=${redirectTo}`);
+                return;
+            }
             if (redirectTo) {
                 navigate(redirectTo);
             }
             else if (otp_type == 'verification') {
                 navigate('/setup-user');
-            }
-            else if (otp_type == 'reset_pass') {
-                navigate('/reset-password');
             }
             else if (otp_type == 'res_email_verification'){
                 navigate('/restaurant-management');

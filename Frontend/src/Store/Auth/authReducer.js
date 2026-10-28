@@ -79,7 +79,6 @@ const authReducer = createSlice({
                 state.userInfo = action.payload.userInfo
             }
             if (action.payload.activeResId) {
-                
                 state.activeResId = action.payload.activeResId
             }
             if (action.payload.role) {
@@ -90,6 +89,9 @@ const authReducer = createSlice({
             }
             if (action.payload.rolesList) {
                 state.rolesList = action.payload.rolesList
+            }
+            if(action.payload.rolesList&&action.payload.activeResId ){
+                state.activeResData =action.payload.rolesList.find(rl => rl.res_id == action.payload.activeResId)?.res_data || action.payload.rolesList[0]?.res_data
             }
         },
         clearState: (state) => {
