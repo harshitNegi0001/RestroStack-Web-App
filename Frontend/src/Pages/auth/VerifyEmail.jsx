@@ -94,7 +94,7 @@ export default function VerifyEmail() {
         const successFunction = (data) => {
             if(prev=='/forgot-password'|| otp_type == 'reset_pass'){
                 dispatch(setState(data));
-                navigate(`/reset-password?redirectTo=${redirectTo}`);
+                navigate(`/reset-password?redirectTo=${redirectTo}`,{state:{prev}});
                 return;
             }
             if (redirectTo) {

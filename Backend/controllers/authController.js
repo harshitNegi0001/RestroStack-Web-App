@@ -390,6 +390,56 @@ class Auth {
         }
     }
 
+    // Controller Function to reset password.
+    resetPass = async (req, res) => {
+        const { id } = req.user;
+        let { type, old_pass, new_pass } = req.body;
+        old_pass = old_pass.trim();
+        new_pass = new_pass.trim();
+        try {
+            const user = await db.query(
+                `SELECT 
+                    hashed_pass
+                FROM users
+                WHERE id = $1`,
+                [id]
+            );
+            if (user.rows.length == 0) {
+                return returnRes(res, 401, {
+                    success: false,
+                    message: 'Invalid email or password. Please check your credentials and try again.',
+                    error: 'UNAUTHORIZED_ACCESS'
+                });
+            }
+            const isMatched = await bcrypt.compare(old_pass, user?.rows[0]?.hashed_pass);
+            if (type != 'forgot' && !isMatched) {
+                return returnRes(res, 401, {
+                    success: false,
+                    message: 'Invalid password. Please check your credentials and try again.',
+                    error: 'UNAUTHORIZED_ACCESS'
+                });
+            }
+            const hashedPass = await bcrypt.hash(new_pass, 10);
+
+            await db.query(
+                `UPDATE users
+                SET
+                    hashed_pass=$1
+                WHERE id= $2`,
+                [hashedPass,id]
+            );
+
+            return returnRes(res,200,{
+                success:true,
+                error:false,
+                message:'Password changed.'
+            });
+
+        } catch (err) {
+            console.log('Reset password error. ', err);
+            return returnRes(res, 500, { success: false, message: 'Internal Server Error!', error: 'INTERNAL_SERVER_ERROR' });
+        }
+    }
     // controller function to login user
     loginUser = async (req, res) => {
         let { email, pass } = req.body;

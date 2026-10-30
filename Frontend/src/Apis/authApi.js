@@ -149,13 +149,13 @@ export const verifyOtp = async (e, email, otp, res_id, otp_type, setIsLoadingBtn
         );
         setIsLoadingBtn(false);
         toast.success(result?.data?.message);
-        if(otp_type=='reset_pass'){
+        if (otp_type == 'reset_pass') {
             const userInfo = result?.data?.userInfo;
             const role = result?.data?.role;
-            const rolesList =result?.data?.rolesList??[]
+            const rolesList = result?.data?.rolesList ?? []
             const activeResId = result?.data?.activeResId;
             const permissions = result?.data?.permissions;
-            successFunction({userInfo,role,rolesList,activeResId,permissions});
+            successFunction({ userInfo, role, rolesList, activeResId, permissions });
             return;
         }
         successFunction();
@@ -167,6 +167,54 @@ export const verifyOtp = async (e, email, otp, res_id, otp_type, setIsLoadingBtn
     }
 }
 
+export const resetPass = async (prev, old_pass, new_pass, confirm_pass,setInputError ,successFunction) => {
+    if (!passStrength.test(new_pass)) {
+        if (!passLen.test(new_pass)) {
+            setInputError(prev => ({ ...prev, new_pass: 'Password must be between 8 and 16 characters.' }))
+        }
+        else if (!passLower.test(new_pass)) {
+            setInputError(prev => ({ ...prev, new_pass: 'Password must include at least one lowercase letter.' }))
+        }
+        else if (!passUpper.test(new_pass)) {
+            setInputError(prev => ({ ...prev, new_pass: 'Password must include at least one uppercase letter.' }))
+        }
+        else if (!passNum.test(new_pass)) {
+            setInputError(prev => ({ ...prev, new_pass: 'Password must include at least one number.' }))
+        }
+        else if (!passSpecial.test(new_pass)) {
+            setInputError(prev => ({ ...prev, new_pass: 'Password must include at least one special character.' }))
+        }
+
+        return;
+    }
+    if (new_pass != confirm_pass) {
+        setInputError(prev => ({ ...prev, confirm_pass: 'Passwords do not match.' }))
+        return;
+    }
+    if(old_pass&& old_pass==new_pass){
+        setInputError(prev => ({ ...prev, new_pass: 'Password cannot be the same as your old password.' }));
+        return;
+    }
+    try {
+        const result = await axios.post(
+            `${backend_url}/auth/reset-pass`,
+            {
+                old_pass,
+                new_pass,
+                type:prev=='/forgot-password'?'forgot':'reset'
+            },
+            {
+                withCredentials: true
+            }
+        );
+
+        successFunction();
+
+    } catch (err) {
+        console.log(err);
+        toast.error(err?.response?.data?.message || 'Something Went Wrong!');
+    }
+}
 export const askForOtp = async (data = {}, setIsLoadingBtn, successFunction) => {
     try {
         setIsLoadingBtn(true);
