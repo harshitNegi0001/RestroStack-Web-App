@@ -4,7 +4,7 @@ import { currencies } from '../utils/clientSideData/setupVariables';
 import { BiTrash } from "react-icons/bi";
 import BackdropPage from '../components/BackdropPage';
 import AlertBox from './ConfirmBox';
-import { cancelOrder } from '../Apis/ordersApi';
+import { changeOrderStatus } from '../Apis/ordersApi';
 
 
 
@@ -13,13 +13,13 @@ const OrderHistCard = ({ data, type = 'lineup', onClose, onCancel }) => {
   const currency = currencies.find(c => c.key == activeResData?.currency)?.symbol || '₹';
   const price = data?.price || data?.activeVariation?.price || 0;
   const [loadingCancleBtn, setLoadingCancelBtn] = useState(false)
-  const [showConfirm, setShowConfirm] = useState(false);
-  const cancelRunningOrder = async () => {
-    
+  const [showConfirm, setShowConfirm] = useState({ old_status: '', new_status: '' });
+  const handleStatusChange = async () => {
+
     setLoadingCancelBtn(true);
-    await cancelOrder(data?.id, onCancel);
+    await changeOrderStatus(data?.id, showConfirm?.new_status, onCancel);
     setLoadingCancelBtn(false);
-    setShowConfirm(false);
+    setShowConfirm({ old_status: '', new_status: '' });
 
   }
   return (
@@ -37,19 +37,24 @@ const OrderHistCard = ({ data, type = 'lineup', onClose, onCancel }) => {
                 <BiTrash />
               </div> :
               data?.item_status == 'pending' ?
-                <button title='Cancel Order' onClick={() => setShowConfirm(true)}
+                <button title='Cancel Order' onClick={() => setShowConfirm({ old_status: 'pending', new_status: 'cancel' })}
                   className='w-fit px-2 py-1 rounded-md text-red-600 hover:bg-red-600/10 active:bg-red-600/20 text-[10px] sm:text-[12px]'>
                   Cancel
                 </button> :
-                <div className={`capitalize w-fit px-2 py-0.5  rounded-xl text-[10px] sm:text-[12px]
-              ${(data?.item_status == 'cancelled'|| data?.item_status =='rejected' )? 'border-red-600 bg-red-600/10 text-red-600' : data?.item_status == 'ready' ? 'border-green-600 bg-green-600/10 text-green-600' :(data?.item_status == 'pending' || data?.item_status == 'preparing')? 'border-orange-600 bg-orange-600/10 text-orange-600':'border-blue-600 bg-blue-600/10 text-blue-600'}`}>
-                  {data?.item_status}
-                </div>
+                data?.item_status == 'ready' ?
+                  <button title='Mark As Served' onClick={() => setShowConfirm({ old_status: 'ready', new_status: 'served' })}
+                    className='w-fit px-2 py-1 rounded-md text-blue-600 hover:bg-blue-600/10 active:bg-blue-600/20 text-[10px] sm:text-[12px]'>
+                    Mark As Served
+                  </button> :
+                  <div className={`capitalize w-fit px-2 py-0.5  rounded-xl text-[10px] sm:text-[12px]
+              ${(data?.item_status == 'cancelled' || data?.item_status == 'rejected') ? 'border-red-600 bg-red-600/10 text-red-600' : data?.item_status == 'ready' ? 'border-green-600 bg-green-600/10 text-green-600' : (data?.item_status == 'pending' || data?.item_status == 'preparing') ? 'border-orange-600 bg-orange-600/10 text-orange-600' : 'border-blue-600 bg-blue-600/10 text-blue-600'}`}>
+                    {data?.item_status}
+                  </div>
           }
         </div>
-        <BackdropPage isOpen={showConfirm} onClose={() => setShowConfirm(false)} >
-          <AlertBox type={'error'} title={'Cancel Order?'} onCancel={() => setShowConfirm(false)}
-            loadingBtn={loadingCancleBtn} confirmFunction={cancelRunningOrder} desc={'Are you sure you want to cancel this order?\nThis action cannot be undone.'} />
+        <BackdropPage isOpen={showConfirm?.old_status} onClose={() => setShowConfirm({ old_status: '', new_status: '' })} >
+          <AlertBox type={showConfirm?.new_status == 'cancel' ? 'error' : 'info'} title={showConfirm?.new_status == 'cancel' ? 'Cancel Order?' : 'Mark as Served'} onCancel={() => setShowConfirm({ old_status: '', new_status: '' })}
+            loadingBtn={loadingCancleBtn} confirmFunction={handleStatusChange} desc={`Are you sure you want to ${showConfirm?.new_status == 'cancel' ? 'cancel' : 'mark as served'} this order?\nThis action cannot be undone.`} />
         </BackdropPage>
       </div>
       {(data?.special_instruction || data?.extraDetail) && <><div className='w-full border-divider border-t-1 h-0'></div>

@@ -152,10 +152,13 @@ export const getStaffList = async (filters,successFunction) => {
     }
 }
 
-export const getConnectionRequests = async(successFunction)=>{
+export const getConnectionRequests = async(filters,successFunction)=>{
     try {
-        const result = await axios.get(
+        const result = await axios.post(
             `${backend_url}/staff/get-conn-req`,
+            {
+                filters
+            },
             {
                 withCredentials:true
             }
@@ -167,3 +170,13 @@ export const getConnectionRequests = async(successFunction)=>{
     }
 }
 
+export const getEmployeeFullData = async(FullEmpWindow,successFunction)=>{
+
+
+    try {
+        
+    } catch (err) {
+        console.error(err);
+        toast.error(err?.response?.data?.error || 'Something Went Wrong!');
+    }
+}

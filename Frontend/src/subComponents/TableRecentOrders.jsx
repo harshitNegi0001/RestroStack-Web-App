@@ -10,6 +10,7 @@ import { currencies } from "../utils/clientSideData/setupVariables";
 import { IoReceiptOutline } from "react-icons/io5";
 import BillReceiptModal from "./BillReceiptModal";
 import { MdOutlinePayments } from "react-icons/md";
+import socket from "../utils/websocket/socket ";
 
 
 export default function TableRecentOrders({ tableId, charges,openPayScreen,setOpenPayScreen,setGeneratedBillData,generatedBillData }) {
@@ -28,6 +29,16 @@ export default function TableRecentOrders({ tableId, charges,openPayScreen,setOp
         getInitialValues();
     }, []);
 
+    useEffect(()=>{
+        if(items_list?.length){
+            socket.on('dish_status_change');
+
+            return()=>{
+                
+            }
+        }
+    },[items_list])
+
     const getInitialValues = async () => {
 
         function successFunction(data) {
@@ -44,7 +55,6 @@ export default function TableRecentOrders({ tableId, charges,openPayScreen,setOp
             return;
         }
         function successFunction(data) {
-            // Backend se aayi hui bill details state me save karo
             setGeneratedBillData(data);
             setOpenBill(true);
 
@@ -109,8 +119,8 @@ export default function TableRecentOrders({ tableId, charges,openPayScreen,setOp
                         <div className="w-full flex flex-col gap-2 mt-2 ">
                             {
                                 items_list?.map(i =>
-                                    <OrderHistCard key={i.id} data={i} type="recent" onCancel={() => {
-                                        setItems_list(prev => (prev.map(item => item.id == i.id ? { ...item, item_status: 'cancelled' } : item)))
+                                    <OrderHistCard key={i.id} data={i} type="recent" onCancel={(newStatus) => {
+                                        setItems_list(prev => (prev.map(item => item.id == i.id ? { ...item, item_status: newStatus } : item)))
                                     }} />
                                 )
                             }

@@ -40,9 +40,10 @@ const roles_color = {
     'cashier': 'text-green-600 bg-green-600/20 border-green-600/60'
 }
 
-export default function EmployeeCard({ data}) {
+export default function EmployeeCard({ data,onClick}) {
     return (
-        <div className="w-full rounded-2xl shadow-black/30 shadow-md p-2 bg-card-bg hover:bg-toast-bg/40 hover:scale-102 flex flex-col gap-3">
+        <div onClick={onClick}
+         className="w-full cursor-pointer rounded-2xl shadow-black/30 shadow-md p-2 bg-card-bg hover:bg-toast-bg/40 hover:scale-102 flex flex-col gap-3">
             <div className="w-full flex flex-row justify-between gap-1">
                 <div className="flex gap-1 items-center flex-1 min-w-0">
                     <div className={`${roles_color[data.role_name]} size-[30px] text-[18px] rounded-[50%] flex justify-center items-center text-center`}>

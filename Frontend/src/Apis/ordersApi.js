@@ -125,7 +125,7 @@ export const changeOrderStatus =async(orderItemId,newStatus,successFunction,reas
                 withCredentials:true
             }
         );
-        successFunction();
+        successFunction(newStatus);
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Updating order status Failed!');

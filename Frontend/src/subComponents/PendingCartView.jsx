@@ -6,9 +6,8 @@ import { useSelector } from 'react-redux';
 const PendingCartView = ({ pendingOrder, setOpenFullView,loadingKOTbtn,handleSendKOT }) => {
     const { activeResData } = useSelector(state => state.auth);
 
-    const totalPrice = pendingOrder.reduce((sum, item) => sum + item?.activeVariation?.price, 0);
+    const totalPrice = pendingOrder.reduce((sum, item) => sum + item?.activeVariation?.price*item?.quantity, 0);
     const currency = currencies.find(c => c.key == activeResData?.currency)?.symbol || '₹';
-
     return (
         <div className={`w-full flex items-center justify-between gap-2 `}>
             <div className={`flex items-center gap-2`}>

@@ -369,6 +369,7 @@ class Staff {
     getConnectReq = async (req, res) => {
         try {
             const { role, res_id } = req.user;
+            const {filters} = req.body;
             const permissions = req.permissions;
             if (role != 'owner' && !permissions?.['can_manage_staff']) {
                 return returnRes(res, 403, {

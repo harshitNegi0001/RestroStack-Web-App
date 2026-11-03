@@ -19,11 +19,11 @@ export const configSocket = (server) => {
             socket.disconnect();
             return;
         }
-        if (!resEmpMap.has(resId)) {
-            resEmpMap.set(resId, new Set());
+        if (!resEmpMap.has(userId)) {
+            resEmpMap.set(userId, new Set());
         }
-        resEmpMap.get(resId).add(socket.id);
-
+        resEmpMap.get(userId).add(socket.id);
+        socket.join(`res-${resId}`);
 
         socket.on('table-status-change', ({ tableId, newStatus }) => {
             // const receiverSockets = userSocketMap.get(receiverId);

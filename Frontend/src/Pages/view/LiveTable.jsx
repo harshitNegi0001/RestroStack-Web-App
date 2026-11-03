@@ -28,14 +28,16 @@ export default function LiveTable() {
             const active = zonesList?.find(z => z.id == activeZone);
             setTablesList(active?.tables_array);
 
-
-            socket.on('table_status_change', handleTableStatusChange)
-
-            return () => {
-                socket.off('table_status_change', handleTableStatusChange);
-            };
         }
     }, [activeZone])
+
+    useEffect(() => {
+        socket.on('table_status_change', handleTableStatusChange)
+
+        return () => {
+            socket.off('table_status_change', handleTableStatusChange);
+        };
+    }, [tablesList])
 
     const handleTableStatusChange = ({ zone_id, table_id, new_status }) => {
 

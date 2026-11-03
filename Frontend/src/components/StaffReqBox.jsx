@@ -14,27 +14,33 @@ const filterTypes = [
     'rejected'
 ]
 
-export default function StaffReqBox(){
+export default function StaffReqBox() {
 
-    const [perPage,setPerPage] = useState(10);
-    const [activeType,setActiveType] =useState('all');
-    const [requestList,setRequestList] = useState([]);
-    const [isLoading,setIsLoading] = useState(false);
+    const [perPage, setPerPage] = useState(10);
+    const [activeType, setActiveType] = useState('pending');
+    const [requestList, setRequestList] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(()=>{
-        getStaffReq();
-    },[]);
+    useEffect(() => {
+        if (activeType&&perPage) {
+            getStaffReq();
+        }
+    }, [activeType,perPage]);
 
-    const getStaffReq =async()=>{
-        function successFunction(data){
+    const getStaffReq = async () => {
+        function successFunction(data) {
             setRequestList(data);
         }
+        const filters = {
+            req_status: activeType,
+
+        }
         setIsLoading(true);
-        await getConnectionRequests(successFunction);
+        await getConnectionRequests(filters, successFunction);
         setIsLoading(false);
     }
 
-    return(
+    return (
         <div className="w-full rounded-2xl bg-card-bg flex flex-col shadow-md shadow-black/30 ">
             <div className="p-2 flex flex-col gap-2 md:flex-row md:justify-between w-full ">
                 <div className="flex gap-2 items-center text-[14px] md:text-[16px] text-active-border ">
@@ -43,32 +49,42 @@ export default function StaffReqBox(){
                 </div>
                 <div className="flex flex-row gap-2 items-center">
                     {
-                        filterTypes.map((f,i)=>
-                            <ChipComponent key={i} title={f} isActive={f==activeType} onClick={()=>setActiveType(f )} />
+                        filterTypes.map((f, i) =>
+                            <ChipComponent key={i} title={f} isActive={f == activeType} onClick={() => setActiveType(f)} />
                         )
                     }
                 </div>
             </div>
-            <div className="w-full flex flex-col">
-                {
-                    requestList.map(r=>
-                        <StaffRequestRow key={r.id} data={r} />
-                    )
-                }
-            </div>
+            {isLoading ?
+                <div className="w-full flex flex-col">
+                    {
+                        [1, 2, 3, 4, 5].map(i =>
+                            <StaffRequestRow key={i} data={null} isLoading={isLoading} />
+                        )
+                    }
+                </div> :
+                requestList?.length == 0 ?
+                    <>
+                    </> : <div className="w-full flex flex-col">
+                        {
+                            requestList.map(r =>
+                                <StaffRequestRow key={r.id} data={r} />
+                            )
+                        }
+                    </div>}
             <div className="flex w-full border-t-1 border-divider p-2 md:p-3 items-center justify-between">
                 <div className="w-[55px] ">
-                    <select  id="" value={perPage} onChange={(e)=>setPerPage(e.target.value)}
+                    <select id="" value={perPage} onChange={(e) => setPerPage(e.target.value)}
                         className="outline-1 text-sec-text w-full outline-divider p-1 rounded-lg focus:outline-2 focus:outline-active-border">
                         {
-                            [1,2,3,4,5].map(i=>
-                                <option value={5*i} className="bg-main-bg ">{5*i}</option>
+                            [1, 2, 3, 4, 5].map(i =>
+                                <option value={5 * i} className="bg-main-bg ">{5 * i}</option>
                             )
                         }
                     </select>
                 </div>
                 <div className="flex items-center gap-1">
-                    
+
                 </div>
             </div>
         </div>

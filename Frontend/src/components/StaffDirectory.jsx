@@ -8,6 +8,8 @@ import EmployeeCard from "./EmployeeCard";
 import { getStaffList } from "../Apis/staffManagementApi";
 import LoadingEmployeeCard from "./LoadingEmployeeCard";
 import NoStaff from "../utils/illustrations/NoStaff";
+import BackdropPage from "./BackdropPage";
+import FullEmpWindow from "./FullEmpWindow";
 
 const roles = [
     {
@@ -48,6 +50,7 @@ export default function StaffDirectory() {
     const [role, setRole] = useState('all');
     const [staffList, setStaffList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [openEmpDetail,setOpenEmpDetail]= useState(null);
 
     useEffect(() => {
         const debouncingTimer = setTimeout(() => {
@@ -76,10 +79,12 @@ export default function StaffDirectory() {
 
     return (
         <div className="w-full flex flex-col gap-3">
+            <BackdropPage isOpen={openEmpDetail} onClose={() => setOpenEmpDetail(false)} >
+                <FullEmpWindow onClose={() => setOpenEmpDetail(false)} empId={openEmpDetail}/>
+            </BackdropPage>
             <EmployeeFilter role={role} setRole={setRole} roles={roles} searchValue={searchValue} setSearchValue={setSearchValue} />
             {
                 !isLoading && staffList.length == 0 ?
-
                     <div className="w-full flex flex-col gap-1 items-center">
                         <div className="w-full max-w-[380px] px-3">
 
@@ -101,7 +106,7 @@ export default function StaffDirectory() {
                                     <LoadingEmployeeCard key={i} />
                                 ) :
                                 staffList.map(s =>
-                                    <EmployeeCard data={s} key={s.id} />
+                                    <EmployeeCard data={s} key={s.id} onClick={()=>setOpenEmpDetail(s.id)}/>
                                 )
                         }
                     </div>

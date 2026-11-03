@@ -11,23 +11,6 @@ import {
 import { useSelector } from 'react-redux';
 
 
-// const dummyData = [
-//   { time: '10 AM', revenue: 0 },
-//   { time: '11 AM', revenue: 1200 },
-//   { time: '12 PM', revenue: 3500 },
-//   { time: '1 PM',  revenue: 6800 }, // Lunch Peak
-//   { time: '2 PM',  revenue: 5200 },
-//   { time: '3 PM',  revenue: 2000 },
-//   { time: '4 PM',  revenue: 1500 }, // Low period
-//   { time: '5 PM',  revenue: 2800 },
-//   { time: '6 PM',  revenue: 4500 },
-//   { time: '7 PM',  revenue: 7500 },
-//   { time: '8 PM',  revenue: 10500 }, // Dinner Peak
-//   { time: '9 PM',  revenue: 9200 },
-//   { time: '10 PM', revenue: 4000 },
-//   { time: '11 PM', revenue: 1500 },
-// ];
-
 const CustomTooltip = ({ active, payload, label,currency }) => {
   if (active && payload && payload.length) {
     return (

@@ -52,17 +52,6 @@ class Orders {
                 order_id = orderResult.rows[0].id;
 
                 await client.query(`UPDATE tables SET status = 'occupied' WHERE id = $1`, [table_id]);
-                // socket.emit notify all connector that table occupied.
-                const resEmployees = resEmpMap.get(res_id);
-
-                // spam notify all emp.
-                if (resEmployees) {
-                    resEmployees.forEach((socketId) => {
-                        io.to(socketId).emit('table_status_change', { zone_id, table_id, new_status: 'occupied' });
-                        io.to(socketId).emit('order_status_change',{});
-                    })
-                }
-
             }
 
             const variantIds = items.map(item => item.activeVariation.id);
@@ -73,7 +62,7 @@ class Orders {
             );
 
             let query = `INSERT INTO order_items(
-                order_id,
+                    order_id,
                     item_varity_id,
                     quantity,
                     price,
@@ -103,8 +92,48 @@ class Orders {
 
             query += placeholders.join(', ');
 
-            const orderItemResult = await client.query(query, values);
+            const orderItemResult = await client.query(`${query}
+                returning id`, values);
             await client.query('COMMIT');
+            const kotIds = orderItemResult?.rows?.map(o => o.id);
+            const ticketData = await db.query(
+                `SELECT
+                    oi.id,
+                    oi.special_instruction AS instruction,
+                    pi.variant_name,
+                    i.item_name,
+                    oi.order_id,
+                    oi.created_at AS ordered_at,
+                    oi.quantity,
+                    oi.status,
+                    o.table_id,
+                    t.table_name,
+                    z.zone_name
+                FROM order_items AS oi
+                JOIN orders AS o
+                ON o.id = oi.order_id
+                JOIN tables AS t
+                ON o.table_id = t.id
+                JOIN table_zone AS z
+                ON t.zone_id = z.id
+                JOIN item_prices AS pi
+                ON oi.item_varity_id = pi.id
+                JOIN menu_items AS i
+                ON pi.item_id = i.id
+
+                WHERE oi.id = ANY($1::BIGINT[])
+                ORDER BY oi.id DESC
+                    `, [kotIds]
+            );
+
+
+            // spam notify all emp.
+
+            io.to(`res-${res_id}`).emit('table_status_change', { zone_id, table_id, new_status: 'occupied' });
+            io.to(`res-${res_id}`).emit('order_status_change', {});
+            io.to(`res-${res_id}`).emit('new-kot-created', { kots: ticketData.rows });
+
+
             return returnRes(res, 200, {
                 success: true,
                 error: false,
@@ -464,7 +493,7 @@ class Orders {
                 WHERE id =$1`,
                 [bill_update_res?.rows[0]?.order_id]
             );
-            const table_detail =await client.query(
+            const table_detail = await client.query(
                 `SELECT zone_id 
                 FROM tables
                 WHERE id = $1`,
@@ -472,21 +501,15 @@ class Orders {
             )
             await client.query('COMMIT');
 
-
-            const resEmployees = resEmpMap.get(res_id);
-
             // spam notify all emp.
-            if (resEmployees) {
-                resEmployees.forEach((socketId) => {
-                    io.to(socketId).emit('table_status_change', { zone_id:table_detail?.rows?.[0]?.zone_id, table_id, new_status: 'available' });
-                    io.to(socketId).emit('order_status_change',{});
-                })
-            }
+                    io.to(`res-${res_id}`).emit('table_status_change', { zone_id: table_detail?.rows?.[0]?.zone_id, table_id, new_status: 'available' });
+                    io.to(`res-${res_id}`).emit('order_status_change', {});
+           
             return returnRes(res, 200, {
                 success: true,
                 error: false,
                 message: 'Bill marked as paid.'
-            })
+            });
         } catch (err) {
             await client.query('ROLLBACK');
             console.log('Confirming Cash Payment Error: ', err);
@@ -628,10 +651,39 @@ class Orders {
 
                 if (newStatus == 'ready') {
                     // notify waiter! with  sockets
+                    const result = await db.query(
+                        `SELECT 
+                            o.staff_id,
+                            t.table_name,
+                            z.zone_name,
+                            i.item_name
+                        FROM order_items AS oi
+                        JOIN orders AS o
+                        ON oi.order_id= o.id
+                        JOIN tables AS t
+                        ON o.table_id = t.id
+                        JOIN table_zone AS z
+                        ON t.zone_id = z.id
+                        JOIN item_prices AS pi
+                        ON oi.item_varity_id = pi.id
+                        JOIN menu_items AS i
+                        ON pi.item_id = i.id
+                        WHERE oi.id = $1`,
+                        [orderItemId]
+                    );
+                    io.to(`res-${res_id}`).emit('dish-ready', {
+                        waiter_id: result?.rows[0]?.staff_id,
+                        table_name: result?.rows[0]?.table_name,
+                        item_name: result?.rows[0]?.item_name,
+                        zone_name: result?.rows[0]?.zone_name,
+                    });
                 }
-                if (newStatus == 'served') {
-                    // change status from frontend for cheif view.
-                }
+                // if (newStatus == 'served'||newStatus=='preparing') {
+                //     // Sync all kitchen screen.
+                //     io.to(`res-${res_id}`).emit('dish_status_change',{newStatus,orderItemId});
+                // }
+                io.to(`res-${res_id}`).emit('dish_status_change', { newStatus, orderItemId });
+
                 return returnRes(res, 200, {
                     message: 'Successfully updated order status',
                     success: true,

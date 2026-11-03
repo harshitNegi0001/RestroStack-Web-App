@@ -5,6 +5,7 @@ import NoRecentOrders from '../../utils/illustrations/NoRecentOrders';
 import NoOrders from '../../utils/illustrations/NoOrders';
 import { getKOT } from '../../Apis/ordersApi';
 import KitchenOrderCard from '../../components/KitchenOrderCard';
+import socket from '../../utils/websocket/socket ';
 
 const LiveOrders = () => {
     const [activeOrderType, setActiveOrderType] = useState('all');
@@ -14,6 +15,23 @@ const LiveOrders = () => {
     useEffect(() => {
         getInitialData();
     }, []);
+    useEffect(() => {
+        socket.on('new-kot-created', handleLiveKOT);
+        socket.on('dish_status_change', handleOrderSYNC)
+        return () => {
+            socket.off('new-kot-created', handleLiveKOT);
+            socket.off('dish_status_change', handleOrderSYNC)
+        }
+    }, [allOrders]);
+    const handleLiveKOT = ({ kots }) => {
+        setAllOrders(prev => ([...kots, ...prev]));
+    }
+    const handleOrderSYNC = async ({ newStatus, orderItemId }) => {
+        const updatedOrders = allOrders.map(o => o.id == orderItemId ? {
+            ...o, status: newStatus
+        } : o);
+        setAllOrders(updatedOrders);
+    }
     const getInitialData = async () => {
         function successFunction(list) {
             setAllOrders(list);
@@ -22,6 +40,7 @@ const LiveOrders = () => {
         await getKOT(successFunction);
         setIsLoading(false);
     }
+
     return (
         <div className="w-full h-full p-2 md:p-4 flex flex-col gap-2 md:gap-4 items-center overflow-y-auto show-custom-scrollbar">
             <MainPagesHeader
@@ -35,7 +54,6 @@ const LiveOrders = () => {
                     {[1, 2, 3, 4, 5].map(i =>
                         <div key={i}
                             className='w-[65px] py-2.5 sm:w-[95px] sm:py-3 animate-wave rounded-2xl'>
-
                         </div>)}
                 </div> :
                 <div className='w-full flex flex-row flex-wrap items-center gap-2 mt-3'>
@@ -64,11 +82,11 @@ const LiveOrders = () => {
                     px-3 py-1 rounded-2xl cursor-pointer text-[12px] sm:text-[14px] font-[500] flex items-center gap-1`}>
                         <span className='p-1 sm:p-1.5 rounded-full bg-blue-600'></span>Served ({allOrders?.reduce((count, o) => (o.status == 'served') ? count + 1 : count, 0) || 0})
                     </div>
-                    <div onClick={()=>setActiveOrderType('rejected')} className={`${activeOrderType=='rejected'?'bg-active-border text-white border-0':
-                    'border-1 border-sec-text/80 text-sec-text/80 hover:border-sec-text hover:text-sec-text'}
+                    <div onClick={() => setActiveOrderType('rejected')} className={`${activeOrderType == 'rejected' ? 'bg-active-border text-white border-0' :
+                        'border-1 border-sec-text/80 text-sec-text/80 hover:border-sec-text hover:text-sec-text'}
                     px-3 py-1 rounded-2xl cursor-pointer text-[12px] sm:text-[14px] font-[500] flex items-center gap-1`}>
-                    <span className='p-1 sm:p-1.5 rounded-full bg-red-600'></span>Rejected ({allOrders?.reduce((count, o) => (o.status == 'rejected') ? count + 1 : count, 0) || 0})
-                </div>
+                        <span className='p-1 sm:p-1.5 rounded-full bg-red-600'></span>Rejected ({allOrders?.reduce((count, o) => (o.status == 'rejected') ? count + 1 : count, 0) || 0})
+                    </div>
                 </div>
             }
             {isLoading ?
