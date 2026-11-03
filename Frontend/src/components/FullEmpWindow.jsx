@@ -50,13 +50,16 @@ function FullEmpWindow({ empId, onClose }) {
     const [isLoading, setIsLoading] = useState(false);
     const [empDetails, setEmpDetails] = useState({});
     useEffect(() => {
-        // getEmpData();
+        getEmpData();
     }, [empId]);
 
     const getEmpData = async () => {
-
+        function successFunction(data){
+            
+            setEmpDetails(data);
+        }
         setIsLoading(true);
-        await getEmployeeFullData(empId);
+        await getEmployeeFullData(empId,successFunction);
         setIsLoading(false);
     }
 
@@ -95,7 +98,7 @@ function FullEmpWindow({ empId, onClose }) {
                     <div className='w-[100px] md:w-[150px] h-[100px] md:h-[150px] rounded-full'>
                         {
                             empDetails?.image ?
-                                <img className='w-full h-full object-cover' src={empDetails?.image} alt="Employee Profile" /> :
+                                <img className='w-full h-full object-cover rounded-full' src={empDetails?.image} alt="Employee Profile" /> :
                                 <div className='w-full h-full text-divider'>
                                     <FaUserCircle className='text-[100px] md:text-[150px]' />
                                 </div>

@@ -119,29 +119,29 @@ export const verifyInviteToken = async (token, req_type, successFunction, restri
     }
 }
 
-export const getInviteHistory = async(successFunction) =>{
+export const getInviteHistory = async (successFunction) => {
     try {
         const result = await axios.get(
             `${backend_url}/staff/get-invite-hist`,
             {
-                withCredentials:true
+                withCredentials: true
             }
         );
 
-        successFunction(result?.data?.inviteList||[]);
+        successFunction(result?.data?.inviteList || []);
     } catch (err) {
         console.log(err);
         toast.error(err?.response?.data?.message || 'Something Went Wrong!');
     }
 }
 
-export const getStaffList = async (filters,successFunction) => {
+export const getStaffList = async (filters, successFunction) => {
 
     try {
         const result = await axios.get(
-            `${backend_url}/staff/get-staff-list?emp_query=${filters?.query||''}&&emp_role=${filters?.role||'all'}`,
+            `${backend_url}/staff/get-staff-list?emp_query=${filters?.query || ''}&&emp_role=${filters?.role || 'all'}`,
             {
-                withCredentials:true
+                withCredentials: true
             }
         );
 
@@ -152,7 +152,7 @@ export const getStaffList = async (filters,successFunction) => {
     }
 }
 
-export const getConnectionRequests = async(filters,successFunction)=>{
+export const getConnectionRequests = async (filters, successFunction) => {
     try {
         const result = await axios.post(
             `${backend_url}/staff/get-conn-req`,
@@ -160,21 +160,26 @@ export const getConnectionRequests = async(filters,successFunction)=>{
                 filters
             },
             {
-                withCredentials:true
+                withCredentials: true
             }
         );
-        successFunction(result?.data?.requestList||[]);
+        successFunction(result?.data?.requestList || []);
     } catch (err) {
         console.error(err);
         toast.error(err?.response?.data?.error || 'Something Went Wrong!');
     }
 }
 
-export const getEmployeeFullData = async(FullEmpWindow,successFunction)=>{
-
-
+export const getEmployeeFullData = async (empId, successFunction) => {
     try {
-        
+        const result = await axios.get(
+            `${backend_url}/staff/get-emp-full-data?emp_id=${empId}`,
+            {
+                withCredentials: true
+            }
+        );
+
+        successFunction(result?.data?.emp_details||{});
     } catch (err) {
         console.error(err);
         toast.error(err?.response?.data?.error || 'Something Went Wrong!');

@@ -106,7 +106,7 @@ export default function StaffDirectory() {
                                     <LoadingEmployeeCard key={i} />
                                 ) :
                                 staffList.map(s =>
-                                    <EmployeeCard data={s} key={s.id} onClick={()=>setOpenEmpDetail(s.id)}/>
+                                    <EmployeeCard data={s} key={s.id} onClick={()=>setOpenEmpDetail(s.user_id)}/>
                                 )
                         }
                     </div>

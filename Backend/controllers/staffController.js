@@ -1,7 +1,7 @@
 import { returnRes } from "../utils/returnRes.js";
 import db from '../utils/db.js';
 import crypto from 'crypto';
-import { createStaffInvitationMail} from "../utils/inviteStaffMail.js";
+import { createStaffInvitationMail } from "../utils/inviteStaffMail.js";
 import { sendEmail } from "../config/sendMail.js";
 import { defaultPermisson } from "../utils/defaultPermission.js";
 import { getUserFullDetail } from "../utils/getUserFullDetail.js";
@@ -369,7 +369,7 @@ class Staff {
     getConnectReq = async (req, res) => {
         try {
             const { role, res_id } = req.user;
-            const {filters} = req.body;
+            const { filters } = req.body;
             const permissions = req.permissions;
             if (role != 'owner' && !permissions?.['can_manage_staff']) {
                 return returnRes(res, 403, {
@@ -394,16 +394,82 @@ class Staff {
                 WHERE c.res_id =$1
                     AND c.status != 'canceled'
                     AND u.acc_status = 'active'
-                `,[res_id]
+                `, [res_id]
             );
 
-            return returnRes(res,200,{
-                requestList:result.rows,
-                success:true,
-                error:false
+            return returnRes(res, 200, {
+                requestList: result.rows,
+                success: true,
+                error: false
             });
         } catch (err) {
             console.error('Connection Req Getting Error:', err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
+            });
+        }
+    }
+
+    // controller function to get full data of employee
+    getEmpFullData = async (req, res) => {
+        const { emp_id } = req.query;
+        const { id, res_id, role } = req.user;
+
+        try {
+            // permisson and emp res_id sould be matched
+            if (role != 'owner' && !req.permissions?.['can_manage_staff']) {
+                return returnRes(res, 403, {
+                    success: false,
+                    error: 'ACCESS_DENIED',
+                    message: 'You do not have permission to view or manage the staff.'
+                });
+            }
+            const empExists = await db.query(
+                `SELECT 1
+                FROM users AS u
+                JOIN roles AS r
+                ON u.id = r.user_id
+                WHERE u.id =$1
+                    AND r.res_id =$2
+                    AND r.is_active = TRUE`,
+                [emp_id,res_id]
+            );
+
+            if(empExists.rowCount == 0){
+                return returnRes(res, 404, {
+                    success: false,
+                    error: 'EMPLOYEE_NOT_FOUND',
+                    message: 'Employee not found.'
+                });
+            }
+
+            const empDetails =  await db.query(
+                `SELECT
+                    u.id AS id,
+                    r.permissions AS permissions,
+                    u.name AS name,
+                    u.image AS image,
+                    u.email AS email,
+                    r.role_name ,
+                    u.acc_status,
+                    r.id AS role_id
+                FROM users AS u
+                JOIN roles AS r
+                ON u.id = r.user_id
+                WHERE u.id = $1
+                    AND r.res_id =$2
+                    `,[emp_id,res_id]
+            );
+
+            return returnRes(res,200,{
+                success:true,
+                error:false,
+                emp_details : empDetails.rows[0]??{}
+            });
+        } catch (err) {
+            console.error('Getting employee full data error:', err);
             return returnRes(res, 500, {
                 success: false,
                 error: 'INTERNAL_SERVER_ERROR',

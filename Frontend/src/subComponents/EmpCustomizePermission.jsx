@@ -1,6 +1,7 @@
 import React from 'react'
 import { PERMISSION_MAP } from '../utils/clientSideData/permissionArray';
 function EmpCustomizePermission({ permissions, isLoading }) {
+    console.log(permissions)
     return (
         <div className='w-full flex flex-col gap-1 p-2'>
             <div className={`${isLoading ? 'animate-wave h-3 rounded-2xl w-[170px] mb-1' : ''} text-sec-text text-[13px] md:text-[15px] font-[500]`}>{!isLoading ? 'Customized Permissions' : ''}</div>
@@ -19,7 +20,7 @@ function EmpCustomizePermission({ permissions, isLoading }) {
                                             <div className='text-[10px] md:text-[12px] text-wrap'>{p?.desc}</div>
                                         </div>
                                         <label className="relative inline-flex items-center cursor-pointer">
-                                            <input type="checkbox" className="sr-only peer" checked={p?.value} onChange={(e)=>e.target.checked}/>
+                                            <input type="checkbox" className="sr-only peer" checked={permissions?.[p.key]??false} onChange={(e)=>e.target.checked}/>
 
                                             <div className="w-9 h-5 bg-low-text/30 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#10b956]"></div>
                                         </label>
