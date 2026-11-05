@@ -13,5 +13,6 @@ router.get('/get-invite-hist',tokenOpener,permissionInjector,Staff.getInviteHist
 router.get('/get-staff-list',tokenOpener,permissionInjector,Staff.getStaffList);
 router.post('/get-conn-req',tokenOpener,permissionInjector,Staff.getConnectReq);
 router.get('/get-emp-full-data',tokenOpener,permissionInjector,Staff.getEmpFullData);
+router.post('/update-emp-permissions',tokenOpener,permissionInjector,Staff.updateEmpPermissions);
 
 export default router;

@@ -179,7 +179,36 @@ export const getEmployeeFullData = async (empId, successFunction) => {
             }
         );
 
-        successFunction(result?.data?.emp_details||{});
+        successFunction(result?.data?.emp_details || {});
+    } catch (err) {
+        console.error(err);
+        toast.error(err?.response?.data?.error || 'Something Went Wrong!');
+    }
+}
+
+export const updateEmployeePermissions = async (empId, permissions, successFunction) => {
+    try {
+        const result = await axios.post(
+            `${backend_url}/staff/update-emp-permissions`,
+            {
+                permissions,
+                empId
+            },
+            {
+                withCredentials: true
+            }
+        );
+        // successFunction(permissions);
+    } catch (err) {
+        console.error(err);
+        toast.error(err?.response?.data?.error || 'Something Went Wrong!');
+    }
+}
+
+export const dangerEmpAction = async (empId, actionType, successFunction) => {
+    
+    try {
+
     } catch (err) {
         console.error(err);
         toast.error(err?.response?.data?.error || 'Something Went Wrong!');

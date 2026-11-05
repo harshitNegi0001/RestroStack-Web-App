@@ -4,7 +4,7 @@ import { GrUserManager } from "react-icons/gr";
 import { LuHandPlatter } from "react-icons/lu";
 import { PiChefHatBold } from "react-icons/pi";
 import { HiOutlineBanknotes } from "react-icons/hi2";
-import { getEmployeeFullData } from '../Apis/staffManagementApi';
+import { getEmployeeFullData, updateEmployeePermissions } from '../Apis/staffManagementApi';
 import { FaUserCircle } from 'react-icons/fa';
 import EmpPersonalSection from '../subComponents/EmpPersonalSection';
 import EmpCustomizePermission from '../subComponents/EmpCustomizePermission';
@@ -50,17 +50,22 @@ function FullEmpWindow({ empId, onClose }) {
     const [isLoading, setIsLoading] = useState(false);
     const [empDetails, setEmpDetails] = useState({});
     useEffect(() => {
-        getEmpData();
+        if (empId) {
+            getEmpData();
+        }
     }, [empId]);
 
     const getEmpData = async () => {
-        function successFunction(data){
-            
+        function successFunction(data) {
             setEmpDetails(data);
         }
         setIsLoading(true);
-        await getEmployeeFullData(empId,successFunction);
+        await getEmployeeFullData(empId, successFunction);
         setIsLoading(false);
+    }
+    
+    const updatePermissions = async (newPermissions) => {
+        setEmpDetails(prev => ({ ...prev, permissions: newPermissions }));
     }
 
     return (
@@ -91,23 +96,25 @@ function FullEmpWindow({ empId, onClose }) {
             </div>
             <div className='w-full p-3 flex-1 min-h-0 flex flex-col items-center gap-2 overflow-y-auto show-custom-scrollbar'>
                 <div className='w-full flex justify-center'>
-                    {isLoading?
-                    <div className='w-[100px] md:w-[150px] h-[100px] md:h-[150px] rounded-full animate-wave'>
+                    {isLoading ?
+                        <div className='w-[100px] md:w-[150px] h-[100px] md:h-[150px] rounded-full animate-wave'>
 
-                    </div>:
-                    <div className='w-[100px] md:w-[150px] h-[100px] md:h-[150px] rounded-full'>
-                        {
-                            empDetails?.image ?
-                                <img className='w-full h-full object-cover rounded-full' src={empDetails?.image} alt="Employee Profile" /> :
-                                <div className='w-full h-full text-divider'>
-                                    <FaUserCircle className='text-[100px] md:text-[150px]' />
-                                </div>
-                        }
-                    </div>}
+                        </div> :
+                        <div className='w-[100px] md:w-[150px] h-[100px] md:h-[150px] rounded-full'>
+                            {
+                                empDetails?.image ?
+                                    <img className='w-full h-full object-cover rounded-full' src={empDetails?.image} alt="Employee Profile" /> :
+                                    <div className='w-full h-full text-divider'>
+                                        <FaUserCircle className='text-[100px] md:text-[150px]' />
+                                    </div>
+                            }
+                        </div>}
                 </div>
-                <EmpPersonalSection empDetails={empDetails} isLoading={isLoading}/>
-                <EmpCustomizePermission permissions={empDetails?.permissions} isLoading={isLoading} />
+                <EmpPersonalSection empDetails={empDetails} isLoading={isLoading} />
+                <EmpCustomizePermission permissions={empDetails?.permissions} empId={empId} successFunction={updatePermissions} isLoading={isLoading} />
+                {!isLoading && 
                 <EmpDangerZone isLoading={isLoading} />
+                }
             </div>
         </div>
     )

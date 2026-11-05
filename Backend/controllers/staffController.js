@@ -462,7 +462,6 @@ class Staff {
                     AND r.res_id =$2
                     `,[emp_id,res_id]
             );
-
             return returnRes(res,200,{
                 success:true,
                 error:false,
@@ -470,6 +469,61 @@ class Staff {
             });
         } catch (err) {
             console.error('Getting employee full data error:', err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
+            });
+        }
+    }
+
+    // Controller function to update employee permissions
+    updateEmpPermissions =async(req,res)=>{
+        const {empId, permissions} = req.body;
+        const {id,res_id, role} = req.user;
+        try {
+            // permisson and emp res_id sould be matched
+            if (role != 'owner' && !req.permissions?.['can_manage_staff']) {
+                return returnRes(res, 403, {
+                    success: false,
+                    error: 'ACCESS_DENIED',
+                    message: 'You do not have permission to view or manage the staff.'
+                });
+            }
+            const empExists = await db.query(
+                `SELECT 1
+                FROM users AS u
+                JOIN roles AS r
+                ON u.id = r.user_id
+                WHERE u.id =$1
+                    AND r.res_id =$2
+                    AND r.is_active = TRUE`,
+                [empId,res_id]
+            );
+
+            if(empExists.rowCount == 0){
+                return returnRes(res, 404, {
+                    success: false,
+                    error: 'EMPLOYEE_NOT_FOUND',
+                    message: 'Employee not found.'
+                });
+            }
+
+            await db.query(
+                `UPDATE roles
+                SET permissions = $1::jsonb
+                WHERE user_id = $2
+                    AND res_id = $3`,
+                [permissions,empId,res_id]
+            );
+
+            return returnRes(res,200,{
+                success:true,
+                error:false,
+                message:'Update Saved.'
+            });
+        } catch (err) {
+            console.error('Updating Employee Permissions Failed with error:', err);
             return returnRes(res, 500, {
                 success: false,
                 error: 'INTERNAL_SERVER_ERROR',
