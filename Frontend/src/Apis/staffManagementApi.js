@@ -208,7 +208,17 @@ export const updateEmployeePermissions = async (empId, permissions, successFunct
 export const dangerEmpAction = async (empId, actionType, successFunction) => {
     
     try {
-
+        const result = await axios.post(
+            `${backend_url}/staff/emp-danger-action`,
+            {
+                empId,
+                actionType
+            },
+            {
+                withCredentials:true
+            }
+        );
+        successFunction();
     } catch (err) {
         console.error(err);
         toast.error(err?.response?.data?.error || 'Something Went Wrong!');

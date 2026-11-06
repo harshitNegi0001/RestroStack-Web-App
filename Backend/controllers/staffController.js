@@ -7,6 +7,7 @@ import { defaultPermisson } from "../utils/defaultPermission.js";
 import { getUserFullDetail } from "../utils/getUserFullDetail.js";
 import createToken from "../utils/createToken.js";
 import dotenv from 'dotenv';
+import { act } from "react";
 
 dotenv.config();
 
@@ -28,7 +29,7 @@ class Staff {
                 ON r.id=rl.res_id
                 WHERE user_id = $1
                     AND res_id=$2
-                    AND is_active =TRUE`,
+                    AND role_status = 'active'`,
                 [id, res_id]
             );
             if (result.rows.length > 0) {
@@ -178,12 +179,12 @@ class Staff {
                         VALUES(
                             $1,$2,$3,$4
                         )
-                        ON CONFLICT (user_id,res_id)
+                        ON CONFLICT (user_id, res_id) WHERE role_status IN ('active', 'suspend')
                         DO UPDATE
                         SET 
                             role_name = EXCLUDED.role_name, 
                             permissions = EXCLUDED.permissions, 
-                            is_active = TRUE 
+                            role_status = 'active' 
                         RETURNING id `,
                         [tokenData.role_name, tokenData.res_id, id, permissions]
                     )
@@ -246,7 +247,7 @@ class Staff {
             });
         } catch (err) {
             await client.query('ROLLBACK');
-            console.log(err);
+            console.log('Token check error. ',err);
             return returnRes(res, 500, {
                 success: false,
                 error: 'INTERNAL_SERVER_ERROR',
@@ -332,7 +333,7 @@ class Staff {
                     WHERE rl.res_id = $1
                         AND rl.user_id != $2
                         AND rl.role_name !='owner'
-                        AND rl.is_active=TRUE
+                        AND rl.role_status IN ('active','suspend')
                         AND u.acc_status = 'active'
                         AND (
                             u.name ILIKE ('%'|| $3|| '%') 
@@ -433,11 +434,11 @@ class Staff {
                 ON u.id = r.user_id
                 WHERE u.id =$1
                     AND r.res_id =$2
-                    AND r.is_active = TRUE`,
-                [emp_id,res_id]
+                    AND r.role_status IN ('active','suspend')`,
+                [emp_id, res_id]
             );
 
-            if(empExists.rowCount == 0){
+            if (empExists.rowCount == 0) {
                 return returnRes(res, 404, {
                     success: false,
                     error: 'EMPLOYEE_NOT_FOUND',
@@ -445,7 +446,7 @@ class Staff {
                 });
             }
 
-            const empDetails =  await db.query(
+            const empDetails = await db.query(
                 `SELECT
                     u.id AS id,
                     r.permissions AS permissions,
@@ -454,18 +455,20 @@ class Staff {
                     u.email AS email,
                     r.role_name ,
                     u.acc_status,
-                    r.id AS role_id
+                    r.id AS role_id,
+                    r.role_status
                 FROM users AS u
                 JOIN roles AS r
                 ON u.id = r.user_id
                 WHERE u.id = $1
                     AND r.res_id =$2
-                    `,[emp_id,res_id]
+                    AND r.role_status != 'remove'
+                    `, [emp_id, res_id]
             );
-            return returnRes(res,200,{
-                success:true,
-                error:false,
-                emp_details : empDetails.rows[0]??{}
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                emp_details: empDetails.rows[0] ?? {}
             });
         } catch (err) {
             console.error('Getting employee full data error:', err);
@@ -478,9 +481,9 @@ class Staff {
     }
 
     // Controller function to update employee permissions
-    updateEmpPermissions =async(req,res)=>{
-        const {empId, permissions} = req.body;
-        const {id,res_id, role} = req.user;
+    updateEmpPermissions = async (req, res) => {
+        const { empId, permissions } = req.body;
+        const { id, res_id, role } = req.user;
         try {
             // permisson and emp res_id sould be matched
             if (role != 'owner' && !req.permissions?.['can_manage_staff']) {
@@ -497,11 +500,11 @@ class Staff {
                 ON u.id = r.user_id
                 WHERE u.id =$1
                     AND r.res_id =$2
-                    AND r.is_active = TRUE`,
-                [empId,res_id]
+                    AND r.role_status = 'active'`,
+                [empId, res_id]
             );
 
-            if(empExists.rowCount == 0){
+            if (empExists.rowCount == 0) {
                 return returnRes(res, 404, {
                     success: false,
                     error: 'EMPLOYEE_NOT_FOUND',
@@ -514,16 +517,92 @@ class Staff {
                 SET permissions = $1::jsonb
                 WHERE user_id = $2
                     AND res_id = $3`,
-                [permissions,empId,res_id]
+                [permissions, empId, res_id]
             );
 
-            return returnRes(res,200,{
-                success:true,
-                error:false,
-                message:'Update Saved.'
+            return returnRes(res, 200, {
+                success: true,
+                error: false,
+                message: 'Update Saved.'
             });
         } catch (err) {
             console.error('Updating Employee Permissions Failed with error:', err);
+            return returnRes(res, 500, {
+                success: false,
+                error: 'INTERNAL_SERVER_ERROR',
+                message: 'Internal Server Error!'
+            });
+        }
+    }
+
+    // Controller function to suspend or User.
+    dangerEmpAction = async (req, res) => {
+
+        const { empId, actionType } = req.body;
+        const { id, res_id, role } = req.user;
+
+        try {
+            if (role != 'owner' && !req.permissions?.['can_manage_staff']) {
+                return returnRes(res, 403, {
+                    success: false,
+                    error: 'ACCESS_DENIED',
+                    message: 'You do not have permission to view or manage the staff.'
+                });
+            }
+
+            const empExists = await db.query(
+                `SELECT r.id
+                FROM users AS u
+                JOIN roles AS r
+                ON u.id = r.user_id
+                WHERE u.id= $1
+                    AND r.res_id = $2
+                    AND r.role_status IN ('active', 'suspend')
+                    AND u.acc_status = 'active'`,
+                [empId, res_id]
+            );
+
+            if (empExists?.rows?.length == 0) {
+                return returnRes(res, 404, {
+                    success: false,
+                    error: 'EMPLOYEE_NOT_FOUND',
+                    message: 'Employee not found!'
+                });
+            }
+            const role_id = empExists?.rows[0]?.id;
+            if( actionType == 'remove'){
+                await db.query(
+                    `UPDATE roles
+                    SET role_status = 'remove',
+                    deactivated_at = now()
+                    WHERE id =$1`,
+                    [role_id]
+                );
+            }
+            else if( actionType == 'suspend' || actionType == 'active'){
+                await db.query(
+                    `UPDATE roles
+                    SET role_status = $1,
+                    deactivated_at = now()
+                    WHERE id =$2`,
+                    [actionType,role_id]
+                );
+            }
+            else{
+                return returnRes(res, 400,{
+                    error:'INVALID_ACTION',
+                    success:false,
+                    message:'Invalid action type. Please provide a valid action type.'
+                })
+            }
+            // socket notification to user.
+            return returnRes(res, 200, {
+                success:true,
+                message: "Employee role updated successfully.",
+                error:false
+            });
+        } catch (err) {
+            console.error('Updating Employee Role Failed with error:', err);
             return returnRes(res, 500, {
                 success: false,
                 error: 'INTERNAL_SERVER_ERROR',

@@ -78,7 +78,7 @@ export default function StaffReqBox() {
                         className="outline-1 text-sec-text w-full outline-divider p-1 rounded-lg focus:outline-2 focus:outline-active-border">
                         {
                             [1, 2, 3, 4, 5].map(i =>
-                                <option value={5 * i} className="bg-main-bg ">{5 * i}</option>
+                                <option value={5 * i} key={i} className="bg-main-bg ">{5 * i}</option>
                             )
                         }
                     </select>

@@ -45,7 +45,7 @@ const roles_color = {
     'cashier': 'text-green-600 bg-green-600/20 border-green-600/60'
 }
 
-function FullEmpWindow({ empId, onClose }) {
+function FullEmpWindow({ empId, onClose, userDeleteFunction }) {
 
     const [isLoading, setIsLoading] = useState(false);
     const [empDetails, setEmpDetails] = useState({});
@@ -63,9 +63,18 @@ function FullEmpWindow({ empId, onClose }) {
         await getEmployeeFullData(empId, successFunction);
         setIsLoading(false);
     }
-    
+
     const updatePermissions = async (newPermissions) => {
         setEmpDetails(prev => ({ ...prev, permissions: newPermissions }));
+    }
+
+    const dangerEmpFunction = (action_type) => {
+        if (action_type == 'remove') {
+            userDeleteFunction(empId);
+            onClose();
+            return;
+        }
+        setEmpDetails(prev => ({ ...prev, role_status: action_type }));
     }
 
     return (
@@ -112,8 +121,8 @@ function FullEmpWindow({ empId, onClose }) {
                 </div>
                 <EmpPersonalSection empDetails={empDetails} isLoading={isLoading} />
                 <EmpCustomizePermission permissions={empDetails?.permissions} empId={empId} successFunction={updatePermissions} isLoading={isLoading} />
-                {!isLoading && 
-                <EmpDangerZone isLoading={isLoading} />
+                {!isLoading &&
+                    <EmpDangerZone isLoading={isLoading} empId={empId} role_status={empDetails?.role_status} dangerEmpFunction={dangerEmpFunction} />
                 }
             </div>
         </div>

@@ -567,7 +567,7 @@ class Auth {
             const roleCheck = await db.query(
                 `SELECT 
                     user_id,
-                    is_active,
+                    role_status,
                     res_id
                 FROM roles
                 WHERE id=$1
@@ -584,7 +584,7 @@ class Auth {
             }
 
             const userId = roleCheck.rows[0].user_id;
-            const isActive = roleCheck.rows[0].is_active;
+            const isActive = roleCheck.rows[0].role_status === 'active';
             const res_id = roleCheck.rows[0].res_id;
             if (userId != id) {
                 return returnRes(res, 403, {

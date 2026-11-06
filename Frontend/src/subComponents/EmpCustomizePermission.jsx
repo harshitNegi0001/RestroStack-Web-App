@@ -3,7 +3,6 @@ import { PERMISSION_MAP } from '../utils/clientSideData/permissionArray';
 import { updateEmployeePermissions } from '../Apis/staffManagementApi';
 function EmpCustomizePermission({ permissions, empId, isLoading, successFunction }) {
     const [permissionsState, setPermissionsState] = useState({});
-    console.log(permissions)
     useEffect(() => {
         if (permissions) {
             setPermissionsState(permissions);
@@ -11,7 +10,7 @@ function EmpCustomizePermission({ permissions, empId, isLoading, successFunction
         // return ()=> setPermissionsState(null);
     }, [permissions])
     useEffect(() => {
-        if (permissionsState && Object.keys(permissionsState)?.length>0) {
+        if (permissionsState && Object.keys(permissionsState)?.length > 0) {
             const original = JSON.stringify(permissions);
             const current = JSON.stringify(permissionsState);
 
@@ -49,7 +48,8 @@ function EmpCustomizePermission({ permissions, empId, isLoading, successFunction
                                         </label>
                                     </div>
                                 )
-                            }</>
+                            }
+                        </>
                 }
             </div>
         </div>

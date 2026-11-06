@@ -18,7 +18,7 @@ export const permissionInjector = async (req, res, next) => {
             FROM roles
             WHERE user_id = $1
                 AND res_id=$2
-                AND is_active =TRUE`,
+                AND role_status ='active'`,
             [id, res_id]
         );
         if (result.rows.length > 0) {

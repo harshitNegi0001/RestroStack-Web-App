@@ -301,7 +301,7 @@ class Restaurant {
                     COUNT(r.id) 
                         FILTER( 
                             WHERE r.role_name!='owner' 
-                                AND r.is_active =TRUE
+                                AND r.role_status = 'active'
                             )
                          AS emp_count,
                     res.res_type,

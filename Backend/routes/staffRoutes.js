@@ -14,5 +14,6 @@ router.get('/get-staff-list',tokenOpener,permissionInjector,Staff.getStaffList);
 router.post('/get-conn-req',tokenOpener,permissionInjector,Staff.getConnectReq);
 router.get('/get-emp-full-data',tokenOpener,permissionInjector,Staff.getEmpFullData);
 router.post('/update-emp-permissions',tokenOpener,permissionInjector,Staff.updateEmpPermissions);
+router.post('/emp-danger-action', tokenOpener, permissionInjector, Staff.dangerEmpAction);
 
 export default router;

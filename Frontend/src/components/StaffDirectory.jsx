@@ -50,7 +50,7 @@ export default function StaffDirectory() {
     const [role, setRole] = useState('all');
     const [staffList, setStaffList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [openEmpDetail,setOpenEmpDetail]= useState(null);
+    const [openEmpDetail, setOpenEmpDetail] = useState(null);
 
     useEffect(() => {
         const debouncingTimer = setTimeout(() => {
@@ -76,11 +76,13 @@ export default function StaffDirectory() {
         await getStaffList(filters, successFunction);
         setIsLoading(false);
     }
-
+    const userDeleteFunction =(empId)=>{
+        setStaffList(prev=>prev.filter(s=>s.user_id!=empId));
+    }
     return (
         <div className="w-full flex flex-col gap-3">
             <BackdropPage isOpen={openEmpDetail} onClose={() => setOpenEmpDetail(false)} >
-                <FullEmpWindow onClose={() => setOpenEmpDetail(false)} empId={openEmpDetail}/>
+                <FullEmpWindow onClose={() => setOpenEmpDetail(false)} empId={openEmpDetail} userDeleteFunction={userDeleteFunction}/>
             </BackdropPage>
             <EmployeeFilter role={role} setRole={setRole} roles={roles} searchValue={searchValue} setSearchValue={setSearchValue} />
             {
@@ -92,10 +94,10 @@ export default function StaffDirectory() {
                         </div>
                         <div className="text-center mt-0 flex flex-col gap-1.5">
                             <h3 className="text-[17px] sm:text-[19px] font-semibold text-main-text">
-                                Nothing to show here!
+                                No Staff Members!
                             </h3>
                             <p className="text-[12px] sm:text-[13px] font-medium text-low-text/70 max-w-[300px] leading-snug">
-                                Guests at this table haven't placed an order yet. Let's get them started from the Menu.
+                                Your staff list is currently empty. Get started by adding your first employee.
                             </p>
                         </div>
                     </div> :
@@ -106,7 +108,7 @@ export default function StaffDirectory() {
                                     <LoadingEmployeeCard key={i} />
                                 ) :
                                 staffList.map(s =>
-                                    <EmployeeCard data={s} key={s.id} onClick={()=>setOpenEmpDetail(s.user_id)}/>
+                                    <EmployeeCard data={s} key={s.id} onClick={() => setOpenEmpDetail(s.user_id)}/>
                                 )
                         }
                     </div>

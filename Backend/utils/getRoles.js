@@ -21,7 +21,7 @@ export const getRoles = async (userId) => {
                 FROM roles AS rl
                 JOIN restaurants AS r
                 ON r.id = rl.res_id
-                WHERE rl.is_active = TRUE
+                WHERE rl.role_status = 'active'
                     AND rl.user_id = $1
                     AND r.res_status = 'active'
                 `,

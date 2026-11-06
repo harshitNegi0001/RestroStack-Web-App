@@ -10,7 +10,7 @@ export const createRolesTable = async (pool) => {
                 user_id BIGINT NOT NULL,
                 permissions jsonb,
 
-                is_active BOOLEAN DEFAULT TRUE,
+                role_status VARCHAR(20) DEFAULT 'active',
 
                 deactivated_at TIMESTAMPTZ,
                 updated_at TIMESTAMPTZ DEFAULT now(),
@@ -32,6 +32,9 @@ export const createRolesTable = async (pool) => {
             `
             CREATE INDEX IF NOT EXISTS idx_roles_user_id ON roles(user_id);
             CREATE INDEX IF NOT EXISTS idx_roles_res_id ON roles(res_id);
+            CREATE UNIQUE INDEX IF NOT EXISTS unique_active_suspend_role 
+                ON roles(user_id, res_id) 
+                WHERE role_status IN ('active', 'suspend');
             `
         )
     } catch (err) {
