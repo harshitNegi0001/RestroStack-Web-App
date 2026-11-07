@@ -7,7 +7,6 @@ import { defaultPermisson } from "../utils/defaultPermission.js";
 import { getUserFullDetail } from "../utils/getUserFullDetail.js";
 import createToken from "../utils/createToken.js";
 import dotenv from 'dotenv';
-import { act } from "react";
 
 dotenv.config();
 
